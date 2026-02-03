@@ -4,6 +4,7 @@ import { DEFAULT_LINTER_CONFIG } from '../types.js';
 import { tokenize } from '../lexer/index.js';
 import { parse } from '../parser/index.js';
 import { rules } from './rules/index.js';
+import { parseDirectives, isRuleDisabled, type DirectiveState } from './directives.js';
 
 export interface ReportDescriptor {
   message: string;
@@ -17,6 +18,10 @@ export interface ReportDescriptor {
 export interface RuleContext {
   report(descriptor: ReportDescriptor): void;
   getSourceCode(): string;
+  /** Variables declared with @expects directive */
+  getExpectedVars(): Set<string>;
+  /** Variables declared with @returns directive */
+  getReturnedVars(): Set<string>;
 }
 
 export interface RuleVisitor {
@@ -54,6 +59,9 @@ export class Linter {
     this.messages = [];
     this.source = source;
 
+    // Parse directives (disable comments, @expects, @returns)
+    const directives = parseDirectives(source);
+
     // Tokenize
     const tokens = tokenize(source);
 
@@ -81,6 +89,8 @@ export class Linter {
           });
         },
         getSourceCode: () => source,
+        getExpectedVars: () => directives.expectedVars,
+        getReturnedVars: () => directives.returnedVars,
       };
 
       const visitor = rule.create(context);
@@ -88,6 +98,11 @@ export class Linter {
       // Visit the AST
       this.visitNode(ast, visitor);
     }
+
+    // Filter out messages for disabled lines
+    this.messages = this.messages.filter(
+      msg => !isRuleDisabled(directives, msg.line, msg.ruleId)
+    );
 
     // Sort messages by line and column
     this.messages.sort((a, b) => {
