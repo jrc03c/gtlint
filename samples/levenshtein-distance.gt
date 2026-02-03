@@ -1,0 +1,132 @@
+--------------------------------------------------------------------------------
+-- @jrc03c/string/levenshtein-distance
+--------------------------------------------------------------------------------
+-- url          : https://www.guidedtrack.com/programs/34164/edit
+-- tests        : https://www.guidedtrack.com/programs/34165/edit
+-- author       : Josh Castle (joshrcastle@gmail.com)
+-- all programs : https://github.com/jrc03c/misc-gt-programs
+--------------------------------------------------------------------------------
+-- ┌──────────────────────┬────────────────────────────────────────────────────┐
+-- │ INPUT 👉             │ DESCRIPTION                                        │
+-- ├──────────────────────┼────────────────────────────────────────────────────┤
+-- │ a*                   │ a string                                           │
+-- ├──────────────────────┼────────────────────────────────────────────────────┤
+-- │ b*                   │ a string                                           │
+-- └──────────────────────┴────────────────────────────────────────────────────┘
+-- * indicates a required input
+--------------------------------------------------------------------------------
+-- ┌──────────────────────┬────────────────────────────────────────────────────┐
+-- │ OUTPUT 👈            │ DESCRIPTION                                        │
+-- ├──────────────────────┼────────────────────────────────────────────────────┤
+-- │ levenshtein_distance │ an integer representing the Levenshtein distance   │
+-- │                      │ between `a` and `b`                                │
+-- └──────────────────────┴────────────────────────────────────────────────────┘
+--------------------------------------------------------------------------------
+-- Levenshtein distance (LD) is a measure of the "edit distance" between two
+-- strings. In other words, it represents the minimum number of edits
+-- (insertions, deletions, and substitutions) required to convert one string
+-- into another. Therefore, the LD can be thought of as a measure of the
+-- similarity of two strings, where lower LDs mean fewer edits and therefore
+-- greater similarity, and higher LDs mean more edits and therefore less
+-- similarity. Learn more about the Levenshtein distance here:
+-- https://en.wikipedia.org/wiki/Levenshtein_distance NOTE: This program is not
+-- fast, so please only use it for relatively short strings (e.g., a few dozen
+-- characters or shorter)!
+--------------------------------------------------------------------------------
+
+>> levenshtein_distance = 0
+>> error_is_fatal = "no"
+>> error_title = "@jrc03c/string/levenshtein-distance"
+
+*if: not a
+	>> error_message = "You must define a variable called `a` that has a string value!"
+	*program: @jrc03c/show-error
+	*goto: CleanUpLabel09942ae978a753812a947c8504cba7c5
+
+*if: not (a.type = "string")
+	>> error_message = "You must define a variable called `a` that has a string value!"
+	*program: @jrc03c/show-error
+	*goto: CleanUpLabel09942ae978a753812a947c8504cba7c5
+
+*if: not b
+	>> error_message = "You must define a variable called `b` that has a string value!"
+	*program: @jrc03c/show-error
+	*goto: CleanUpLabel09942ae978a753812a947c8504cba7c5
+
+*if: not (b.type = "string")
+	>> error_message = "You must define a variable called `b` that has a string value!"
+	*program: @jrc03c/show-error
+	*goto: CleanUpLabel09942ae978a753812a947c8504cba7c5
+
+>> m = a.size
+>> n = b.size
+
+*if: m = 0
+	>> levenshtein_distance = n
+	*goto: CleanUpLabel09942ae978a753812a947c8504cba7c5
+
+*if: n = 0
+	>> levenshtein_distance = m
+	*goto: CleanUpLabel09942ae978a753812a947c8504cba7c5
+
+>> v0 = []
+>> v1 = []
+>> i = 0
+
+*while: i < n + 1
+	>> v0.add(i)
+	>> v1.add(0)
+	>> i = i + 1
+	*wait: 0.seconds
+
+>> i = 1
+
+*while: i <= m
+	>> v1[1] = i + 1
+	>> j = 1
+
+	*while: j <= n
+		>> del_cost = v0[j + 1] + 1
+		>> ins_cost = v1[j] + 1
+		>> sub_cost = v0[j]
+
+		*if: not (a[i] = b[j])
+			>> sub_cost = sub_cost + 1
+
+		>> min = del_cost
+
+		*if: ins_cost < min
+			>> min = ins_cost
+
+		*if: sub_cost < min
+			>> min = sub_cost
+
+		>> v1[j + 1] = min
+		>> j = j + 1
+
+	>> buf = v0
+	>> v0 = v1
+	>> v1 = buf
+	>> i = i + 1
+	*wait: 0.seconds
+
+>> levenshtein_distance = v0[n + 1]
+
+-- clean up
+*label: CleanUpLabel09942ae978a753812a947c8504cba7c5
+>> a = ""
+>> b = ""
+>> buf = ""
+>> del_cost = ""
+>> error_is_fatal = ""
+>> error_message = ""
+>> error_title = ""
+>> i = ""
+>> ins_cost = ""
+>> j = ""
+>> m = ""
+>> min = ""
+>> n = ""
+>> sub_cost = ""
+>> v0 = ""
+>> v1 = ""

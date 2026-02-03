@@ -1,0 +1,525 @@
+--------------------------------------------------------------------------------
+-- 📡 SERVICES:
+--------------------------------------------------------------------------------
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : Beehiiv                                                     │
+-- │ URL         : https://api.beehiiv.com/v2                                  │
+-- │ HEADERS     :                                                             │
+-- │     - KEY   : Authorization                                               │
+-- │       VALUE : Bearer [BEEHIIV_API_KEY]                                    │
+-- └───────────────────────────────────────────────────────────────────────────┘
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : ct-programs-vercel-app                                      │
+-- │ URL         : https://ct-programs.vercel.app/api                          │
+-- │ HEADERS     :                                                             │
+-- │     - KEY   : SECRET_FROM_GUIDEDTRACK                                     │
+-- │       VALUE : [SECRET_FROM_GUIDEDTRACK]                                   │
+-- └───────────────────────────────────────────────────────────────────────────┘
+--------------------------------------------------------------------------------
+-- 👉 INPUTS:
+--------------------------------------------------------------------------------
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : currentProgramName                                          │
+-- │ REQUIRED    : yes 🚨                                                      │
+-- │ TYPE        : string                                                      │
+-- │ DESCRIPTION : the name of the Clearer Thinking tool                       │
+-- └───────────────────────────────────────────────────────────────────────────┘
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : theirEmail                                                  │
+-- │ REQUIRED    : yes 🚨                                                      │
+-- │ TYPE        : string                                                      │
+-- │ DESCRIPTION : the user's email address                                    │
+-- └───────────────────────────────────────────────────────────────────────────┘
+--------------------------------------------------------------------------------
+-- 👈 OUTPUTS:
+--------------------------------------------------------------------------------
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : subscriptionData                                            │
+-- │ TYPE        : association                                                 │
+-- │ DESCRIPTION : the user's Beehiiv subscription data                        │
+-- └───────────────────────────────────────────────────────────────────────────┘
+--------------------------------------------------------------------------------
+-- 📜 NOTES:
+--------------------------------------------------------------------------------
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ This program replaces "MailChimp - beta tester and user interview sign    │
+-- │ up" (https://www.guidedtrack.com/programs/7063) in all Clearer Thinking   │
+-- │ programs.                                                                 │
+-- │                                                                           │
+-- │ Note that the above program includes a section that invites users who     │
+-- │ are already beta testers to interview with a member of the Clearer        │
+-- │ Thinking team. This program does *not* include that invitation or its     │
+-- │ corresponding business logic. That's because the two "interest" IDs used  │
+-- │ in Mailchimp that represent accepting or declining an interview           │
+-- │ invitation no longer exist! According to Spencer, if CT decides to start  │
+-- │ running interviews again, then interview invitations and related          │
+-- │ business logic should be built from scratch in a new, separate program.   │
+-- │                                                                           │
+-- │ Feel free to reach out to Josh Castle (joshrcastle@gmail.com) with any    │
+-- │ questions or comments about this program or its sub-programs! 😊          │
+-- │                                                                           │
+-- │ 🚧🚧🚧                                                                    │
+-- │                                                                           │
+-- │ Note that this program is currently in a testing phase. Here are a few    │
+-- │ things to know about this phase that will *not* apply once the program    │
+-- │ has finally been pushed into production:                                  │
+-- │                                                                           │
+-- │ (1) During the testing phase, Mailchimp will act as the source of truth   │
+-- │ even though this program will communicate with both Mailchimp and         │
+-- │ Beehiiv. This means that when we fetch a user's mailing list profile to   │
+-- │ determine whether or not they've already accepted or declined a beta      │
+-- │ tester invitation, we *only* fetch and examine the Mailchimp profile.     │
+-- │ But at the end of the program, after the user responds to the beta        │
+-- │ tester invitation, we make calls to both Mailchimp and Beehiiv to update  │
+-- │ the user's profile. When testing is finished, all Mailchimp calls will    │
+-- │ be removed, and Beehiiv will become the source of truth.                  │
+-- │                                                                           │
+-- │ (2) This program's behavior is designed to mimic the behavior of the      │
+-- │ "MailChimp - beta tester and user interview sign up" (linked above)       │
+-- │ program, but it differs from the original in two significant ways.        │
+-- │ First, it has been refactored to disentangle the interactive bits from    │
+-- │ the business logic. Second, its source code lives in a separate           │
+-- │ GuidedTrack program (called "Clearer Thinking | Mailing List | Beta       │
+-- │ Tester Sign-Up" (https://www.guidedtrack.com/programs/35008)). During     │
+-- │ testing, we'll call this new program instead of the original program.     │
+-- │ Once testing has finished and we're ready to use this program in          │
+-- │ production, we'll replace all calls to the old program with calls to the  │
+-- │ new program. This change will need to be made across all relevant         │
+-- │ Clearer Thinking programs. At no point will we change the source code of  │
+-- │ the original Mailchimp-specific program.                                  │
+-- └───────────────────────────────────────────────────────────────────────────┘
+--------------------------------------------------------------------------------
+
+*if: invalidEmail
+	*if: invalidEmail = 1
+		*return
+*if: not theirEmail
+	*return
+*if: theirEmail.size <= 1
+	*return
+
+>> beta_list_id = "f2e9d15594"
+>> beta_list_name = "ClearerThinking.org"
+>> userIDBeta = ""
+>> userIsAlreadyBetaTester = 0
+>> alreadyDeclinedBetaTesterInvite = 0
+>> signedUpBetaTester = 0
+>> declinedBetaTesterInvite = 0
+>> wantsToKnowMore = 0
+
+>> beehiiv_publication_id = "pub_d0ed5a5f-0bca-4054-ab2c-73fd51707f71"
+>> beehiiv_beta_tester_accepted_field_name = "Beta Testers"
+>> beehiiv_beta_tester_declined_field_name = "Declined beta tester invite"
+
+>> errors = 0
+>> error_is_fatal = "no"
+>> error_message = ""
+>> error_title = "Clearer Thinking | Mailing List | Beta Tester Sign-Up"
+>> error_notification_recipients = ["joshrcastle@gmail.com"]
+
+*if: not userIsAlreadySubscribed
+	>> userIsAlreadySubscribed = 0
+
+--------------------------------------------------------------------------------
+-- Fetch the user's Mailchimp profile
+--------------------------------------------------------------------------------
+
+>> response = {}
+
+*service: mailchimp
+	*method: GET
+	*path: /search-members/?query={theirEmail}&list_id={beta_list_id}
+	*success
+		>> response = it
+
+		*if: "errors" in it
+			>> errors = 1
+
+		*if: "exact_matches" in it or "full_search" in it
+			>> members = []
+
+			*if: "full_search" in it
+				*if: "members" in it["full_search"]
+					*if: it["full_search"]["members"].size > 0
+						>> members = it["full_search"]["members"]
+
+			*if: "exact_matches" in it
+				*if: "members" in it["exact_matches"]
+					*if: it["exact_matches"]["members"].size > 0
+						>> members = it["exact_matches"]["members"]
+
+			*if: members.size >= 1
+				>> firstMatch = members[1]
+				>> theirEmailLower = theirEmail.lowercase
+				>> firstMatchEmailLower = firstMatch["email_address"].lowercase
+
+				*if: firstMatchEmailLower = theirEmailLower
+					>> userData = firstMatch
+
+	*error
+		>> errors = 1
+		>> response = it
+
+*if: errors = 1
+	>> html = ""
+	>> html = "{html}<details>"
+	>> html = "{html}<summary><b>MAILCHIMP REQUEST ERROR:</b></summary>"
+	>> html = "{html}<pre><code>{response.text}</code></pre>"
+	>> html = "{html}</details>"
+	>> error_message = html
+	*goto: BetaTesterErrorReportLabel
+
+*if: debug
+	>> html = ""
+	>> html = "{html}<details>"
+	>> html = "{html}<summary><b>MAILCHIMP RESPONSE:</b></summary>"
+	>> html = "{html}<pre><code>{response.text}</code></pre>"
+	>> html = "{html}</details>"
+	>> info_message = html
+	>> info_title = "Clearer Thinking | Mailing List | Beta Tester Sign-Up"
+	*program: @jrc03c/show-info
+	*button: Continue
+
+--------------------------------------------------------------------------------
+-- Based on the mailing list profile data, determine whether or not display the
+-- beta tester invitation to the user. It should only be displayed if they
+-- haven't previously seen (and accepted or declined) the invitation.
+--------------------------------------------------------------------------------
+
+*if: not userData
+	*goto: BetaTesterEndLabel
+
+*if: userData
+	>> userIsAlreadySubscribed = 1
+	>> userEmail = theirEmail
+	>> userIDBeta = ""
+	>> userStatusBeta = ""
+	>> userIsAlreadyBetaTester = 0
+	>> userTags = []
+
+	*if: "email_address" in userData
+		>> userEmail = userData["email_address"]
+
+	*if: "id" in userData
+		>> userIDBeta = userData["id"]
+
+	*if: "status" in userData
+		>> userStatusBeta = userData["status"]
+
+	*if: "interests" in userData
+		*if: userData["interests"]["5f19add046"]
+			>> alreadyDeclinedBetaTesterInvite = 1
+
+	*if: "tags" in userData
+		>> userTags = userData["tags"]
+
+		*if: userTags.size > 0
+			*for: i, tag in userTags
+				*if: tag["name"] = "beta_tester"
+					>> userIsAlreadyBetaTester = 1
+
+--------------------------------------------------------------------------------
+-- Display the beta tester invitation
+--------------------------------------------------------------------------------
+
+*if: userIsAlreadySubscribed = 0
+	*goto: BetaTesterEndLabel
+
+*if: alreadyDeclinedBetaTesterInvite = 1
+	*goto: BetaTesterEndLabel
+
+*if: userIsAlreadyBetaTester = 1
+	*goto: BetaTesterUpdateLabel
+
+*if: not mailchimpMergeFieldsPOST
+	>> mailchimpMergeFieldsPOST = {}
+
+*header: Become a Clearer Thinking beta tester!
+
+Joining our Beta Testers program is free, fast, and full of perks! 
+
+By joining our beta tester team, you'll be able to try our new tools and mini-courses long before they are released to the public and help shape their direction so that they're fun and useful for you as well as your friends and family. 
+
+*question: Would you like early access to new Clearer Thinking tools? 
+	Yes, sign me up as a beta tester!
+		>> signedUpBetaTester = 1 
+	I'm not sure... Can you tell me more?
+		>> wantsToKnowMore = 1
+	No thanks. 
+		>> declinedBetaTesterInvite = 1
+
+*if: wantsToKnowMore = 1
+	Sure!
+
+	Here's what you get:
+
+	*list
+		*Early access to our new programs.* Try things out weeks or even months before anyone else.
+		*Help shape and improve the material.* Give us feedback (brief blurbs on what you liked/disliked or a lengthy harangue on what you see as errors in judgement and rationality — your choice!) Your valuable advice will help us reshape the programs and make them even better before official public launch.
+		*Test just one program or test them all.* Your level of participation is completely up to you, and getting off our list is super easy.
+		*Improve society at large!* No really! Your feedback will help us improve other people's decision-making, including business and political leaders as our programs spread. Your comments will influence the experience of thousands of users, and may help make a lasting difference in the world.
+
+	*question: Would you like early access to new Clearer Thinking tools? 
+		Yes, sign me up as a beta tester!
+			>> signedUpBetaTester = 1 
+		No thanks.
+			>> declinedBetaTesterInvite = 1
+
+*goto: BetaTesterUpdateLabel
+
+--------------------------------------------------------------------------------
+-- Update the mailing list service(s)
+--------------------------------------------------------------------------------
+
+*label: BetaTesterUpdateLabel
+
+-- If the user accepted the beta tester invitation, then add a "beta_tester" tag
+-- to their profile in Mailchimp
+*if: signedUpBetaTester = 1
+	-- If the user is already a subscriber, then update their profile
+	*if: userIsAlreadySubscribed = 1
+		>> userTags.add({ "name" -> "beta_tester", "status" -> "active" })
+		>> dataToSend = {}
+		>> dataToSend["tags"] = userTags
+		>> response = {}
+
+		*service: mailchimp
+			*method: POST
+			*path: /lists/{beta_list_id}/members/{userIDBeta}/tags
+			*send: dataToSend
+			*success
+				>> response = it
+				*if: "errors" in it
+					>> errors = 1
+			*error
+				>> response = it
+				>> errors = 1
+
+	-- Otherwise, if the user is *not* already a subscriber, then add them as a
+	-- new subscriber (while also updating their profile)
+	*if: userIsAlreadySubscribed = 0
+		>> dataToSend = {}
+		>> dataToSend["email_address"] = theirEmail
+		>> dataToSend["status"] = "subscribed"
+		>> dataToSend["tags"] = ["beta_tester"]
+		>> response = {}
+
+		*service: mailchimp
+			*method: POST
+			*path: /lists/{beta_list_id}/members
+			*send: dataToSend
+			*success
+				>> response = it
+				*if: it["errors"]
+					>> errors = 1
+			*error
+				>> response = it
+				>> errors = 1
+
+	*if: errors = 1
+		>> html = ""
+		>> html = "{html}<details>"
+		>> html = "{html}<summary><b>MAILCHIMP REQUEST ERROR:</b></summary>"
+		>> html = "{html}<pre><code>{response.text}</code></pre>"
+		>> html = "{html}</details>"
+		>> error_message = html
+		*goto: BetaTesterErrorReportLabel
+
+	*if: debug
+		>> html = ""
+		>> html = "{html}<details>"
+		>> html = "{html}<summary><b>MAILCHIMP RESPONSE:</b></summary>"
+		>> html = "{html}<pre><code>{response.text}</code></pre>"
+		>> html = "{html}</details>"
+		>> info_message = html
+		>> info_title = "Clearer Thinking | Mailing List | Beta Tester Sign-Up"
+		*program: @jrc03c/show-info
+		*button: Continue
+
+	Thank you! We've added you as a beta tester!
+
+	*goto: BetaTesterBeehiivUpdateLabel
+
+-- If the user declined the beta tester invitation, then add the interest
+-- "5f19add046" to their profile in Mailchimp. Note that the PUT method used
+-- below creates the user's profile if it doesn't already exist.
+*if: declinedBetaTesterInvite = 1
+	>> dataToSend = {}
+	>> dataToSend["interests"] = {}
+	>> dataToSend["interests"]["5f19add046"] = "true".decode("JSON")
+	>> response = {}
+
+	*service: mailchimp
+		*method: PUT
+		*path: /lists/{beta_list_id}/members/{userIDBeta}
+		*send: dataToSend
+		*success
+			>> response = it
+			*if: it["errors"]
+				>> errors = 1
+		*error
+			>> response = it
+			>> errors = 1
+
+	*if: errors = 1
+		>> html = ""
+		>> html = "{html}<details>"
+		>> html = "{html}<summary><b>MAILCHIMP REQUEST ERROR:</b></summary>"
+		>> html = "{html}<pre><code>{response.text}</code></pre>"
+		>> html = "{html}</details>"
+		>> error_message = html
+		*goto: BetaTesterErrorReportLabel
+
+	*if: debug
+		>> html = ""
+		>> html = "{html}<details>"
+		>> html = "{html}<summary><b>MAILCHIMP RESPONSE:</b></summary>"
+		>> html = "{html}<pre><code>{response.text}</code></pre>"
+		>> html = "{html}</details>"
+		>> info_message = html
+		>> info_title = "Clearer Thinking | Mailing List | Beta Tester Sign-Up"
+		*program: @jrc03c/show-info
+		*button: Continue
+
+	No problem!
+
+	*goto: BetaTesterBeehiivUpdateLabel
+
+-- Create / update the user's profile in Beehiiv based on their responses 
+*label: BetaTesterBeehiivUpdateLabel
+
+>> bool_true = "true".decode("JSON")
+>> bool_false = "false".decode("JSON")
+>> email_address = theirEmail
+>> payload = {}
+>> payload["custom_fields"] = []
+
+>> field = {}
+>> field["name"] = beehiiv_beta_tester_accepted_field_name
+>> field["value"] = bool_false
+*if: userIsAlreadyBetaTester = 1 or signedUpBetaTester = 1
+	>> field["value"] = bool_true
+>> payload["custom_fields"].add(field)
+
+>> field = {}
+>> field["name"] = beehiiv_beta_tester_declined_field_name
+>> field["value"] = bool_false
+*if: alreadyDeclinedBetaTesterInvite = 1 or signedUpBetaTester = 0
+	>> field["value"] = bool_true
+>> payload["custom_fields"].add(field)
+
+*program: @jrc03c/beehiiv/create-subscription
+
+*if: not beehiiv_subscription
+	>> errors = 1
+	>> html = "<p>The following errors occurred:</p>"
+
+	*for: i, response in service_responses
+		>> html = "{html}<details>"
+		>> html = "{html}<summary><b>SERVICE RESPONSE #{i}:</b></summary>"
+		>> html = "{html}<pre><code>{response.text}</code></pre>"
+		>> html = "{html}</details>"
+
+	>> error_message = html
+	*goto: BetaTesterErrorReportLabel
+
+*if: debug
+	>> html = ""
+
+	*for: i, response in service_responses
+		>> html = "{html}<details>"
+		>> html = "{html}<summary><b>SERVICE RESPONSE #{i}:</b></summary>"
+		>> html = "{html}<pre><code>{response.text}</code></pre>"
+		>> html = "{html}</details>"
+
+	>> info_message = html
+	>> info_title = "Clearer Thinking | Mailing List | Beta Tester Sign-Up"
+	*program: @jrc03c/show-info
+	*button: Continue
+
+*if: beehiiv_subscription
+	>> subscriptionData = beehiiv_subscription
+
+--------------------------------------------------------------------------------
+-- Report errors
+--------------------------------------------------------------------------------
+
+*label: BetaTesterErrorReportLabel
+
+*if: errors = 1
+	>> warning_message = "Uh-oh! Something went wrong. 💥 Our developers have been notified and will hopefully fix the problem soon!"
+	>> warning_title = "Error"
+	*program: @jrc03c/show-warning
+
+	*if: debug
+		*program: @jrc03c/show-error
+
+	-- Send notification emails to interested parties
+	>> payload = {}
+	>> payload["to"] = error_notification_recipients
+	>> payload["subject"] = "Clearer Thinking | Mailing List | Beta Tester Sign-Up"
+	>> payload["html"]= error_message
+	>> response = {}
+
+	*service: ct-programs-vercel-app
+		*method: POST
+		*path: /utils/send-email-via-mailgun
+		*send: payload
+		*success
+			>> response = it
+		*error
+			>> response = it
+
+	*if: debug
+		>> html = ""
+		>> html = "{html}<details>"
+		>> html = "{html}<summary><b>CT-PROGRAMS-VERCEL-APP RESPONSE:</b></summary>"
+		>> html = "{html}<pre><code>{response.text}</code></pre>"
+		>> html = "{html}</details>"
+		>> warning_message = html
+		>> warning_title = "Clearer Thinking | Mailing List | Beta Tester Sign-Up"
+		*program: @jrc03c/show-warning
+		*button: Continue
+
+--------------------------------------------------------------------------------
+-- Clean up
+--------------------------------------------------------------------------------
+
+*label: BetaTesterEndLabel
+
+>> beehiiv_beta_tester_accepted_field_name = ""
+>> beehiiv_beta_tester_declined_field_name = ""
+>> beehiiv_publication_id = ""
+>> beehiiv_subscription = ""
+>> beta_list_id = ""
+>> beta_list_name = ""
+>> bool_false = ""
+>> bool_true = ""
+>> dataToSend = ""
+>> email_address = ""
+>> error_is_fatal = ""
+>> error_message = ""
+>> error_notification_recipients = ""
+>> error_title = ""
+>> errors = ""
+>> field = ""
+>> firstMatch = ""
+>> firstMatchEmailLower = ""
+>> html = ""
+>> i = ""
+>> info_message = ""
+>> info_title = ""
+>> members = ""
+>> payload = ""
+>> response = ""
+>> service_responses = ""
+>> tag = ""
+>> theirEmailLower = ""
+>> userData = ""
+>> userEmail = ""
+>> userIDBeta = ""
+>> userStatusBeta = ""
+>> userTags = ""
+>> wantsToKnowMore = ""
+>> warning_message = ""
+>> warning_title = ""

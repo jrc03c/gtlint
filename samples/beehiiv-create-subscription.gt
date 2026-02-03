@@ -1,0 +1,203 @@
+--------------------------------------------------------------------------------
+-- 📡 SERVICES:
+--------------------------------------------------------------------------------
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : Beehiiv                                                     │
+-- │ URL         : https://api.beehiiv.com/v2                                  │
+-- │ HEADERS     :                                                             │
+-- │     - KEY   : Authorization                                               │
+-- │       VALUE : Bearer [BEEHIIV_API_KEY]                                    │
+-- └───────────────────────────────────────────────────────────────────────────┘
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : ct-programs-vercel-app                                      │
+-- │ URL         : https://ct-programs.vercel.app/api                          │
+-- └───────────────────────────────────────────────────────────────────────────┘
+--------------------------------------------------------------------------------
+-- 👉 INPUTS:
+--------------------------------------------------------------------------------
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : beehiiv_publication_id                                      │
+-- │ REQUIRED    : yes 🚨                                                      │
+-- │ TYPE        : string                                                      │
+-- │ DESCRIPTION : the ID of the publication for which to create the new       │
+-- │               subscription                                                │
+-- └───────────────────────────────────────────────────────────────────────────┘
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : email_address                                               │
+-- │ REQUIRED    : yes 🚨                                                      │
+-- │ TYPE        : string                                                      │
+-- │ DESCRIPTION : the email address to use to create the new subscription     │
+-- └───────────────────────────────────────────────────────────────────────────┘
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : payload                                                     │
+-- │ REQUIRED    : no                                                          │
+-- │ TYPE        : association                                                 │
+-- │ DEFAULT     : {}                                                          │
+-- │ DESCRIPTION : the request body to be sent to Beehiiv; can include         │
+-- │               options like custom field values, tags, etc.; see the       │
+-- │               Beehiiv API documentation linked below for more info about  │
+-- │               the properties that can be included                         │
+-- └───────────────────────────────────────────────────────────────────────────┘
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : should_standardize_email_address                            │
+-- │ REQUIRED    : no                                                          │
+-- │ TYPE        : binary (0 or 1)                                             │
+-- │ DEFAULT     : 1                                                           │
+-- │ DESCRIPTION : whether or not to apply standard formatting rules to the    │
+-- │               email address (e.g., removing whitespace, converting to     │
+-- │               lower-case, etc.)                                           │
+-- └───────────────────────────────────────────────────────────────────────────┘
+--------------------------------------------------------------------------------
+-- 👈 OUTPUTS:
+--------------------------------------------------------------------------------
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : beehiiv_subscription                                        │
+-- │ TYPE        : association                                                 │
+-- │ DESCRIPTION : the new or updated Beehiiv subscription                     │
+-- └───────────────────────────────────────────────────────────────────────────┘
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : service_responses                                           │
+-- │ TYPE        : collection of associations                                  │
+-- │ DESCRIPTION : responses from service calls                                │
+-- └───────────────────────────────────────────────────────────────────────────┘
+--------------------------------------------------------------------------------
+-- 📜 NOTES:
+--------------------------------------------------------------------------------
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ Beehiiv's subscription creation API endpoint does not automatically       │
+-- │ reactivate inactive subscriptions. This behavior can be overridden and    │
+-- │ inactive accounts can be reactivated, however, by including a             │
+-- │ "reactivate_existing" property with a `true` value on the API request     │
+-- │ body. For the sake of simplicity and consistency, this program *does*     │
+-- │ include that property (with a `true` value) by default — though it will   │
+-- │ also respect the value of the property if it already exists on the        │
+-- │ `payload` association. In other words, to *avoid* reactivating an         │
+-- │ inactive subscription, set the "reactivate_existing" property on the      │
+-- │ `payload` association to a false-ish value (0, "no", or `false`) before   │
+-- │ calling this program.                                                     │
+-- │                                                                           │
+-- │ Please refer to the Beehiiv API documentation for this endpoint for more  │
+-- │ information:                                                              │
+-- │ https://developers.beehiiv.com/api-reference/subscriptions/create         │
+-- └───────────────────────────────────────────────────────────────────────────┘
+--------------------------------------------------------------------------------
+
+>> true = "true".decode("JSON")
+>> false = "false".decode("JSON")
+>> error_title = "@jrc03c/beehiiv/create-subscription"
+
+*if: not error_is_fatal
+	>> error_is_fatal = "no"
+
+*if: not beehiiv_publication_id
+	>> error_message = "You must define a variable called <code>beehiiv_publication_id</code> that has a string value representing the ID of the Beehiiv publication for which a new subscription will be created!"
+	*program: @jrc03c/show-error
+	*goto: a417726d1ac87675a43b9c2eead0b89b
+
+*if: not (beehiiv_publication_id.type = "string")
+	>> error_message = "You must define a variable called <code>beehiiv_publication_id</code> that has a string value representing the ID of the Beehiiv publication for which a new subscription will be created!"
+	*program: @jrc03c/show-error
+	*goto: a417726d1ac87675a43b9c2eead0b89b
+
+*if: not email_address
+	>> error_message = "You must define a variable called <code>email_address</code> that has a string value representing the email address to use to create the new subscription!"
+	*program: @jrc03c/show-error
+	*goto: a417726d1ac87675a43b9c2eead0b89b
+
+*if: not (email_address.type = "string")
+	>> error_message = "You must define a variable called <code>email_address</code> that has a string value representing the email address to use to create the new subscription!"
+	*program: @jrc03c/show-error
+	*goto: a417726d1ac87675a43b9c2eead0b89b
+
+*if: not service_responses
+	>> service_responses = []
+
+*if: not should_standardize_email_address
+	>> should_standardize_email_address = 1
+
+--------------------------------------------------------------------------------
+-- Standardize the email address
+--------------------------------------------------------------------------------
+
+*if: should_standardize_email_address = 1
+	*program: @jrc03c/email/standardize-email-address
+
+	*if: service_response
+		>> service_responses.add(service_response)
+
+	*if: email_address_standardized
+		>> email_address = email_address_standardized
+	
+	*if: not email_address_standardized
+		*goto: a417726d1ac87675a43b9c2eead0b89b
+
+--------------------------------------------------------------------------------
+-- Create the new subscription (or update the existing subscription)
+--------------------------------------------------------------------------------
+
+-- NOTE: This API call performs an "upsert" (i.e., an update or an insert). In
+-- other words, if a subscription already exists for the given email address,
+-- then it is updated; otherwise, a new subscription is created. Therefore, it
+-- is not necessary to check for the existence of a subscription before making
+-- this call.
+
+*if: not payload
+	>> payload = {}
+
+>> payload["email"] = email_address
+
+*if: "reactivate_existing" in payload
+	*if: payload["reactivate_existing"] = 0
+		>> payload["reactivate_existing"] = false
+
+	*if: payload["reactivate_existing"] = "no"
+		>> payload["reactivate_existing"] = false
+
+	*if: payload["reactivate_existing"] = 1
+		>> payload["reactivate_existing"] = true
+
+	*if: payload["reactivate_existing"] = "yes"
+		>> payload["reactivate_existing"] = true
+	
+*if: not ("reactivate_existing" in payload)
+	>> payload["reactivate_existing"] = true
+
+>> service_response = {}
+>> service_response["service"] = "Beehiiv"
+>> service_response["method"] = "POST"
+>> service_response["path"] = "/publications/{beehiiv_publication_id}/subscriptions"
+>> service_response["payload"] = payload
+>> temp = {}
+
+*service: Beehiiv
+	*method: POST
+	*path: /publications/{beehiiv_publication_id}/subscriptions
+	*send: payload
+	*success
+		>> beehiiv_subscription = it["data"]
+		>> temp = it
+	*error
+		>> temp = it
+
+*for: key in temp.keys
+	>> service_response[key] = temp[key]
+
+>> service_responses.add(service_response)
+
+--------------------------------------------------------------------------------
+-- Clean up
+--------------------------------------------------------------------------------
+
+*label: a417726d1ac87675a43b9c2eead0b89b
+
+>> email_address_standardized = ""
+>> error_is_fatal = ""
+>> error_message = ""
+>> error_title = ""
+>> false = ""
+>> key = ""
+>> payload = ""
+>> service_response = ""
+>> should_standardize_email_address = ""
+>> temp = ""
+>> true = ""
