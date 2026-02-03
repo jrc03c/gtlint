@@ -4,7 +4,8 @@ export type ASTNode =
   | Program
   | Statement
   | Expression
-  | SubKeyword;
+  | SubKeyword
+  | TextContent;
 
 export type Statement =
   | KeywordStatement

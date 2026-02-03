@@ -1,5 +1,5 @@
 import type { LintRule, RuleContext } from '../linter.js';
-import type { Program, Statement, Expression, KeywordStatement, SubKeyword } from '../../parser/ast.js';
+import type { Program, Statement, Expression, KeywordStatement, SubKeyword, TextContent } from '../../parser/ast.js';
 
 interface VarInfo {
   name: string;
@@ -29,7 +29,7 @@ export const noUnusedVars: LintRule = {
       }
     }
 
-    function collectDefinitions(node: Program | Statement | Expression | SubKeyword): void {
+    function collectDefinitions(node: Program | Statement | Expression | SubKeyword | TextContent): void {
       if (!node || typeof node !== 'object') return;
 
       if (node.type === 'Program') {
@@ -99,7 +99,7 @@ export const noUnusedVars: LintRule = {
       }
     }
 
-    function collectUsages(node: Program | Statement | Expression | SubKeyword): void {
+    function collectUsages(node: Program | Statement | Expression | SubKeyword | TextContent): void {
       if (!node || typeof node !== 'object') return;
 
       if (node.type === 'Program') {

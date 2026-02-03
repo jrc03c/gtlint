@@ -26,8 +26,8 @@ export type {
   ArrayExpression,
   ObjectExpression,
   TextContent,
-  SourceLocation,
 } from './parser/ast.js';
+export type { SourceLocation } from './types.js';
 
 // Linter exports
 export { Linter, lint } from './linter/index.js';

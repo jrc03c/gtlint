@@ -20,7 +20,7 @@ export interface RuleContext {
 }
 
 export interface RuleVisitor {
-  [nodeType: string]: (node: ASTNode) => void;
+  [nodeType: string]: (node: any) => void;
 }
 
 export interface LintRule {
