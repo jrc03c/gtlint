@@ -184,9 +184,11 @@ export const noUndefinedVars = {
                 collectDefinitions(node);
                 // Second pass: collect all variable usages
                 collectUsages(node);
+                // Get expected variables from @expects directive
+                const expectedVars = context.getExpectedVars();
                 // Report undefined variables
                 for (const usage of usedVars) {
-                    if (!definedVars.has(usage.name) && !builtins.has(usage.name)) {
+                    if (!definedVars.has(usage.name) && !builtins.has(usage.name) && !expectedVars.has(usage.name)) {
                         context.report({
                             message: `'${usage.name}' is not defined`,
                             line: usage.line,

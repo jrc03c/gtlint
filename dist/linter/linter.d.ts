@@ -10,6 +10,10 @@ export interface ReportDescriptor {
 export interface RuleContext {
     report(descriptor: ReportDescriptor): void;
     getSourceCode(): string;
+    /** Variables declared with @expects directive */
+    getExpectedVars(): Set<string>;
+    /** Variables declared with @returns directive */
+    getReturnedVars(): Set<string>;
 }
 export interface RuleVisitor {
     [nodeType: string]: (node: any) => void;

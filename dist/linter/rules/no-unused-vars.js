@@ -172,9 +172,11 @@ export const noUnusedVars = {
                 collectDefinitions(node);
                 // Second pass: collect all variable usages
                 collectUsages(node);
+                // Get returned variables from @returns directive
+                const returnedVars = context.getReturnedVars();
                 // Report unused variables
                 for (const [name, info] of definedVars) {
-                    if (info.usages === 0) {
+                    if (info.usages === 0 && !returnedVars.has(name)) {
                         context.report({
                             message: `'${name}' is defined but never used`,
                             line: info.line,
