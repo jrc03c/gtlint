@@ -28,7 +28,7 @@ export const noUnclosedString: LintRule = {
               break;
             }
 
-            if (!inString && (ch === '"' || ch === "'")) {
+            if (!inString && ch === '"') {
               inString = true;
               stringChar = ch;
               stringStart = j;

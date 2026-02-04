@@ -88,7 +88,7 @@ export class Lexer {
             return;
         }
         // Strings
-        if (ch === '"' || ch === "'") {
+        if (ch === '"') {
             this.scanString(ch);
             return;
         }
@@ -297,7 +297,7 @@ export class Lexer {
                 return;
             }
             // Strings
-            if (ch === '"' || ch === "'") {
+            if (ch === '"') {
                 this.scanString(ch);
                 continue;
             }

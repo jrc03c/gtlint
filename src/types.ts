@@ -70,6 +70,7 @@ export const DEFAULT_LINTER_CONFIG: LinterConfig = {
     'indent-style': 'error',
     'no-unclosed-string': 'error',
     'no-unclosed-bracket': 'error',
+    'no-single-quotes': 'error',
   },
   format: DEFAULT_FORMATTER_CONFIG,
   ignore: ['**/node_modules/**', '**/dist/**'],

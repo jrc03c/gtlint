@@ -6,6 +6,7 @@ import { noInvalidGoto } from './no-invalid-goto.js';
 import { indentStyle } from './indent-style.js';
 import { noUnclosedString } from './no-unclosed-string.js';
 import { noUnclosedBracket } from './no-unclosed-bracket.js';
+import { noSingleQuotes } from './no-single-quotes.js';
 export const rules = {
     'no-undefined-vars': noUndefinedVars,
     'no-unused-vars': noUnusedVars,
@@ -15,6 +16,7 @@ export const rules = {
     'indent-style': indentStyle,
     'no-unclosed-string': noUnclosedString,
     'no-unclosed-bracket': noUnclosedBracket,
+    'no-single-quotes': noSingleQuotes,
 };
 export function getRule(name) {
     return rules[name];

@@ -19,7 +19,7 @@ export const noUnclosedString = {
                         if (!inString && ch === '-' && line[j + 1] === '-') {
                             break;
                         }
-                        if (!inString && (ch === '"' || ch === "'")) {
+                        if (!inString && ch === '"') {
                             inString = true;
                             stringChar = ch;
                             stringStart = j;

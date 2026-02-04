@@ -76,14 +76,6 @@
           "patterns": [
             { "include": "#string-interpolation" }
           ]
-        },
-        {
-          "name": "string.quoted.single.guidedtrack",
-          "begin": "'",
-          "end": "'",
-          "patterns": [
-            { "include": "#string-interpolation" }
-          ]
         }
       ]
     },
