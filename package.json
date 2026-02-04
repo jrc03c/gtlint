@@ -11,6 +11,7 @@
   "scripts": {
     "build": "tsc && npm run build:vscode",
     "build:vscode": "cd vscode-extension && npm run build",
+    "package:vscode": "cd vscode-extension && npm run package",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "node bin/gtlint.js lint",

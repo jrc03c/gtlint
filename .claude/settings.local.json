@@ -24,7 +24,9 @@
       "Bash(npm run lint:*)",
       "Bash(npx gt-lint format:*)",
       "Bash(pnpm run test:*)",
-      "Bash(npx gtlint lint:*)"
+      "Bash(npx gtlint lint:*)",
+      "Bash(npm run package:*)",
+      "Bash(npx vsce package:*)"
     ]
   }
 }

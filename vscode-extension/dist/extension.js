@@ -41,7 +41,7 @@ var vscode = __toESM(require("vscode"));
 var path = __toESM(require("path"));
 var fs = __toESM(require("fs"));
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/lexer/tokens.js
+// ../dist/lexer/tokens.js
 var TokenType;
 (function(TokenType2) {
   TokenType2["NEWLINE"] = "NEWLINE";
@@ -202,7 +202,7 @@ var OPERATORS = /* @__PURE__ */ new Set([
   "in"
 ]);
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/lexer/lexer.js
+// ../dist/lexer/lexer.js
 var Lexer = class {
   source;
   pos = 0;
@@ -782,7 +782,7 @@ function tokenize(source) {
   return lexer.tokenize();
 }
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/parser/ast.js
+// ../dist/parser/ast.js
 function createProgram(body, loc) {
   return { type: "Program", body, loc };
 }
@@ -838,7 +838,7 @@ function createProperty(key, value, loc) {
   return { type: "Property", key, value, loc };
 }
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/parser/parser.js
+// ../dist/parser/parser.js
 var Parser = class {
   tokens = [];
   pos = 0;
@@ -1340,7 +1340,7 @@ function parse(tokens) {
   return parser.parse(tokens);
 }
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/types.js
+// ../dist/types.js
 var DEFAULT_FORMATTER_CONFIG = {
   blankLinesBetweenBlocks: 1,
   spaceAroundOperators: true,
@@ -1366,7 +1366,7 @@ var DEFAULT_LINTER_CONFIG = {
   ignore: ["**/node_modules/**", "**/dist/**"]
 };
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/rules/no-undefined-vars.js
+// ../dist/linter/rules/no-undefined-vars.js
 var noUndefinedVars = {
   name: "no-undefined-vars",
   description: "Disallow use of undefined variables",
@@ -1545,7 +1545,7 @@ var noUndefinedVars = {
   }
 };
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/rules/no-unused-vars.js
+// ../dist/linter/rules/no-unused-vars.js
 var noUnusedVars = {
   name: "no-unused-vars",
   description: "Warn about variables that are never used",
@@ -1710,7 +1710,7 @@ var noUnusedVars = {
   }
 };
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/rules/valid-keyword.js
+// ../dist/linter/rules/valid-keyword.js
 var validKeyword = {
   name: "valid-keyword",
   description: "Ensure keywords are valid GuidedTrack keywords",
@@ -1750,7 +1750,7 @@ var validKeyword = {
   }
 };
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/rules/valid-sub-keyword.js
+// ../dist/linter/rules/valid-sub-keyword.js
 var KEYWORD_SUB_KEYWORDS = {
   audio: /* @__PURE__ */ new Set(["start", "hide"]),
   chart: /* @__PURE__ */ new Set(["type", "data", "xaxis", "yaxis", "trendline", "min", "max"]),
@@ -1853,7 +1853,7 @@ var validSubKeyword = {
   }
 };
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/rules/no-invalid-goto.js
+// ../dist/linter/rules/no-invalid-goto.js
 var noInvalidGoto = {
   name: "no-invalid-goto",
   description: "Ensure *goto targets exist",
@@ -1935,7 +1935,7 @@ var noInvalidGoto = {
   }
 };
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/rules/indent-style.js
+// ../dist/linter/rules/indent-style.js
 var indentStyle = {
   name: "indent-style",
   description: "Enforce tabs for indentation",
@@ -1984,7 +1984,7 @@ function getLineOffset(lines, lineIndex) {
   return offset;
 }
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/rules/no-unclosed-string.js
+// ../dist/linter/rules/no-unclosed-string.js
 var noUnclosedString = {
   name: "no-unclosed-string",
   description: "Detect unclosed string literals",
@@ -2030,7 +2030,7 @@ var noUnclosedString = {
   }
 };
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/rules/no-unclosed-bracket.js
+// ../dist/linter/rules/no-unclosed-bracket.js
 var noUnclosedBracket = {
   name: "no-unclosed-bracket",
   description: "Detect unclosed brackets/braces",
@@ -2109,7 +2109,7 @@ var noUnclosedBracket = {
   }
 };
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/rules/no-single-quotes.js
+// ../dist/linter/rules/no-single-quotes.js
 var noSingleQuotes = {
   name: "no-single-quotes",
   description: "Disallow single quotes for strings (use double quotes)",
@@ -2175,7 +2175,7 @@ function checkStringForSingleQuotes(text, lineNumber, startCol, context) {
   }
 }
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/rules/no-unreachable-code.js
+// ../dist/linter/rules/no-unreachable-code.js
 function evaluateConstantExpression(expr) {
   if (expr.type === "Identifier") {
     if (expr.name === "true") {
@@ -2353,7 +2353,7 @@ var noUnreachableCode = {
   }
 };
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/rules/index.js
+// ../dist/linter/rules/index.js
 var rules = {
   "no-undefined-vars": noUndefinedVars,
   "no-unused-vars": noUnusedVars,
@@ -2367,7 +2367,7 @@ var rules = {
   "no-unreachable-code": noUnreachableCode
 };
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/directives.js
+// ../dist/linter/directives.js
 function parseDirectives(source) {
   const lines = source.split("\n");
   const state = {
@@ -2507,7 +2507,7 @@ function isRuleDisabled(state, line, ruleId) {
   return disabled.has(ruleId);
 }
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/linter.js
+// ../dist/linter/linter.js
 var Linter = class {
   config;
   messages = [];
@@ -2679,7 +2679,7 @@ var Linter = class {
   }
 };
 
-// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/formatter/formatter.js
+// ../dist/formatter/formatter.js
 var Formatter = class {
   config;
   constructor(config = {}) {
