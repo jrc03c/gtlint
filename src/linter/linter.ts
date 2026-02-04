@@ -18,10 +18,14 @@ export interface ReportDescriptor {
 export interface RuleContext {
   report(descriptor: ReportDescriptor): void;
   getSourceCode(): string;
-  /** Variables declared with @expects directive */
-  getExpectedVars(): Set<string>;
-  /** Variables declared with @returns directive */
-  getReturnedVars(): Set<string>;
+  /** Variables received from parent program (@from-parent) */
+  getFromParentVars(): Set<string>;
+  /** Variables received from child program (@from-child) */
+  getFromChildVars(): Set<string>;
+  /** Variables sent to parent program (@to-parent) */
+  getToParentVars(): Set<string>;
+  /** Variables sent to child program (@to-child) */
+  getToChildVars(): Set<string>;
 }
 
 export interface RuleVisitor {
@@ -59,7 +63,7 @@ export class Linter {
     this.messages = [];
     this.source = source;
 
-    // Parse directives (disable comments, @expects, @returns)
+    // Parse directives (disable comments, @from-parent, @from-child, @to-parent, @to-child)
     const directives = parseDirectives(source);
 
     // Tokenize
@@ -89,8 +93,10 @@ export class Linter {
           });
         },
         getSourceCode: () => source,
-        getExpectedVars: () => directives.expectedVars,
-        getReturnedVars: () => directives.returnedVars,
+        getFromParentVars: () => directives.fromParentVars,
+        getFromChildVars: () => directives.fromChildVars,
+        getToParentVars: () => directives.toParentVars,
+        getToChildVars: () => directives.toChildVars,
       };
 
       const visitor = rule.create(context);

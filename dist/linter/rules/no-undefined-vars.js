@@ -184,11 +184,20 @@ export const noUndefinedVars = {
                 collectDefinitions(node);
                 // Second pass: collect all variable usages
                 collectUsages(node);
-                // Get expected variables from @expects directive
-                const expectedVars = context.getExpectedVars();
+                // Get variables from directives
+                const fromParentVars = context.getFromParentVars();
+                const fromChildVars = context.getFromChildVars();
                 // Report undefined variables
                 for (const usage of usedVars) {
-                    if (!definedVars.has(usage.name) && !builtins.has(usage.name) && !expectedVars.has(usage.name)) {
+                    // A variable is considered defined if:
+                    // - It's defined in this program
+                    // - It's a built-in
+                    // - It comes from parent (@from-parent)
+                    // - It comes from child (@from-child)
+                    if (!definedVars.has(usage.name) &&
+                        !builtins.has(usage.name) &&
+                        !fromParentVars.has(usage.name) &&
+                        !fromChildVars.has(usage.name)) {
                         context.report({
                             message: `'${usage.name}' is not defined`,
                             line: usage.line,

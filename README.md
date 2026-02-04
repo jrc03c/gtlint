@@ -168,33 +168,62 @@ You can disable rules for specific lines or sections using inline comments:
 
 ## Declaring Program APIs
 
-GuidedTrack programs designed to be called as sub-programs often expect to receive certain global variables as inputs and return certain global variables as outputs. Use API directives to declare these variables and suppress false warnings:
+GuidedTrack programs often call other programs as sub-programs, passing variables between parent and child programs through global scope. Use API directives to document these variable flows and suppress false warnings.
+
+### Child Program Perspective
+
+When writing a **child program** (one that will be called by a parent), use `@from-parent` and `@to-parent`:
 
 ```
--- @expects: user_id, session_token
--- @returns: result_status, error_message
+-- @from-parent: email_address
+-- @to-parent: was_added
 
->> result_status = "success"
+>> was_added = "no"
 
-*if: user_id
-	>> result_status = "authenticated"
-*else
-	>> result_status = "failed"
-	>> error_message = "User ID not provided"
+*if: not email_address
+	ERROR: You must define a variable called email_address!
+	*quit
+
+*service: Mailing List Service
+	*method: POST
+	*path: /subscribe
+	*send: { "email_address" -> email_address }
+	*success
+		>> was_added = "yes"
 ```
 
-**API directive comments:**
+### Parent Program Perspective
 
-- `-- @expects: var1, var2, ...` - Declare variables expected as inputs from parent program (suppresses `no-undefined-vars`)
-- `-- @returns: var1, var2, ...` - Declare variables returned as outputs to parent program (suppresses `no-unused-vars`)
-
-You can use multiple `@expects` or `@returns` directives if needed:
+When writing a **parent program** that calls a child, use `@to-child` and `@from-child`:
 
 ```
--- @expects: input1, input2
--- @expects: input3
--- @returns: output1
--- @returns: output2, output3
+-- @to-child: email_address
+-- @from-child: was_added
+
+>> email_address = "someone@example.com"
+*program: Add Email Address to Mailing List
+
+*if: was_added = "yes"
+	We added you to our mailing list!
+```
+
+### API Directive Reference
+
+**From child program's perspective:**
+- `-- @from-parent: var1, var2, ...` - Variables received from parent program (suppresses `no-undefined-vars`)
+- `-- @to-parent: var1, var2, ...` - Variables returned to parent program (suppresses `no-unused-vars`)
+
+**From parent program's perspective:**
+- `-- @to-child: var1, var2, ...` - Variables sent to child program (suppresses `no-unused-vars`)
+- `-- @from-child: var1, var2, ...` - Variables received from child program (suppresses `no-undefined-vars`)
+
+You can use multiple directives of the same type if needed:
+
+```
+-- @from-parent: input1, input2
+-- @from-parent: input3
+-- @to-parent: output1
+-- @to-parent: output2, output3
 ```
 
 ## Formatter Options

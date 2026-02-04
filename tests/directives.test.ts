@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseDirectives, isRuleDisabled, isExpectedVar, isReturnedVar } from '../src/linter/directives.js';
+import { parseDirectives, isRuleDisabled, isFromParentVar, isFromChildVar, isToParentVar, isToChildVar } from '../src/linter/directives.js';
 import { Linter } from '../src/linter/linter.js';
 
 describe('Directives Parser', () => {
@@ -101,38 +101,61 @@ describe('Directives Parser', () => {
     });
   });
 
-  describe('@expects directive', () => {
-    it('should parse expected variables', () => {
-      const source = `-- @expects: inputVar1, inputVar2
+  describe('@from-parent directive', () => {
+    it('should parse variables from parent', () => {
+      const source = `-- @from-parent: inputVar1, inputVar2
 *if: inputVar1 > 0`;
       const state = parseDirectives(source);
 
-      expect(isExpectedVar(state, 'inputVar1')).toBe(true);
-      expect(isExpectedVar(state, 'inputVar2')).toBe(true);
-      expect(isExpectedVar(state, 'otherVar')).toBe(false);
+      expect(isFromParentVar(state, 'inputVar1')).toBe(true);
+      expect(isFromParentVar(state, 'inputVar2')).toBe(true);
+      expect(isFromParentVar(state, 'otherVar')).toBe(false);
     });
 
-    it('should handle multiple @expects directives', () => {
-      const source = `-- @expects: var1
--- @expects: var2, var3`;
+    it('should handle multiple @from-parent directives', () => {
+      const source = `-- @from-parent: var1
+-- @from-parent: var2, var3`;
       const state = parseDirectives(source);
 
-      expect(isExpectedVar(state, 'var1')).toBe(true);
-      expect(isExpectedVar(state, 'var2')).toBe(true);
-      expect(isExpectedVar(state, 'var3')).toBe(true);
+      expect(isFromParentVar(state, 'var1')).toBe(true);
+      expect(isFromParentVar(state, 'var2')).toBe(true);
+      expect(isFromParentVar(state, 'var3')).toBe(true);
     });
   });
 
-  describe('@returns directive', () => {
-    it('should parse returned variables', () => {
-      const source = `-- @returns: outputVar1, outputVar2
-*set: outputVar1
-outputVar1 = 42`;
+  describe('@from-child directive', () => {
+    it('should parse variables from child', () => {
+      const source = `-- @from-child: result, status
+*if: result = "success"`;
       const state = parseDirectives(source);
 
-      expect(isReturnedVar(state, 'outputVar1')).toBe(true);
-      expect(isReturnedVar(state, 'outputVar2')).toBe(true);
-      expect(isReturnedVar(state, 'otherVar')).toBe(false);
+      expect(isFromChildVar(state, 'result')).toBe(true);
+      expect(isFromChildVar(state, 'status')).toBe(true);
+      expect(isFromChildVar(state, 'otherVar')).toBe(false);
+    });
+  });
+
+  describe('@to-parent directive', () => {
+    it('should parse variables sent to parent', () => {
+      const source = `-- @to-parent: outputVar1, outputVar2
+>> outputVar1 = 42`;
+      const state = parseDirectives(source);
+
+      expect(isToParentVar(state, 'outputVar1')).toBe(true);
+      expect(isToParentVar(state, 'outputVar2')).toBe(true);
+      expect(isToParentVar(state, 'otherVar')).toBe(false);
+    });
+  });
+
+  describe('@to-child directive', () => {
+    it('should parse variables sent to child', () => {
+      const source = `-- @to-child: email_address, user_id
+>> email_address = "test@example.com"`;
+      const state = parseDirectives(source);
+
+      expect(isToChildVar(state, 'email_address')).toBe(true);
+      expect(isToChildVar(state, 'user_id')).toBe(true);
+      expect(isToChildVar(state, 'otherVar')).toBe(false);
     });
   });
 });
@@ -182,10 +205,10 @@ describe('Linter with Directives', () => {
     });
   });
 
-  describe('@expects directive', () => {
-    it('should suppress no-undefined-vars for expected variables', () => {
+  describe('@from-parent directive', () => {
+    it('should suppress no-undefined-vars for variables from parent', () => {
       const linter = new Linter();
-      const source = `-- @expects: inputVar
+      const source = `-- @from-parent: inputVar
 >> x = inputVar`;
       const result = linter.lint(source);
 
@@ -199,7 +222,7 @@ describe('Linter with Directives', () => {
 
     it('should still report truly undefined variables', () => {
       const linter = new Linter();
-      const source = `-- @expects: inputVar
+      const source = `-- @from-parent: inputVar
 >> x = otherVar`;
       const result = linter.lint(source);
 
@@ -212,10 +235,27 @@ describe('Linter with Directives', () => {
     });
   });
 
-  describe('@returns directive', () => {
-    it('should suppress no-unused-vars for returned variables', () => {
+  describe('@from-child directive', () => {
+    it('should suppress no-undefined-vars for variables from child', () => {
       const linter = new Linter();
-      const source = `-- @returns: outputVar
+      const source = `-- @from-child: was_added
+*if: was_added = "yes"
+	Success!`;
+      const result = linter.lint(source);
+
+      // was_added should not be reported as undefined
+      const undefinedMessages = result.messages.filter(
+        m => m.ruleId === 'no-undefined-vars' && m.message.includes('was_added')
+      );
+
+      expect(undefinedMessages).toHaveLength(0);
+    });
+  });
+
+  describe('@to-parent directive', () => {
+    it('should suppress no-unused-vars for variables sent to parent', () => {
+      const linter = new Linter();
+      const source = `-- @to-parent: outputVar
 >> outputVar = 42`;
       const result = linter.lint(source);
 
@@ -229,7 +269,7 @@ describe('Linter with Directives', () => {
 
     it('should still report truly unused variables', () => {
       const linter = new Linter();
-      const source = `-- @returns: outputVar
+      const source = `-- @to-parent: outputVar
 >> outputVar = 42
 >> otherVar = 10`;
       const result = linter.lint(source);
@@ -243,15 +283,48 @@ describe('Linter with Directives', () => {
     });
   });
 
-  describe('combined directives', () => {
-    it('should handle @expects and @returns together', () => {
+  describe('@to-child directive', () => {
+    it('should suppress no-unused-vars for variables sent to child', () => {
       const linter = new Linter();
-      const source = `-- @expects: inputVar
--- @returns: outputVar
->> outputVar = inputVar * 2`;
+      const source = `-- @to-child: email_address
+>> email_address = "test@example.com"
+*program: Add Email`;
       const result = linter.lint(source);
 
-      // Both inputVar (undefined) and outputVar (unused) should be suppressed
+      // email_address should not be reported as unused
+      const unusedMessages = result.messages.filter(
+        m => m.ruleId === 'no-unused-vars' && m.message.includes('email_address')
+      );
+
+      expect(unusedMessages).toHaveLength(0);
+    });
+  });
+
+  describe('combined directives', () => {
+    it('should handle parent program with @to-child and @from-child', () => {
+      const linter = new Linter();
+      const source = `-- @to-child: email_address
+-- @from-child: was_added
+>> email_address = "someone@example.com"
+*program: Add Email Address to Mailing List
+*if: was_added = "yes"
+	We added you to our mailing list!`;
+      const result = linter.lint(source);
+
+      // Both email_address (unused) and was_added (undefined) should be suppressed
+      expect(result.messages).toHaveLength(0);
+    });
+
+    it('should handle child program with @from-parent and @to-parent', () => {
+      const linter = new Linter();
+      const source = `-- @from-parent: email_address
+-- @to-parent: was_added
+>> was_added = "no"
+*if: email_address
+	>> was_added = "yes"`;
+      const result = linter.lint(source);
+
+      // Both email_address (undefined) and was_added (unused) should be suppressed
       expect(result.messages).toHaveLength(0);
     });
   });

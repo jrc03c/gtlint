@@ -179,12 +179,19 @@ export const noUnusedVars: LintRule = {
         // Second pass: collect all variable usages
         collectUsages(node);
 
-        // Get returned variables from @returns directive
-        const returnedVars = context.getReturnedVars();
+        // Get variables from directives
+        const toParentVars = context.getToParentVars();
+        const toChildVars = context.getToChildVars();
 
         // Report unused variables
         for (const [name, info] of definedVars) {
-          if (info.usages === 0 && !returnedVars.has(name)) {
+          // A variable is considered used if:
+          // - It's used within this program
+          // - It's sent to parent (@to-parent)
+          // - It's sent to child (@to-child)
+          if (info.usages === 0 &&
+              !toParentVars.has(name) &&
+              !toChildVars.has(name)) {
             context.report({
               message: `'${name}' is defined but never used`,
               line: info.line,

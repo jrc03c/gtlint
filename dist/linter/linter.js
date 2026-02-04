@@ -24,7 +24,7 @@ export class Linter {
     lint(source, filePath = '<unknown>') {
         this.messages = [];
         this.source = source;
-        // Parse directives (disable comments, @expects, @returns)
+        // Parse directives (disable comments, @from-parent, @from-child, @to-parent, @to-child)
         const directives = parseDirectives(source);
         // Tokenize
         const tokens = tokenize(source);
@@ -51,8 +51,10 @@ export class Linter {
                     });
                 },
                 getSourceCode: () => source,
-                getExpectedVars: () => directives.expectedVars,
-                getReturnedVars: () => directives.returnedVars,
+                getFromParentVars: () => directives.fromParentVars,
+                getFromChildVars: () => directives.fromChildVars,
+                getToParentVars: () => directives.toParentVars,
+                getToChildVars: () => directives.toChildVars,
             };
             const visitor = rule.create(context);
             // Visit the AST

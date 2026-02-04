@@ -8,15 +8,19 @@
  * - `-- gtlint-enable rule1` - Re-enable specific rule
  * - `-- gtlint-disable-next-line` - Disable all rules for next line
  * - `-- gtlint-disable-next-line rule1, rule2` - Disable specific rules for next line
- * - `-- @expects: var1, var2` - Declare expected input variables (suppresses no-undefined-vars)
- * - `-- @returns: var1, var2` - Declare returned output variables (suppresses no-unused-vars)
+ * - `-- @from-parent: var1, var2` - Variables received from parent program (suppresses no-undefined-vars)
+ * - `-- @from-child: var1, var2` - Variables received from child program (suppresses no-undefined-vars)
+ * - `-- @to-parent: var1, var2` - Variables sent to parent program (suppresses no-unused-vars)
+ * - `-- @to-child: var1, var2` - Variables sent to child program (suppresses no-unused-vars)
  */
 export function parseDirectives(source) {
     const lines = source.split('\n');
     const state = {
         disabledLines: new Map(),
-        expectedVars: new Set(),
-        returnedVars: new Set(),
+        fromParentVars: new Set(),
+        fromChildVars: new Set(),
+        toParentVars: new Set(),
+        toChildVars: new Set(),
     };
     // Track active disable regions
     // Key: 'all' or rule name, Value: start line
@@ -90,21 +94,39 @@ export function parseDirectives(source) {
             }
             continue;
         }
-        // Parse @expects
-        if (commentContent.startsWith('@expects:')) {
-            const varsStr = commentContent.slice('@expects:'.length).trim();
+        // Parse @from-parent
+        if (commentContent.startsWith('@from-parent:')) {
+            const varsStr = commentContent.slice('@from-parent:'.length).trim();
             const vars = parseVarList(varsStr);
             for (const v of vars) {
-                state.expectedVars.add(v);
+                state.fromParentVars.add(v);
             }
             continue;
         }
-        // Parse @returns
-        if (commentContent.startsWith('@returns:')) {
-            const varsStr = commentContent.slice('@returns:'.length).trim();
+        // Parse @from-child
+        if (commentContent.startsWith('@from-child:')) {
+            const varsStr = commentContent.slice('@from-child:'.length).trim();
             const vars = parseVarList(varsStr);
             for (const v of vars) {
-                state.returnedVars.add(v);
+                state.fromChildVars.add(v);
+            }
+            continue;
+        }
+        // Parse @to-parent
+        if (commentContent.startsWith('@to-parent:')) {
+            const varsStr = commentContent.slice('@to-parent:'.length).trim();
+            const vars = parseVarList(varsStr);
+            for (const v of vars) {
+                state.toParentVars.add(v);
+            }
+            continue;
+        }
+        // Parse @to-child
+        if (commentContent.startsWith('@to-child:')) {
+            const varsStr = commentContent.slice('@to-child:'.length).trim();
+            const vars = parseVarList(varsStr);
+            for (const v of vars) {
+                state.toChildVars.add(v);
             }
             continue;
         }
@@ -163,15 +185,27 @@ export function isRuleDisabled(state, line, ruleId) {
     return disabled.has(ruleId);
 }
 /**
- * Check if a variable is declared as expected input.
+ * Check if a variable is received from parent program.
  */
-export function isExpectedVar(state, varName) {
-    return state.expectedVars.has(varName);
+export function isFromParentVar(state, varName) {
+    return state.fromParentVars.has(varName);
 }
 /**
- * Check if a variable is declared as returned output.
+ * Check if a variable is received from child program.
  */
-export function isReturnedVar(state, varName) {
-    return state.returnedVars.has(varName);
+export function isFromChildVar(state, varName) {
+    return state.fromChildVars.has(varName);
+}
+/**
+ * Check if a variable is sent to parent program.
+ */
+export function isToParentVar(state, varName) {
+    return state.toParentVars.has(varName);
+}
+/**
+ * Check if a variable is sent to child program.
+ */
+export function isToChildVar(state, varName) {
+    return state.toChildVars.has(varName);
 }
 //# sourceMappingURL=directives.js.map

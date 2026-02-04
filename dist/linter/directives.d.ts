@@ -8,16 +8,22 @@
  * - `-- gtlint-enable rule1` - Re-enable specific rule
  * - `-- gtlint-disable-next-line` - Disable all rules for next line
  * - `-- gtlint-disable-next-line rule1, rule2` - Disable specific rules for next line
- * - `-- @expects: var1, var2` - Declare expected input variables (suppresses no-undefined-vars)
- * - `-- @returns: var1, var2` - Declare returned output variables (suppresses no-unused-vars)
+ * - `-- @from-parent: var1, var2` - Variables received from parent program (suppresses no-undefined-vars)
+ * - `-- @from-child: var1, var2` - Variables received from child program (suppresses no-undefined-vars)
+ * - `-- @to-parent: var1, var2` - Variables sent to parent program (suppresses no-unused-vars)
+ * - `-- @to-child: var1, var2` - Variables sent to child program (suppresses no-unused-vars)
  */
 export interface DirectiveState {
     /** Map of line number to set of disabled rule names (empty set = all rules disabled) */
     disabledLines: Map<number, Set<string> | 'all'>;
-    /** Variables declared as expected inputs */
-    expectedVars: Set<string>;
-    /** Variables declared as returned outputs */
-    returnedVars: Set<string>;
+    /** Variables received from parent program */
+    fromParentVars: Set<string>;
+    /** Variables received from child program */
+    fromChildVars: Set<string>;
+    /** Variables sent to parent program */
+    toParentVars: Set<string>;
+    /** Variables sent to child program */
+    toChildVars: Set<string>;
 }
 export declare function parseDirectives(source: string): DirectiveState;
 /**
@@ -25,11 +31,19 @@ export declare function parseDirectives(source: string): DirectiveState;
  */
 export declare function isRuleDisabled(state: DirectiveState, line: number, ruleId: string): boolean;
 /**
- * Check if a variable is declared as expected input.
+ * Check if a variable is received from parent program.
  */
-export declare function isExpectedVar(state: DirectiveState, varName: string): boolean;
+export declare function isFromParentVar(state: DirectiveState, varName: string): boolean;
 /**
- * Check if a variable is declared as returned output.
+ * Check if a variable is received from child program.
  */
-export declare function isReturnedVar(state: DirectiveState, varName: string): boolean;
+export declare function isFromChildVar(state: DirectiveState, varName: string): boolean;
+/**
+ * Check if a variable is sent to parent program.
+ */
+export declare function isToParentVar(state: DirectiveState, varName: string): boolean;
+/**
+ * Check if a variable is sent to child program.
+ */
+export declare function isToChildVar(state: DirectiveState, varName: string): boolean;
 //# sourceMappingURL=directives.d.ts.map
