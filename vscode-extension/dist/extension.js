@@ -1277,10 +1277,23 @@ var Parser = class {
    * This is used for keywords like *if:, *while:, etc. that expect expressions
    * but initially receive TEXT tokens from the lexer.
    */
-  parseTextAsExpression(text, _originalToken) {
+  parseTextAsExpression(text, originalToken) {
     const exprSource = `>> ${text}`;
     const allTokens = tokenize(exprSource);
-    const exprTokens = allTokens.filter((t) => t.type !== TokenType.EXPRESSION_START && t.type !== TokenType.EOF);
+    const exprTokens = allTokens.filter((t) => t.type !== TokenType.EXPRESSION_START && t.type !== TokenType.EOF).map((t) => {
+      const colOffset = originalToken.column - 4;
+      const lineOffset = originalToken.line - 1;
+      return {
+        ...t,
+        line: t.line + lineOffset,
+        endLine: t.endLine + lineOffset,
+        column: t.column + colOffset,
+        endColumn: t.endColumn + colOffset,
+        offset: originalToken.offset + (t.offset - 3),
+        // -3 for ">> "
+        endOffset: originalToken.offset + (t.endOffset - 3)
+      };
+    });
     const savedTokens = this.tokens;
     const savedPos = this.pos;
     this.tokens = exprTokens;

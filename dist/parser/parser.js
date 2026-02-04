@@ -490,13 +490,30 @@ export class Parser {
      * This is used for keywords like *if:, *while:, etc. that expect expressions
      * but initially receive TEXT tokens from the lexer.
      */
-    parseTextAsExpression(text, _originalToken) {
+    parseTextAsExpression(text, originalToken) {
         // Prepend >> to make the lexer treat it as an expression
         const exprSource = `>> ${text}`;
         // Re-tokenize the text as an expression
         const allTokens = tokenize(exprSource);
-        // Skip EXPRESSION_START token and EOF token
-        const exprTokens = allTokens.filter((t) => t.type !== TokenType.EXPRESSION_START && t.type !== TokenType.EOF);
+        // Skip EXPRESSION_START token and EOF token, and adjust positions
+        const exprTokens = allTokens
+            .filter((t) => t.type !== TokenType.EXPRESSION_START && t.type !== TokenType.EOF)
+            .map((t) => {
+            // Adjust token positions to match the original source location
+            // The re-tokenized text starts at line 1, col 4 (after ">> ")
+            // We need to map it to originalToken's position
+            const colOffset = originalToken.column - 4; // -4 because of ">> " prefix
+            const lineOffset = originalToken.line - 1;
+            return {
+                ...t,
+                line: t.line + lineOffset,
+                endLine: t.endLine + lineOffset,
+                column: t.column + colOffset,
+                endColumn: t.endColumn + colOffset,
+                offset: originalToken.offset + (t.offset - 3), // -3 for ">> "
+                endOffset: originalToken.offset + (t.endOffset - 3),
+            };
+        });
         // Store current parser state
         const savedTokens = this.tokens;
         const savedPos = this.pos;
