@@ -1,0 +1,52 @@
+-- Examples of unreachable code detection
+
+-- Example 1: Direct constant comparison (DETECTED)
+*if: 5 > 10
+	This is definitely unreachable!
+
+-- Example 2: Numeric comparisons (DETECTED)
+*if: 0 > 5
+	Unreachable
+
+*if: 10 < 5
+	Also unreachable
+
+-- Example 3: Variable assignment then comparison (NOT DETECTED - see note)
+>> x = 0
+*if: x > 5
+	This is actually unreachable, but we don't track variable state yet
+	(This could be a future enhancement)
+
+-- Example 4: Code after goto (DETECTED)
+*goto: end
+This text is unreachable
+*label: end
+
+-- Example 5: Comments after goto are ignored (NO WARNING)
+*goto: end2
+
+-- This comment is fine
+-- So is this one
+
+*label: end2
+
+-- Example 6: Logical operators with constants (DETECTED)
+*if: 1 > 5 and 2 > 1
+	Unreachable because first condition is false
+
+*if: 1 > 5 or 2 > 1
+	Reachable because second condition is true
+
+-- Example 7: While loop with false condition (DETECTED)
+*while: 10 < 5
+	This loop never runs
+
+-- Example 8: Program calls return (NO WARNING)
+*program: some-program
+This code is reachable because program calls return
+
+-- Example 9: Variable from parent (NO WARNING)
+-- @from-parent: userAge
+*if: userAge > 18
+	This might be reachable or not - we can't tell because
+	userAge comes from the parent program

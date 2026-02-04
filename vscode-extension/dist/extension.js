@@ -1359,7 +1359,8 @@ var DEFAULT_LINTER_CONFIG = {
     "indent-style": "error",
     "no-unclosed-string": "error",
     "no-unclosed-bracket": "error",
-    "no-single-quotes": "error"
+    "no-single-quotes": "error",
+    "no-unreachable-code": "warn"
   },
   format: DEFAULT_FORMATTER_CONFIG,
   ignore: ["**/node_modules/**", "**/dist/**"]
@@ -2174,6 +2175,184 @@ function checkStringForSingleQuotes(text, lineNumber, startCol, context) {
   }
 }
 
+// ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/rules/no-unreachable-code.js
+function evaluateConstantExpression(expr) {
+  if (expr.type === "Identifier") {
+    if (expr.name === "true") {
+      return true;
+    }
+    if (expr.name === "false") {
+      return false;
+    }
+    return void 0;
+  }
+  if (expr.type === "Literal") {
+    if (typeof expr.value === "boolean") {
+      return expr.value;
+    }
+    if (typeof expr.value === "number") {
+      return expr.value !== 0;
+    }
+    if (typeof expr.value === "string") {
+      return expr.value !== "";
+    }
+    if (expr.value === null) {
+      return false;
+    }
+  }
+  if (expr.type === "BinaryExpression") {
+    const left = evaluateConstantExpression(expr.left);
+    const right = evaluateConstantExpression(expr.right);
+    if (left === void 0 || right === void 0) {
+      return void 0;
+    }
+    const leftNum = typeof expr.left === "object" && expr.left.type === "Literal" ? typeof expr.left.value === "number" ? expr.left.value : void 0 : void 0;
+    const rightNum = typeof expr.right === "object" && expr.right.type === "Literal" ? typeof expr.right.value === "number" ? expr.right.value : void 0 : void 0;
+    switch (expr.operator) {
+      case "==":
+      case "=":
+        if (leftNum !== void 0 && rightNum !== void 0) {
+          return leftNum === rightNum;
+        }
+        return left === right;
+      case "!=":
+        if (leftNum !== void 0 && rightNum !== void 0) {
+          return leftNum !== rightNum;
+        }
+        return left !== right;
+      case ">":
+        if (leftNum !== void 0 && rightNum !== void 0) {
+          return leftNum > rightNum;
+        }
+        return void 0;
+      case ">=":
+        if (leftNum !== void 0 && rightNum !== void 0) {
+          return leftNum >= rightNum;
+        }
+        return void 0;
+      case "<":
+        if (leftNum !== void 0 && rightNum !== void 0) {
+          return leftNum < rightNum;
+        }
+        return void 0;
+      case "<=":
+        if (leftNum !== void 0 && rightNum !== void 0) {
+          return leftNum <= rightNum;
+        }
+        return void 0;
+      case "and":
+        return left && right;
+      case "or":
+        return left || right;
+      default:
+        return void 0;
+    }
+  }
+  if (expr.type === "UnaryExpression") {
+    const arg = evaluateConstantExpression(expr.argument);
+    if (arg === void 0)
+      return void 0;
+    switch (expr.operator) {
+      case "not":
+      case "!":
+        return !arg;
+      default:
+        return void 0;
+    }
+  }
+  return void 0;
+}
+var noUnreachableCode = {
+  name: "no-unreachable-code",
+  description: "Disallow unreachable code after control flow statements",
+  severity: "warning",
+  create(context) {
+    function isLabel(stmt) {
+      return stmt.type === "KeywordStatement" && stmt.keyword === "label";
+    }
+    function isUnconditionalTransfer(stmt) {
+      return stmt.keyword === "goto";
+    }
+    function checkBlock(statements) {
+      let foundUnconditionalTransfer = false;
+      for (let i = 0; i < statements.length; i++) {
+        const stmt = statements[i];
+        if (foundUnconditionalTransfer) {
+          if (stmt.type === "CommentStatement") {
+            continue;
+          }
+          if (!isLabel(stmt)) {
+            context.report({
+              message: "Unreachable code after unconditional transfer",
+              line: stmt.loc.start.line,
+              column: stmt.loc.start.column
+            });
+          }
+          foundUnconditionalTransfer = false;
+        }
+        if (stmt.type === "KeywordStatement") {
+          if (isUnconditionalTransfer(stmt)) {
+            foundUnconditionalTransfer = true;
+          }
+          if (stmt.keyword === "if" || stmt.keyword === "elseif") {
+            if (stmt.argument) {
+              const conditionValue = evaluateConstantExpression(stmt.argument);
+              if (conditionValue === false) {
+                for (const bodyStmt of stmt.body) {
+                  if (bodyStmt.type !== "KeywordStatement" || bodyStmt.keyword !== "else" && bodyStmt.keyword !== "elseif") {
+                    context.report({
+                      message: "Unreachable code - condition is always false",
+                      line: bodyStmt.loc.start.line,
+                      column: bodyStmt.loc.start.column
+                    });
+                    break;
+                  }
+                }
+              } else if (conditionValue === true && stmt.keyword === "if") {
+                for (const bodyStmt of stmt.body) {
+                  if (bodyStmt.type === "KeywordStatement" && (bodyStmt.keyword === "else" || bodyStmt.keyword === "elseif")) {
+                    context.report({
+                      message: "Unreachable code - previous condition is always true",
+                      line: bodyStmt.loc.start.line,
+                      column: bodyStmt.loc.start.column
+                    });
+                  }
+                }
+              }
+            }
+            checkBlock(stmt.body);
+          }
+          if (stmt.keyword === "while" && stmt.argument) {
+            const conditionValue = evaluateConstantExpression(stmt.argument);
+            if (conditionValue === false && stmt.body.length > 0) {
+              context.report({
+                message: "Unreachable code - loop condition is always false",
+                line: stmt.body[0].loc.start.line,
+                column: stmt.body[0].loc.start.column
+              });
+            }
+            checkBlock(stmt.body);
+          }
+          if (stmt.keyword !== "if" && stmt.keyword !== "elseif" && stmt.keyword !== "while") {
+            checkBlock(stmt.body);
+            for (const sub of stmt.subKeywords) {
+              checkBlock(sub.body);
+            }
+          }
+        }
+        if (stmt.type === "AnswerOption") {
+          checkBlock(stmt.body);
+        }
+      }
+    }
+    return {
+      Program(node) {
+        checkBlock(node.body);
+      }
+    };
+  }
+};
+
 // ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/rules/index.js
 var rules = {
   "no-undefined-vars": noUndefinedVars,
@@ -2184,7 +2363,8 @@ var rules = {
   "indent-style": indentStyle,
   "no-unclosed-string": noUnclosedString,
   "no-unclosed-bracket": noUnclosedBracket,
-  "no-single-quotes": noSingleQuotes
+  "no-single-quotes": noSingleQuotes,
+  "no-unreachable-code": noUnreachableCode
 };
 
 // ../node_modules/.pnpm/gt-lint@file+/node_modules/gt-lint/dist/linter/directives.js

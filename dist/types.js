@@ -17,6 +17,7 @@ export const DEFAULT_LINTER_CONFIG = {
         'no-unclosed-string': 'error',
         'no-unclosed-bracket': 'error',
         'no-single-quotes': 'error',
+        'no-unreachable-code': 'warn',
     },
     format: DEFAULT_FORMATTER_CONFIG,
     ignore: ['**/node_modules/**', '**/dist/**'],

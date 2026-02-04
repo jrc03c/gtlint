@@ -66,6 +66,7 @@ The core infrastructure for GTLint is now in place:
   - `no-undefined-vars` - detects use of undefined variables
   - `no-unused-vars` - warns about defined but unused variables
   - `no-invalid-goto` - checks `*goto:` references valid `*label:` targets
+  - `no-unreachable-code` - detects unreachable code (constant false conditions, code after `*goto:`)
   - `valid-keyword` - validates keyword names against known set
   - `valid-sub-keyword` - validates sub-keyword names
   - `no-unclosed-string` - detects unclosed string literals
@@ -96,6 +97,9 @@ The core infrastructure for GTLint is now in place:
 5. **String interpolation**: Variables in text use `{variable}` syntax
 6. **Collections**: Arrays use `[]`, objects/associations use `{}` or `{ key -> value }` syntax
 7. **Sub-keywords**: Many keywords support nested sub-keywords (e.g., `*question:` can have `*save:`, `*type:`, etc.)
+8. **No else clause**: GuidedTrack has no `*else:` keyword - use multiple `*if:` statements
+9. **Boolean values**: No `true`/`false` literals - use 1/0, `*set:`, or `"true".decode("JSON")`
+10. **`*program:` returns**: `*program:` calls a subprogram and returns (unlike `*goto:` which transfers control)
 
 ## Reference Files
 

@@ -60,7 +60,7 @@ Sub-keywords are indented under parent keywords and also start with `*`:
 	*save: age
 ```
 
-**Common Sub-Keywords** (45 total):
+**Common Sub-Keywords** (45+ total):
 ```
 after, answers, before, blank, body, cancel, caption, classes, click,
 confirm, countdown, data, date, default, description, error, every,
@@ -70,6 +70,8 @@ searchable, send, shuffle, start, startup, status, subject, success,
 tags, throwaway, time, tip, to, trendline, type, until, what, when,
 with, xaxis, yaxis
 ```
+
+**Note**: Sub-keywords vary by parent keyword. See `/gt.pdf` for complete list.
 
 ### Expressions
 
@@ -119,10 +121,13 @@ Variable assignments and computations start with `>>`:
 >> settings = {}
 ```
 
-**Booleans**: No dedicated boolean literals; use strings `"yes"`/`"no"` or numbers `1`/`0`, or decode from JSON:
+**Booleans**: No dedicated boolean literals. Three common patterns:
 ```guidedtrack
->> true = "true".decode("JSON")
->> false = "false".decode("JSON")
+>> value = 1              -- true
+>> value = 0              -- false
+*set: value               -- sets value to true
+>> value = "true".decode("JSON")   -- JSON boolean true
+>> value = "false".decode("JSON")  -- JSON boolean false
 ```
 
 ### String Interpolation
@@ -156,10 +161,12 @@ This text will be shown on the page.
 
 ### Control Flow
 
-**Conditional**:
+**Conditional** (note: GuidedTrack has no `*else:` keyword - use multiple `*if:` statements):
 ```guidedtrack
 *if: age >= 18
 	You are an adult.
+*if: age < 18
+	You are a minor.
 ```
 
 **Loops**:
@@ -377,6 +384,19 @@ Control linting behavior with special comments:
 *button: Continue
 ```
 
+## Common Misconceptions
+
+**GuidedTrack does NOT have:**
+- `*else:` or `*elseif:` keywords (use multiple `*if:` statements instead)
+- `true` or `false` literals (use 1/0, `*set:`, or JSON decode)
+- `==` for equality (use single `=` for both assignment and comparison)
+- 0-indexed arrays (collections are 1-indexed)
+
+**Important distinctions:**
+- `*program:` is like a function call - it returns to the next line (unlike `*goto:`)
+- Comments starting with `-- gtlint-*` are linter directives, not regular comments
+- Variables from parent programs (via `@from-parent:`) are not visible to the linter
+
 ## Notes for Implementation
 
 1. **Parsing challenges**:
@@ -392,7 +412,7 @@ Control linting behavior with special comments:
 
 3. **Scoping**:
    - Variables appear to be globally scoped within a program
-   - Subprograms can access/modify parent variables
+   - Subprograms can access/modify parent variables via `@to-child:` / `@from-child:`
 
 4. **Error handling**:
    - Many keywords support `*success` and `*error` sub-keywords

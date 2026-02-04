@@ -22,7 +22,9 @@
       "Read(//home/josh/**)",
       "Bash(npm test:*)",
       "Bash(npm run lint:*)",
-      "Bash(npx gt-lint format:*)"
+      "Bash(npx gt-lint format:*)",
+      "Bash(pnpm run test:*)",
+      "Bash(npx gtlint lint:*)"
     ]
   }
 }

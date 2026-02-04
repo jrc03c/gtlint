@@ -99,7 +99,9 @@
 	*program: @jrc03c/show-error
 	*goto: a417726d1ac87675a43b9c2eead0b89b
 
-*if:       x         >    7
+>> x = 5
+
+*if: x > 7
 	Hey!
 
 *if: not email_address

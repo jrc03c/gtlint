@@ -8,6 +8,7 @@ import { indentStyle } from './indent-style.js';
 import { noUnclosedString } from './no-unclosed-string.js';
 import { noUnclosedBracket } from './no-unclosed-bracket.js';
 import { noSingleQuotes } from './no-single-quotes.js';
+import { noUnreachableCode } from './no-unreachable-code.js';
 
 export const rules: Record<string, LintRule> = {
   'no-undefined-vars': noUndefinedVars,
@@ -19,6 +20,7 @@ export const rules: Record<string, LintRule> = {
   'no-unclosed-string': noUnclosedString,
   'no-unclosed-bracket': noUnclosedBracket,
   'no-single-quotes': noSingleQuotes,
+  'no-unreachable-code': noUnreachableCode,
 };
 
 export function getRule(name: string): LintRule | undefined {
