@@ -25,6 +25,10 @@
   ],
   "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://git.sr.ht/~jrc03c/gt-linter"
+  },
   "dependencies": {
     "glob": "^10.3.0"
   },

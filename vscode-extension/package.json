@@ -21,6 +21,11 @@
   "activationEvents": [
     "onLanguage:guidedtrack"
   ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://git.sr.ht/~jrc03c/gt-linter"
+  },
   "main": "./dist/extension.js",
   "contributes": {
     "languages": [
