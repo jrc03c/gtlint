@@ -105,6 +105,17 @@ describe('Linter', () => {
       );
       expect(unusedXWarning).toBeUndefined();
     });
+
+    it('should not report warning for variable used in interpolated string', () => {
+      const source = `>> response = {}
+>> error_message = "Error: {response}"`;
+      const result = lint(source);
+
+      const unusedWarning = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'response'")
+      );
+      expect(unusedWarning).toBeUndefined();
+    });
   });
 
   describe('no-invalid-goto rule', () => {

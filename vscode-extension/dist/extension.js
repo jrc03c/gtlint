@@ -1592,6 +1592,22 @@ var noUndefinedVars = {
           collectUsages(prop.key, false);
           collectUsages(prop.value, false);
         }
+      } else if (node.type === "Literal" && typeof node.value === "string" && node.raw.startsWith('"')) {
+        const regex = /\{([a-zA-Z_]\w*)/g;
+        let match;
+        while ((match = regex.exec(node.value)) !== null) {
+          usedVars.push({
+            name: match[1],
+            line: node.loc.start.line,
+            column: node.loc.start.column
+          });
+        }
+      } else if (node.type === "InterpolatedString") {
+        for (const part of node.parts) {
+          if (typeof part !== "string") {
+            collectUsages(part, false);
+          }
+        }
       } else if (node.type === "TextContent" || node.type === "TextStatement") {
         for (const part of node.parts) {
           if (typeof part !== "string") {
@@ -1756,6 +1772,18 @@ var noUnusedVars = {
         for (const prop of node.properties) {
           collectUsages(prop.key);
           collectUsages(prop.value);
+        }
+      } else if (node.type === "Literal" && typeof node.value === "string" && node.raw.startsWith('"')) {
+        const regex = /\{([a-zA-Z_]\w*)/g;
+        let match;
+        while ((match = regex.exec(node.value)) !== null) {
+          addUsage(match[1]);
+        }
+      } else if (node.type === "InterpolatedString") {
+        for (const part of node.parts) {
+          if (typeof part !== "string") {
+            collectUsages(part);
+          }
         }
       } else if (node.type === "TextContent" || node.type === "TextStatement") {
         for (const part of node.parts) {

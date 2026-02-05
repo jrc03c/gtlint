@@ -157,6 +157,19 @@ export const noUnusedVars: LintRule = {
           collectUsages(prop.key);
           collectUsages(prop.value);
         }
+      } else if (node.type === 'Literal' && typeof node.value === 'string' && node.raw.startsWith('"')) {
+        // Extract interpolated variable references from double-quoted string literals
+        const regex = /\{([a-zA-Z_]\w*)/g;
+        let match;
+        while ((match = regex.exec(node.value)) !== null) {
+          addUsage(match[1]);
+        }
+      } else if (node.type === 'InterpolatedString') {
+        for (const part of node.parts) {
+          if (typeof part !== 'string') {
+            collectUsages(part);
+          }
+        }
       } else if (node.type === 'TextContent' || node.type === 'TextStatement') {
         for (const part of node.parts) {
           if (typeof part !== 'string') {
