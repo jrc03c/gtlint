@@ -240,6 +240,42 @@ describe('Parser', () => {
     });
   });
 
+  describe('Interpolation in arguments', () => {
+    it('should parse keyword with interpolation-only argument', () => {
+      const tokens = tokenize('*question: {myVar}');
+      const ast = parse(tokens);
+
+      expect(ast.body).toHaveLength(1);
+      const stmt = ast.body[0] as any;
+      expect(stmt.type).toBe('KeywordStatement');
+      expect(stmt.keyword).toBe('question');
+      expect(stmt.argument).not.toBeNull();
+      expect(stmt.argument.type).toBe('TextContent');
+    });
+
+    it('should parse keyword with interpolation argument and sub-keywords', () => {
+      const code = '*question: {myVar}\n\t*save: answer';
+      const tokens = tokenize(code);
+      const ast = parse(tokens);
+
+      expect(ast.body).toHaveLength(1);
+      const stmt = ast.body[0] as any;
+      expect(stmt.type).toBe('KeywordStatement');
+      expect(stmt.keyword).toBe('question');
+      expect(stmt.argument).not.toBeNull();
+      expect(stmt.subKeywords).toHaveLength(1);
+      expect(stmt.subKeywords[0].keyword).toBe('save');
+    });
+
+    it('should parse standalone text line starting with interpolation', () => {
+      const tokens = tokenize('{myVar} is the value');
+      const ast = parse(tokens);
+
+      expect(ast.body).toHaveLength(1);
+      expect(ast.body[0].type).toBe('TextStatement');
+    });
+  });
+
   describe('Complex programs', () => {
     it('should parse a question with multiple answer options', () => {
       const code = `*question: Pick a color

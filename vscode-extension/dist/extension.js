@@ -966,7 +966,7 @@ var Parser = class {
     if (this.check(TokenType.KEYWORD)) {
       return this.parseKeywordStatement();
     }
-    if (this.check(TokenType.TEXT) || this.check(TokenType.IDENTIFIER)) {
+    if (this.check(TokenType.TEXT) || this.check(TokenType.IDENTIFIER) || this.check(TokenType.INTERPOLATION_START)) {
       return this.parseTextOrAnswerOption();
     }
     if (this.check(TokenType.INDENT)) {
@@ -991,7 +991,7 @@ var Parser = class {
     const startToken = keywordToken;
     const expressionKeywords = ["if", "while", "for", "wait"];
     let argument = null;
-    if (this.check(TokenType.TEXT)) {
+    if (this.check(TokenType.TEXT) || this.check(TokenType.INTERPOLATION_START)) {
       if (expressionKeywords.includes(keyword)) {
         const textToken = this.advance();
         argument = this.parseTextAsExpression(textToken.value, textToken);
@@ -1001,6 +1001,8 @@ var Parser = class {
     } else if (!this.check(TokenType.NEWLINE) && !this.check(TokenType.EOF) && !this.isAtEnd()) {
       if (expressionKeywords.includes(keyword)) {
         argument = this.parseExpression();
+      } else if (this.check(TokenType.IDENTIFIER)) {
+        argument = this.parseTextContent();
       }
     }
     while (this.check(TokenType.NEWLINE)) {
@@ -1039,7 +1041,7 @@ var Parser = class {
     const keyword = this.extractKeywordName(keywordToken.value);
     const startToken = keywordToken;
     let argument = null;
-    if (this.check(TokenType.TEXT)) {
+    if (this.check(TokenType.TEXT) || this.check(TokenType.INTERPOLATION_START) || this.check(TokenType.IDENTIFIER)) {
       argument = this.parseTextContent();
     }
     while (this.check(TokenType.NEWLINE)) {

@@ -58,7 +58,7 @@ export class Parser {
             return this.parseKeywordStatement();
         }
         // Text (answer options or plain text)
-        if (this.check(TokenType.TEXT) || this.check(TokenType.IDENTIFIER)) {
+        if (this.check(TokenType.TEXT) || this.check(TokenType.IDENTIFIER) || this.check(TokenType.INTERPOLATION_START)) {
             return this.parseTextOrAnswerOption();
         }
         // INDENT without a preceding keyword - might be continuation
@@ -87,7 +87,7 @@ export class Parser {
         const expressionKeywords = ['if', 'while', 'for', 'wait'];
         // Parse argument (text after the colon)
         let argument = null;
-        if (this.check(TokenType.TEXT)) {
+        if (this.check(TokenType.TEXT) || this.check(TokenType.INTERPOLATION_START)) {
             // For expression keywords, re-tokenize and parse as expression
             if (expressionKeywords.includes(keyword)) {
                 const textToken = this.advance();
@@ -101,6 +101,9 @@ export class Parser {
             // Try to parse as expression for certain keywords
             if (expressionKeywords.includes(keyword)) {
                 argument = this.parseExpression();
+            }
+            else if (this.check(TokenType.IDENTIFIER)) {
+                argument = this.parseTextContent();
             }
         }
         // Skip to next line
@@ -145,7 +148,7 @@ export class Parser {
         const startToken = keywordToken;
         // Parse argument
         let argument = null;
-        if (this.check(TokenType.TEXT)) {
+        if (this.check(TokenType.TEXT) || this.check(TokenType.INTERPOLATION_START) || this.check(TokenType.IDENTIFIER)) {
             argument = this.parseTextContent();
         }
         // Skip to next line
