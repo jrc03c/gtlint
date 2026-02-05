@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { parseDirectives, isRuleDisabled, isFromParentVar, isFromChildVar, isToParentVar, isToChildVar } from '../src/linter/directives.js';
+import { parseDirectives, isRuleDisabled, isFormatDisabled, isFromParentVar, isFromChildVar, isToParentVar, isToChildVar } from '../src/linter/directives.js';
 import { Linter } from '../src/linter/linter.js';
+import { Formatter } from '../src/formatter/formatter.js';
 
 describe('Directives Parser', () => {
   describe('gtlint-disable / gtlint-enable', () => {
@@ -326,6 +327,200 @@ describe('Linter with Directives', () => {
 
       // Both email_address (undefined) and was_added (unused) should be suppressed
       expect(result.messages).toHaveLength(0);
+    });
+  });
+
+  describe('gt-disable / gt-enable (combined)', () => {
+    it('should disable all lint rules in a region', () => {
+      const linter = new Linter();
+      const source = `-- gt-disable
+>> x = undefinedVar
+-- gt-enable`;
+      const result = linter.lint(source);
+
+      expect(result.messages).toHaveLength(0);
+    });
+
+    it('should disable specific lint rules in a region', () => {
+      const linter = new Linter();
+      const source = `-- gt-disable no-undefined-vars
+>> x = undefinedVar
+-- gt-enable`;
+      const result = linter.lint(source);
+
+      // Should have unused-vars warning but not undefined-vars
+      const undefinedVarsMessages = result.messages.filter(m => m.ruleId === 'no-undefined-vars');
+      const unusedVarsMessages = result.messages.filter(m => m.ruleId === 'no-unused-vars');
+
+      expect(undefinedVarsMessages).toHaveLength(0);
+      expect(unusedVarsMessages.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('gt-disable-next-line', () => {
+    it('should disable all lint rules for the next line only', () => {
+      const linter = new Linter();
+      const source = `-- gt-disable-next-line
+>> x = undefinedVar1
+>> y = undefinedVar2`;
+      const result = linter.lint(source);
+
+      // Line 2 should be suppressed, line 3 should report
+      const line2Messages = result.messages.filter(m => m.line === 2);
+      const line3Messages = result.messages.filter(m => m.line === 3);
+
+      expect(line2Messages).toHaveLength(0);
+      expect(line3Messages.length).toBeGreaterThan(0);
+    });
+
+    it('should disable specific lint rules for the next line only', () => {
+      const linter = new Linter();
+      const source = `-- gt-disable-next-line no-undefined-vars
+>> x = undefinedVar
+>> y = anotherUndefined`;
+      const result = linter.lint(source);
+
+      // Line 2: no-undefined-vars suppressed, no-unused-vars still reports
+      // Line 3: everything reports
+      const line2UndefinedMessages = result.messages.filter(m => m.line === 2 && m.ruleId === 'no-undefined-vars');
+      const line2UnusedMessages = result.messages.filter(m => m.line === 2 && m.ruleId === 'no-unused-vars');
+      const line3UndefinedMessages = result.messages.filter(m => m.line === 3 && m.ruleId === 'no-undefined-vars');
+
+      expect(line2UndefinedMessages).toHaveLength(0);
+      expect(line2UnusedMessages.length).toBeGreaterThan(0);
+      expect(line3UndefinedMessages.length).toBeGreaterThan(0);
+    });
+  });
+});
+
+describe('Directives Parser - Format Directives', () => {
+  describe('gtformat-disable / gtformat-enable', () => {
+    it('should mark lines as format-disabled in a region', () => {
+      const source = `-- gtformat-disable
+>>   x   =   5
+-- gtformat-enable`;
+      const state = parseDirectives(source);
+
+      expect(isFormatDisabled(state, 2)).toBe(true);
+      expect(isFormatDisabled(state, 3)).toBe(false);
+    });
+
+    it('should handle unclosed gtformat-disable (until EOF)', () => {
+      const source = `-- gtformat-disable
+>>   x   =   5
+>>   y   =   10`;
+      const state = parseDirectives(source);
+
+      expect(isFormatDisabled(state, 2)).toBe(true);
+      expect(isFormatDisabled(state, 3)).toBe(true);
+    });
+  });
+
+  describe('gt-disable / gt-enable affects format', () => {
+    it('should mark lines as format-disabled with gt-disable', () => {
+      const source = `-- gt-disable
+>>   x   =   5
+-- gt-enable`;
+      const state = parseDirectives(source);
+
+      expect(isFormatDisabled(state, 2)).toBe(true);
+      expect(isFormatDisabled(state, 3)).toBe(false);
+    });
+
+    it('should mark next line as format-disabled with gt-disable-next-line', () => {
+      const source = `-- gt-disable-next-line
+>>   x   =   5
+>>   y   =   10`;
+      const state = parseDirectives(source);
+
+      expect(isFormatDisabled(state, 2)).toBe(true);
+      expect(isFormatDisabled(state, 3)).toBe(false);
+    });
+  });
+
+  describe('gtlint-disable does NOT affect format', () => {
+    it('should not mark lines as format-disabled with gtlint-disable', () => {
+      const source = `-- gtlint-disable
+>>   x   =   5
+-- gtlint-enable`;
+      const state = parseDirectives(source);
+
+      expect(isFormatDisabled(state, 2)).toBe(false);
+      // But lint should still be disabled
+      expect(isRuleDisabled(state, 2, 'no-unused-vars')).toBe(true);
+    });
+  });
+});
+
+describe('Formatter with Directives', () => {
+  describe('gtformat-disable', () => {
+    it('should preserve lines exactly in disabled regions', () => {
+      const formatter = new Formatter();
+      const source = `-- gtformat-disable
+>>   x   =   5
+-- gtformat-enable`;
+      const result = formatter.format(source);
+
+      // The badly-spaced line should be preserved
+      expect(result).toContain('>>   x   =   5');
+    });
+
+    it('should format lines outside disabled regions', () => {
+      const formatter = new Formatter();
+      const source = `>>   x   =   5
+-- gtformat-disable
+>>   y   =   10
+-- gtformat-enable
+>>   z   =   15`;
+      const result = formatter.format(source);
+
+      // Line 1 should be formatted
+      expect(result).toContain('>> x = 5');
+      // Line 3 should be preserved
+      expect(result).toContain('>>   y   =   10');
+      // Line 5 should be formatted
+      expect(result).toContain('>> z = 15');
+    });
+  });
+
+  describe('gt-disable', () => {
+    it('should preserve lines in gt-disable regions', () => {
+      const formatter = new Formatter();
+      const source = `-- gt-disable
+>>   x   =   5
+-- gt-enable`;
+      const result = formatter.format(source);
+
+      // The badly-spaced line should be preserved
+      expect(result).toContain('>>   x   =   5');
+    });
+  });
+
+  describe('gt-disable-next-line', () => {
+    it('should preserve the next line only', () => {
+      const formatter = new Formatter();
+      const source = `-- gt-disable-next-line
+>>   x   =   5
+>>   y   =   10`;
+      const result = formatter.format(source);
+
+      // Line 2 should be preserved
+      expect(result).toContain('>>   x   =   5');
+      // Line 3 should be formatted
+      expect(result).toContain('>> y = 10');
+    });
+  });
+
+  describe('gtlint-disable does NOT affect formatter', () => {
+    it('should still format lines in gtlint-disable regions', () => {
+      const formatter = new Formatter();
+      const source = `-- gtlint-disable
+>>   x   =   5
+-- gtlint-enable`;
+      const result = formatter.format(source);
+
+      // The line should be formatted since gtlint-disable doesn't affect formatter
+      expect(result).toContain('>> x = 5');
     });
   });
 });

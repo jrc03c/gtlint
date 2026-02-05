@@ -13,6 +13,7 @@ Tasks and ideas for GTLint development.
 ## Linter Rules
 
 ### Completed
+
 - [x] `required-subkeywords` - validates required sub-keywords for `*chart:`, `*email`, `*service:`, `*database:`
 - [x] `valid-subkeyword-value` - validates enum values (`*type:`, `*method:`) and yes/no values
 - [x] `no-inline-argument` - validates that `*page`, `*html`, `*clear`, etc. have no inline arguments
@@ -20,6 +21,7 @@ Tasks and ideas for GTLint development.
 - [x] `purchase-subkeyword-constraints` - validates `*purchase` mutually exclusive sub-keywords
 
 ### Todo
+
 - [ ] Add rule for `*image:`, `*audio:`, `*video:` requiring URL-like values
 - [ ] Add rule for `*goto:` target label must exist (strengthen `no-invalid-goto`)
 - [ ] Add rule for detecting duplicate `*label:` definitions
