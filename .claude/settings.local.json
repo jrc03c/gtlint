@@ -28,7 +28,8 @@
       "Bash(npm run package:*)",
       "Bash(npx vsce package:*)",
       "Bash(pdftotext:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(ls:*)"
     ]
   }
 }

@@ -168,4 +168,4 @@ cd vscode-extension && npm run package
 - **Minor** (0.1.0 → 0.2.0): New features, new rules, new directives
 - **Major** (0.1.0 → 1.0.0): Breaking changes, major rewrites
 
-The `.vsix` file will be created in the `vscode-extension/` directory.
+The `.vsix` file will be created at `vscode-extension/dist/gtlint-vscode-<version>.vsix`.
