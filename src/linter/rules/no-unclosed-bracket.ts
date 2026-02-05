@@ -30,9 +30,32 @@ export const noUnclosedBracket: LintRule = {
           '}': '{',
         };
 
+        // Expression keywords that are followed by expressions
+        const exprKeywords = ['if', 'while', 'for', 'repeat', 'goto', 'return'];
+
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
           const lineNumber = i + 1;
+          const trimmedLine = line.trim();
+
+          // Only check brackets in expression contexts:
+          // 1. Lines starting with >>
+          // 2. Lines starting with expression keywords (*if:, *while:, etc.)
+          let isExpressionContext = false;
+          if (trimmedLine.startsWith('>>')) {
+            isExpressionContext = true;
+          } else if (trimmedLine.startsWith('*')) {
+            // Check if it's an expression keyword
+            for (const keyword of exprKeywords) {
+              if (trimmedLine.toLowerCase().startsWith(`*${keyword}:`)) {
+                isExpressionContext = true;
+                break;
+              }
+            }
+          }
+
+          // Skip checking if not in an expression context
+          if (!isExpressionContext) continue;
 
           let inString = false;
           let stringChar = '';

@@ -286,106 +286,6 @@ var Lexer = class {
       this.scanString(ch);
       return;
     }
-    if (this.isDigit(ch) || ch === "-" && this.isDigit(this.peekNext())) {
-      this.scanNumber();
-      return;
-    }
-    if (ch === "-" && this.peekNext() === ">") {
-      const startLine = this.line;
-      const startCol = this.column;
-      const startOffset = this.pos;
-      this.advance();
-      this.advance();
-      this.tokens.push(createToken(TokenType.ARROW, "->", startLine, startCol, startOffset, this.line, this.column, this.pos));
-      return;
-    }
-    if (ch === "(") {
-      this.emitToken(TokenType.LPAREN, ch);
-      this.advance();
-      return;
-    }
-    if (ch === ")") {
-      this.emitToken(TokenType.RPAREN, ch);
-      this.advance();
-      return;
-    }
-    if (ch === "[") {
-      this.emitToken(TokenType.LBRACKET, ch);
-      this.advance();
-      return;
-    }
-    if (ch === "]") {
-      this.emitToken(TokenType.RBRACKET, ch);
-      this.advance();
-      return;
-    }
-    if (ch === "{") {
-      this.emitToken(TokenType.LBRACE, ch);
-      this.advance();
-      return;
-    }
-    if (ch === "}") {
-      this.emitToken(TokenType.RBRACE, ch);
-      this.advance();
-      return;
-    }
-    if (ch === ",") {
-      this.emitToken(TokenType.COMMA, ch);
-      this.advance();
-      return;
-    }
-    if (ch === ".") {
-      this.emitToken(TokenType.DOT, ch);
-      this.advance();
-      return;
-    }
-    if (ch === ":" && this.peekNext() === ":") {
-      const startLine = this.line;
-      const startCol = this.column;
-      const startOffset = this.pos;
-      this.advance();
-      this.advance();
-      this.tokens.push(createToken(TokenType.DOUBLE_COLON, "::", startLine, startCol, startOffset, this.line, this.column, this.pos));
-      return;
-    }
-    if (ch === ":") {
-      this.emitToken(TokenType.COLON, ch);
-      this.advance();
-      return;
-    }
-    if (ch === "+" || ch === "-" || ch === "*" || ch === "/" || ch === "%" || ch === "=") {
-      this.emitToken(TokenType.OPERATOR, ch);
-      this.advance();
-      return;
-    }
-    if (ch === "<") {
-      if (this.peekNext() === "=") {
-        const startLine = this.line;
-        const startCol = this.column;
-        const startOffset = this.pos;
-        this.advance();
-        this.advance();
-        this.tokens.push(createToken(TokenType.OPERATOR, "<=", startLine, startCol, startOffset, this.line, this.column, this.pos));
-      } else {
-        this.emitToken(TokenType.OPERATOR, ch);
-        this.advance();
-      }
-      return;
-    }
-    if (ch === ">") {
-      if (this.peekNext() === "=") {
-        const startLine = this.line;
-        const startCol = this.column;
-        const startOffset = this.pos;
-        this.advance();
-        this.advance();
-        this.tokens.push(createToken(TokenType.OPERATOR, ">=", startLine, startCol, startOffset, this.line, this.column, this.pos));
-      } else {
-        this.emitToken(TokenType.OPERATOR, ch);
-        this.advance();
-      }
-      return;
-    }
     if (this.isAlpha(ch)) {
       this.scanIdentifierOrText();
       return;
@@ -418,6 +318,64 @@ var Lexer = class {
     const startCol = this.column;
     const startOffset = this.pos;
     this.advance();
+    const lookAheadPos = this.pos;
+    let foundClosingAsterisk = false;
+    let foundColon = false;
+    let tempPos = this.pos;
+    while (tempPos < this.source.length) {
+      const ch = this.source[tempPos];
+      if (ch === "\n" || ch === "\r")
+        break;
+      if (ch === "*") {
+        foundClosingAsterisk = true;
+        break;
+      }
+      if (ch === ":") {
+        foundColon = true;
+        break;
+      }
+      tempPos++;
+    }
+    if (foundClosingAsterisk && !foundColon) {
+      let value2 = "*";
+      while (!this.isAtEnd() && this.peek() !== "*" && this.peek() !== "\n" && this.peek() !== "\r") {
+        const ch = this.peek();
+        if (ch === "{") {
+          if (value2.length > 1) {
+            this.tokens.push(createToken(TokenType.TEXT, value2, startLine, startCol, startOffset, this.line, this.column, this.pos));
+            value2 = "";
+          }
+          this.scanInterpolation();
+          if (!this.isAtEnd() && this.peek() !== "*" && this.peek() !== "\n" && this.peek() !== "\r") {
+            const newStartLine = this.line;
+            const newStartCol = this.column;
+            const newStartOffset = this.pos;
+            value2 = "";
+            while (!this.isAtEnd() && this.peek() !== "*" && this.peek() !== "{" && this.peek() !== "\n" && this.peek() !== "\r") {
+              value2 += this.peek();
+              this.advance();
+            }
+            if (value2) {
+              this.tokens.push(createToken(TokenType.TEXT, value2, newStartLine, newStartCol, newStartOffset, this.line, this.column, this.pos));
+            }
+          }
+          continue;
+        }
+        value2 += ch;
+        this.advance();
+      }
+      if (value2.length > 1 || value2.length === 1 && value2 !== "*") {
+        this.tokens.push(createToken(TokenType.TEXT, value2, startLine, startCol, startOffset, this.line, this.column, this.pos));
+      }
+      if (!this.isAtEnd() && this.peek() === "*") {
+        this.tokens.push(createToken(TokenType.TEXT, "*", this.line, this.column, this.pos, this.line, this.column + 1, this.pos + 1));
+        this.advance();
+      }
+      if (!this.isAtEnd() && this.peek() !== "\n" && this.peek() !== "\r") {
+        this.scanText();
+      }
+      return;
+    }
     const nameStart = this.pos;
     while (!this.isAtEnd() && (this.isAlphaNumeric(this.peek()) || this.peek() === "-" || this.peek() === "_")) {
       this.advance();
@@ -2051,9 +2009,24 @@ var noUnclosedBracket = {
           "]": "[",
           "}": "{"
         };
+        const exprKeywords = ["if", "while", "for", "repeat", "goto", "return"];
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
           const lineNumber = i + 1;
+          const trimmedLine = line.trim();
+          let isExpressionContext = false;
+          if (trimmedLine.startsWith(">>")) {
+            isExpressionContext = true;
+          } else if (trimmedLine.startsWith("*")) {
+            for (const keyword of exprKeywords) {
+              if (trimmedLine.toLowerCase().startsWith(`*${keyword}:`)) {
+                isExpressionContext = true;
+                break;
+              }
+            }
+          }
+          if (!isExpressionContext)
+            continue;
           let inString = false;
           let stringChar = "";
           for (let j = 0; j < line.length; j++) {

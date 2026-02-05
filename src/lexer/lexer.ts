@@ -107,125 +107,9 @@ export class Lexer {
       return;
     }
 
-    // Strings
+    // Strings (in text context, strings are part of text content)
     if (ch === '"') {
       this.scanString(ch);
-      return;
-    }
-
-    // Numbers
-    if (this.isDigit(ch) || (ch === '-' && this.isDigit(this.peekNext()))) {
-      this.scanNumber();
-      return;
-    }
-
-    // Arrow ->
-    if (ch === '-' && this.peekNext() === '>') {
-      const startLine = this.line;
-      const startCol = this.column;
-      const startOffset = this.pos;
-      this.advance();
-      this.advance();
-      this.tokens.push(
-        createToken(TokenType.ARROW, '->', startLine, startCol, startOffset, this.line, this.column, this.pos)
-      );
-      return;
-    }
-
-    // Punctuation
-    if (ch === '(') {
-      this.emitToken(TokenType.LPAREN, ch);
-      this.advance();
-      return;
-    }
-    if (ch === ')') {
-      this.emitToken(TokenType.RPAREN, ch);
-      this.advance();
-      return;
-    }
-    if (ch === '[') {
-      this.emitToken(TokenType.LBRACKET, ch);
-      this.advance();
-      return;
-    }
-    if (ch === ']') {
-      this.emitToken(TokenType.RBRACKET, ch);
-      this.advance();
-      return;
-    }
-    if (ch === '{') {
-      this.emitToken(TokenType.LBRACE, ch);
-      this.advance();
-      return;
-    }
-    if (ch === '}') {
-      this.emitToken(TokenType.RBRACE, ch);
-      this.advance();
-      return;
-    }
-    if (ch === ',') {
-      this.emitToken(TokenType.COMMA, ch);
-      this.advance();
-      return;
-    }
-    if (ch === '.') {
-      this.emitToken(TokenType.DOT, ch);
-      this.advance();
-      return;
-    }
-    if (ch === ':' && this.peekNext() === ':') {
-      const startLine = this.line;
-      const startCol = this.column;
-      const startOffset = this.pos;
-      this.advance();
-      this.advance();
-      this.tokens.push(
-        createToken(TokenType.DOUBLE_COLON, '::', startLine, startCol, startOffset, this.line, this.column, this.pos)
-      );
-      return;
-    }
-    if (ch === ':') {
-      this.emitToken(TokenType.COLON, ch);
-      this.advance();
-      return;
-    }
-
-    // Operators
-    if (ch === '+' || ch === '-' || ch === '*' || ch === '/' || ch === '%' || ch === '=') {
-      this.emitToken(TokenType.OPERATOR, ch);
-      this.advance();
-      return;
-    }
-    if (ch === '<') {
-      if (this.peekNext() === '=') {
-        const startLine = this.line;
-        const startCol = this.column;
-        const startOffset = this.pos;
-        this.advance();
-        this.advance();
-        this.tokens.push(
-          createToken(TokenType.OPERATOR, '<=', startLine, startCol, startOffset, this.line, this.column, this.pos)
-        );
-      } else {
-        this.emitToken(TokenType.OPERATOR, ch);
-        this.advance();
-      }
-      return;
-    }
-    if (ch === '>') {
-      if (this.peekNext() === '=') {
-        const startLine = this.line;
-        const startCol = this.column;
-        const startOffset = this.pos;
-        this.advance();
-        this.advance();
-        this.tokens.push(
-          createToken(TokenType.OPERATOR, '>=', startLine, startCol, startOffset, this.line, this.column, this.pos)
-        );
-      } else {
-        this.emitToken(TokenType.OPERATOR, ch);
-        this.advance();
-      }
       return;
     }
 
@@ -236,6 +120,7 @@ export class Lexer {
     }
 
     // Default: treat as text
+    // This includes all punctuation, numbers, and other characters in text context
     this.scanText();
   }
 
@@ -277,6 +162,90 @@ export class Lexer {
 
     this.advance(); // consume *
 
+    // Check if this might be bold text (*text*)
+    // Look ahead to see if we find another * before a colon
+    const lookAheadPos = this.pos;
+    let foundClosingAsterisk = false;
+    let foundColon = false;
+    let tempPos = this.pos;
+
+    while (tempPos < this.source.length) {
+      const ch = this.source[tempPos];
+      if (ch === '\n' || ch === '\r') break;
+      if (ch === '*') {
+        foundClosingAsterisk = true;
+        break;
+      }
+      if (ch === ':') {
+        foundColon = true;
+        break;
+      }
+      tempPos++;
+    }
+
+    // If we found a closing * before a colon, this is bold text, not a keyword
+    if (foundClosingAsterisk && !foundColon) {
+      // Scan as text with bold formatting
+      let value = '*';
+      while (!this.isAtEnd() && this.peek() !== '*' && this.peek() !== '\n' && this.peek() !== '\r') {
+        const ch = this.peek();
+
+        // Handle interpolation within bold text
+        if (ch === '{') {
+          if (value.length > 1) { // more than just the opening *
+            this.tokens.push(
+              createToken(TokenType.TEXT, value, startLine, startCol, startOffset, this.line, this.column, this.pos)
+            );
+            value = '';
+          }
+          this.scanInterpolation();
+          // After interpolation, start collecting text again
+          if (!this.isAtEnd() && this.peek() !== '*' && this.peek() !== '\n' && this.peek() !== '\r') {
+            const newStartLine = this.line;
+            const newStartCol = this.column;
+            const newStartOffset = this.pos;
+            value = '';
+            while (!this.isAtEnd() && this.peek() !== '*' && this.peek() !== '{' && this.peek() !== '\n' && this.peek() !== '\r') {
+              value += this.peek();
+              this.advance();
+            }
+            if (value) {
+              this.tokens.push(
+                createToken(TokenType.TEXT, value, newStartLine, newStartCol, newStartOffset, this.line, this.column, this.pos)
+              );
+            }
+          }
+          continue;
+        }
+
+        value += ch;
+        this.advance();
+      }
+
+      // Add the text before the closing *
+      if (value.length > 1 || (value.length === 1 && value !== '*')) {
+        this.tokens.push(
+          createToken(TokenType.TEXT, value, startLine, startCol, startOffset, this.line, this.column, this.pos)
+        );
+      }
+
+      // Consume the closing *
+      if (!this.isAtEnd() && this.peek() === '*') {
+        this.tokens.push(
+          createToken(TokenType.TEXT, '*', this.line, this.column, this.pos, this.line, this.column + 1, this.pos + 1)
+        );
+        this.advance();
+      }
+
+      // Continue scanning the rest of the line as text
+      if (!this.isAtEnd() && this.peek() !== '\n' && this.peek() !== '\r') {
+        this.scanText();
+      }
+
+      return;
+    }
+
+    // Otherwise, process as keyword
     const nameStart = this.pos;
     while (!this.isAtEnd() && (this.isAlphaNumeric(this.peek()) || this.peek() === '-' || this.peek() === '_')) {
       this.advance();

@@ -10,8 +10,7 @@
     { "include": "#expression-line" },
     { "include": "#label-definition" },
     { "include": "#strings" },
-    { "include": "#numbers" },
-    { "include": "#operators" },
+    { "include": "#bold-text" },
     { "include": "#answer-options" },
     { "include": "#text-interpolation" }
   ],
@@ -101,6 +100,13 @@
           ]
         }
       ]
+    },
+    "bold-text": {
+      "name": "markup.bold.guidedtrack",
+      "match": "\\*[^*:]+\\*",
+      "captures": {
+        "0": { "name": "markup.bold.guidedtrack" }
+      }
     },
     "string-interpolation": {
       "name": "meta.embedded.expression.guidedtrack",
