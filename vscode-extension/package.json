@@ -2,7 +2,7 @@
   "name": "gtlint-vscode",
   "displayName": "GTLint - GuidedTrack Linter",
   "description": "Linting, formatting, and code actions for GuidedTrack (.gt) files",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "publisher": "gtlint",
   "engines": {
     "vscode": "^1.85.0"
