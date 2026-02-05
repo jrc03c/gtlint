@@ -24,7 +24,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://git.sr.ht/~jrc03c/gt-linter"
+    "url": "https://github.com/jrc03c/gt-lint"
   },
   "main": "./dist/extension.js",
   "contributes": {
