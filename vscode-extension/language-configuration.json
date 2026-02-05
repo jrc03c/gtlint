@@ -25,8 +25,7 @@
     "offSide": true
   },
   "indentationRules": {
-    "increaseIndentPattern": "^\\s*\\*(?:if|for|while|repeat|question|button|navigation|switch|group|service|program|events|experiment|component|header|settings)\\b.*$",
-    "decreaseIndentPattern": "^\\s*$"
+    "increaseIndentPattern": "^\\s*\\*(?:if|for|while|repeat|question|button|navigation|switch|group|service|program|events|experiment|component|header|settings)\\b.*$"
   },
   "wordPattern": "[a-zA-Z_][a-zA-Z0-9_]*"
 }
