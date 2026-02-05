@@ -29,7 +29,12 @@
       "Bash(npx vsce package:*)",
       "Bash(pdftotext:*)",
       "Bash(cat:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npx vitest run:*)"
     ]
   }
 }

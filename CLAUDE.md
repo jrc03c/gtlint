@@ -10,6 +10,14 @@ Also note that there are some useful reference files in the repository:
 - The `/samples` directory contains a few different programs written in the GuidedTrack language. The programs all contain valid code and are in use in production.
 - The `/gt.pdf` file is a PDF copy of the [Function & Keyword API](https://docs.guidedtrack.com/api/) page of the GuidedTrack documentation site linked above. It represents the most concise overview of the keywords and data types used in the language.
 
+# Submodules — Read-Only
+
+The `/submodules/` directory contains external Git submodules (e.g., `gt-lib`). These are **read-only** reference repositories:
+
+- **Never modify** files under `/submodules/`. We don't have (and don't want to test) push access to upstream repos.
+- After cloning this repository, run `git submodule update --init` to populate the submodule contents.
+- Submodule data is used for integration tests and keyword auditing — see `tests/gt-lib-fixtures.test.ts` and `tests/keyword-audit.test.ts`.
+
 # What is GuidedTrack?
 
 GuidedTrack is both a domain-specific language and a service for creating simple web apps, forms, surveys, and other interactive web tools. It was originally designed to help accelerate psychology research by making it faster and easier for researchers (who may or may not have computer programming experience) to create and deploy web-based surveys.
@@ -109,6 +117,15 @@ The core infrastructure for GTLint is now in place:
   - Conditional requirements (e.g., if `*status` is used, then `*success` and `*error` are required)
 - Helper functions for querying the specification
 
+### Integration Tests (`tests/gt-lib-fixtures.test.ts`, `tests/keyword-audit.test.ts`)
+- Fixture-based integration tests using 162 `.gt` files from the `gt-lib` submodule
+- Lexer/parser crash tests: every fixture is tokenized and parsed without throwing
+- Linter false-positive detection: valid fixtures are checked for `errorCount === 0`
+- Known false positives (37 fixtures) are tracked with `it.fails` so they remain visible
+- Error-case fixtures (20 fixtures with intentionally invalid GT) are excluded from linter checks
+- Keyword audit test compares gt-lib's canonical keyword list against our `KEYWORDS`, `SUB_KEYWORDS`, and `KEYWORD_SPECS`
+- Documents 11 sub-keywords missing from our lexer, 2 extra sub-keywords from docs, and 4 intentionally excluded internal keywords
+
 ## Key Design Decisions
 
 1. **Tab-only indentation**: GuidedTrack uses only tabs (not spaces) for indentation, enforced by the `indent-style` rule
@@ -130,6 +147,7 @@ The core infrastructure for GTLint is now in place:
 - `/gt.pdf` - API reference for all keywords, sub-keywords, and built-in functions
 - `/LANGUAGE_SPEC.md` - Concise language specification (see below)
 - `/src/language/keyword-spec.ts` - Formal TypeScript specification of all keywords, their argument requirements, valid sub-keywords, and constraints (used by lint rules)
+- `/submodules/gt-lib/` - External Ruby gem for GuidedTrack (read-only submodule); contains 162 `.gt` fixture files and canonical keyword definitions
 - `/TODO.md` - Task tracking for bugs, features, and ideas
 
 # Guidelines
