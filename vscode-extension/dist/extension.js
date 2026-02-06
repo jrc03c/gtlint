@@ -1742,7 +1742,8 @@ var noUnusedVars = {
         addDefinition(expr.name, line, column);
       }
     }
-    function collectUsages(node) {
+    const expressionSubKeywords = /* @__PURE__ */ new Set(["send", "default", "answers", "data"]);
+    function collectUsages(node, isAssignmentContext = false) {
       if (!node || typeof node !== "object")
         return;
       if (node.type === "Program") {
@@ -1754,7 +1755,7 @@ var noUnusedVars = {
       } else if (node.type === "KeywordStatement") {
         const kw = node;
         if (kw.argument) {
-          collectUsages(kw.argument);
+          collectUsages(kw.argument, false);
         }
         for (const sub of kw.subKeywords) {
           collectUsages(sub);
@@ -1766,38 +1767,48 @@ var noUnusedVars = {
         if (node.argument) {
           collectUsages(node.argument);
         }
+        if (expressionSubKeywords.has(node.keyword) && node.argument && node.argument.type === "TextContent") {
+          for (const part of node.argument.parts) {
+            if (typeof part === "string" && /^[a-zA-Z_]\w*$/.test(part.trim())) {
+              addUsage(part.trim());
+            }
+          }
+        }
         for (const stmt of node.body) {
           collectUsages(stmt);
         }
       } else if (node.type === "ExpressionStatement") {
-        collectUsages(node.expression);
+        collectUsages(node.expression, true);
       } else if (node.type === "BinaryExpression") {
-        if (node.operator === "=") {
-          collectUsages(node.right);
+        if (node.operator === "=" && isAssignmentContext) {
+          if (node.left.type !== "Identifier") {
+            collectUsages(node.left, false);
+          }
+          collectUsages(node.right, false);
         } else {
-          collectUsages(node.left);
-          collectUsages(node.right);
+          collectUsages(node.left, false);
+          collectUsages(node.right, false);
         }
       } else if (node.type === "UnaryExpression") {
-        collectUsages(node.argument);
+        collectUsages(node.argument, false);
       } else if (node.type === "MemberExpression") {
-        collectUsages(node.object);
+        collectUsages(node.object, false);
       } else if (node.type === "CallExpression") {
-        collectUsages(node.callee);
+        collectUsages(node.callee, false);
         for (const arg of node.arguments) {
-          collectUsages(arg);
+          collectUsages(arg, false);
         }
       } else if (node.type === "IndexExpression") {
-        collectUsages(node.object);
-        collectUsages(node.index);
+        collectUsages(node.object, false);
+        collectUsages(node.index, false);
       } else if (node.type === "ArrayExpression") {
         for (const elem of node.elements) {
-          collectUsages(elem);
+          collectUsages(elem, false);
         }
       } else if (node.type === "ObjectExpression") {
         for (const prop of node.properties) {
-          collectUsages(prop.key);
-          collectUsages(prop.value);
+          collectUsages(prop.key, false);
+          collectUsages(prop.value, false);
         }
       } else if (node.type === "Literal" && typeof node.value === "string" && node.raw.startsWith('"')) {
         const regex = /\{([a-zA-Z_]\w*)/g;
@@ -1808,17 +1819,17 @@ var noUnusedVars = {
       } else if (node.type === "InterpolatedString") {
         for (const part of node.parts) {
           if (typeof part !== "string") {
-            collectUsages(part);
+            collectUsages(part, false);
           }
         }
       } else if (node.type === "TextContent" || node.type === "TextStatement") {
         for (const part of node.parts) {
           if (typeof part !== "string") {
-            collectUsages(part);
+            collectUsages(part, false);
           }
         }
       } else if (node.type === "AnswerOption") {
-        collectUsages(node.text);
+        collectUsages(node.text, false);
         for (const stmt of node.body) {
           collectUsages(stmt);
         }

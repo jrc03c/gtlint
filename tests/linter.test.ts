@@ -132,6 +132,41 @@ describe('Linter', () => {
       );
       expect(unusedWarning).toBeUndefined();
     });
+
+    it('should not report warning for variable used in equality comparison', () => {
+      const source = `>> errors = 0
+*if: errors = 1
+\tSomething went wrong`;
+      const result = lint(source);
+
+      const unusedWarning = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'errors'")
+      );
+      expect(unusedWarning).toBeUndefined();
+    });
+
+    it('should not report warning for variable used via indexed assignment', () => {
+      const source = `>> payload = {}
+>> payload["key"] = "value"`;
+      const result = lint(source);
+
+      const unusedWarning = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'payload'")
+      );
+      expect(unusedWarning).toBeUndefined();
+    });
+
+    it('should not report warning for variable used in *send: sub-keyword', () => {
+      const source = `>> payload = {}
+*trigger: someEvent
+\t*send: payload`;
+      const result = lint(source);
+
+      const unusedWarning = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'payload'")
+      );
+      expect(unusedWarning).toBeUndefined();
+    });
   });
 
   describe('no-invalid-goto rule', () => {

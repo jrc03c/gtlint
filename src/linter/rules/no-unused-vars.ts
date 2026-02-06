@@ -103,7 +103,10 @@ export const noUnusedVars: LintRule = {
       }
     }
 
-    function collectUsages(node: Program | Statement | Expression | SubKeyword | TextContent): void {
+    // Sub-keywords that take expression arguments (variable references)
+    const expressionSubKeywords = new Set(['send', 'default', 'answers', 'data']);
+
+    function collectUsages(node: Program | Statement | Expression | SubKeyword | TextContent, isAssignmentContext = false): void {
       if (!node || typeof node !== 'object') return;
 
       if (node.type === 'Program') {
@@ -115,7 +118,8 @@ export const noUnusedVars: LintRule = {
       } else if (node.type === 'KeywordStatement') {
         const kw = node as KeywordStatement;
         if (kw.argument) {
-          collectUsages(kw.argument);
+          // Keyword arguments are never assignment contexts (e.g., *if:, *while:)
+          collectUsages(kw.argument, false);
         }
         for (const sub of kw.subKeywords) {
           collectUsages(sub);
@@ -127,39 +131,55 @@ export const noUnusedVars: LintRule = {
         if (node.argument) {
           collectUsages(node.argument);
         }
+        // Recognize variable references in expression-taking sub-keywords
+        if (expressionSubKeywords.has(node.keyword) && node.argument && node.argument.type === 'TextContent') {
+          for (const part of node.argument.parts) {
+            if (typeof part === 'string' && /^[a-zA-Z_]\w*$/.test(part.trim())) {
+              addUsage(part.trim());
+            }
+          }
+        }
         for (const stmt of node.body) {
           collectUsages(stmt);
         }
       } else if (node.type === 'ExpressionStatement') {
-        collectUsages(node.expression);
+        // Top-level expressions (>> ...) are assignment contexts
+        collectUsages(node.expression, true);
       } else if (node.type === 'BinaryExpression') {
-        // For assignments, only count the right side as usage
-        if (node.operator === '=') {
-          collectUsages(node.right);
+        // In assignment context, = is assignment; otherwise it's comparison
+        if (node.operator === '=' && isAssignmentContext) {
+          // For simple assignments (>> x = ...), skip the left side entirely.
+          // For compound targets (>> x["key"] = ..., >> x.prop = ...), the
+          // object is still a usage — only a bare Identifier is skipped.
+          if (node.left.type !== 'Identifier') {
+            collectUsages(node.left, false);
+          }
+          collectUsages(node.right, false);
         } else {
-          collectUsages(node.left);
-          collectUsages(node.right);
+          // In comparison or other binary ops, check both sides
+          collectUsages(node.left, false);
+          collectUsages(node.right, false);
         }
       } else if (node.type === 'UnaryExpression') {
-        collectUsages(node.argument);
+        collectUsages(node.argument, false);
       } else if (node.type === 'MemberExpression') {
-        collectUsages(node.object);
+        collectUsages(node.object, false);
       } else if (node.type === 'CallExpression') {
-        collectUsages(node.callee);
+        collectUsages(node.callee, false);
         for (const arg of node.arguments) {
-          collectUsages(arg);
+          collectUsages(arg, false);
         }
       } else if (node.type === 'IndexExpression') {
-        collectUsages(node.object);
-        collectUsages(node.index);
+        collectUsages(node.object, false);
+        collectUsages(node.index, false);
       } else if (node.type === 'ArrayExpression') {
         for (const elem of node.elements) {
-          collectUsages(elem);
+          collectUsages(elem, false);
         }
       } else if (node.type === 'ObjectExpression') {
         for (const prop of node.properties) {
-          collectUsages(prop.key);
-          collectUsages(prop.value);
+          collectUsages(prop.key, false);
+          collectUsages(prop.value, false);
         }
       } else if (node.type === 'Literal' && typeof node.value === 'string' && node.raw.startsWith('"')) {
         // Extract interpolated variable references from double-quoted string literals
@@ -171,17 +191,17 @@ export const noUnusedVars: LintRule = {
       } else if (node.type === 'InterpolatedString') {
         for (const part of node.parts) {
           if (typeof part !== 'string') {
-            collectUsages(part);
+            collectUsages(part, false);
           }
         }
       } else if (node.type === 'TextContent' || node.type === 'TextStatement') {
         for (const part of node.parts) {
           if (typeof part !== 'string') {
-            collectUsages(part);
+            collectUsages(part, false);
           }
         }
       } else if (node.type === 'AnswerOption') {
-        collectUsages(node.text);
+        collectUsages(node.text, false);
         for (const stmt of node.body) {
           collectUsages(stmt);
         }
