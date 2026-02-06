@@ -8,7 +8,7 @@ Tasks and ideas for GTLint development.
 
 ## VSCode Extension
 
-- [ ] (Add VSCode extension issues here)
+- [ ] Add snippets / autocompletions?
 
 ## Linter Rules
 
@@ -22,7 +22,6 @@ Tasks and ideas for GTLint development.
 
 ### Todo
 
-- [ ] Add rule for `*image:`, `*audio:`, `*video:` requiring URL-like values
 - [ ] Add rule for `*goto:` target label must exist (strengthen `no-invalid-goto`)
 - [ ] Add rule for detecting duplicate `*label:` definitions
 
