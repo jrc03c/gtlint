@@ -4,84 +4,190 @@
 -- users to add or remove themselves from a fake mailing list. The mailing list
 -- is hosted in an Airtable database, the details of which are defined below.
 --
--- In a little more detail, this program:
+-- In detail, this program:
 --
 -- (1) Asks the user for their email address.
--- (2) "Standardizes" the email address using the email address standardization
---     service defined below.
+-- (2) Standardizes the email address using an email address standardization
+--     service.
 -- (3) Asks the user if they want to subscribe to or unsubscribe from the
 --     mailing list.
 -- (4) Upserts to the database a record that includes:
 --     (a) the email address
---     (b) any UTM tags that are defined (i.e., `utm_source`, `utm_medium`, and
---         `utm_campaign`)
+--     (b) any UTM tags that are defined (i.e., utm_source, utm_medium, and
+--         utm_campaign)
 --     (c) a status value of "active" if the user wants to subscribe, or a
---         status of "inactive" in the user wants to unsubscribe
+--         status of "inactive" if the user wants to unsubscribe
 -- (5) If the user was added as a new subscriber, then it sends them a welcome
 --     email.
 -- (6) Displays a message to the user indicating that their requested subscribe
 --     or unsubscribe action was performed.
 --
--- SERVICE (API) DETAILS:
+-- SERVICE DETAILS:
 --
 -- When using the GuidedTrack website, services are defined as part of a
--- program's settings and are thus not visible in the program source code. 
--- However, I'm going to give *all* of the information here so that you can test
--- the API calls with `curl` or similar to confirm that they work and that they
--- return the expected values.
+-- program's settings and are thus not visible in the program source code.
+-- However, the details are documented here for reference.
 --
--- The service settings that can be defined in a program's settings include:
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : ct-programs-vercel-app                                      │
+-- │ URL         : https://ct-programs.vercel.app/api                          │
+-- └───────────────────────────────────────────────────────────────────────────┘
+-- ┌───────────────────────────────────────────────────────────────────────────┐
+-- │ NAME        : Airtable                                                    │
+-- │ URL         : https://api.airtable.com/v0                                 │
+-- │ HEADERS     :                                                             │
+-- │     - KEY   : Authorization                                               │
+-- │       VALUE : Bearer [AIRTABLE_API_TOKEN]                                 │
+-- └───────────────────────────────────────────────────────────────────────────┘
 --
--- (1) the service's name;
--- (2) the base URL to which `*path` values are appended;
--- (3) a username and password, if needed; and...
--- (4) header key-value pairs, if needed.
+-- AIRTABLE TABLE SCHEMA ("Fake Mailing List Contacts"):
 --
--- So, for example, a service may have these settings defined in a program's
--- settings:
---
--- NAME: My Cool Service
--- URL: https://api.example.com/v3
--- USERNAME: cooluser
--- PASSWORD: p4$$w0rd!
---
--- Then, in the program's source code, the service might be used like this for
--- a GET request:
---
--- ```
--- *service: My Cool Service
---     *method: GET
---     *path: /path/to/some/endpoint?var1=val1&var2=val2
---     *success
---         ...
---     *error
---         ...
--- ```
---
--- And might be used like this for a POST request that sends a JSON body:
---
--- ```
--- *service: My Cool Service
---     *method: POST
---     *path: /path/to/another/endpoint
---     *send: { "var1" -> val1, "var2" -> val2 }
---     *success
---         ...
---     *error
---         ...
--- ```
---
--- Anyway, with that context in mind, here are the service settings for this
--- particular program:
---
--- NAME: ct-programs-vercel-app
--- BASE URL: https://ct-programs.vercel.app/api
--- METHOD: GET
--- PATH: /utils/standardize-email-address?email_address={email_address}
--- RESPONSE: { email_address: "<email_address_standardized>" }
--- 
--- NAME: Airtable
--- BASE URL: https://api.airtable.com/v0
--- METHOD: (various)
--- API TOKEN: (stored in .env along with the base and table IDs)
--- API DOCUMENTATION: https://airtable.com/developers/web/api/introduction
+-- ┌────────────────────┬───────────────┬──────────────────────────────────────┐
+-- │ Field              │ Type          │ Notes                                │
+-- ├────────────────────┼───────────────┼──────────────────────────────────────┤
+-- │ id                 │ autoNumber    │ primary field                        │
+-- │ email_address      │ text          │ used for upsert matching             │
+-- │ utm_source         │ text          │                                      │
+-- │ utm_medium         │ text          │                                      │
+-- │ utm_campaign       │ text          │                                      │
+-- │ status             │ single select │ choices: "active", "inactive"        │
+-- └────────────────────┴───────────────┴──────────────────────────────────────┘
+
+--------------------------------------------------------------------------------
+-- Initialize variables
+--------------------------------------------------------------------------------
+
+>> airtable_base_id = "appWdst32AujumhgY"
+>> airtable_table_id = "tbl7TEykpYMATu4Qe"
+>> errors = 0
+>> is_new_subscriber = 0
+>> response = {}
+
+-- Set default UTM values if not already defined
+
+*if: not utm_source
+	>> utm_source = "(none)"
+
+*if: not utm_medium
+	>> utm_medium = "(none)"
+
+*if: not utm_campaign
+	>> utm_campaign = "(none)"
+
+--------------------------------------------------------------------------------
+-- Ask for email address
+--------------------------------------------------------------------------------
+
+*question: Please enter your email address.
+	*type: text
+	*save: email_address
+	*placeholder: you@example.com
+
+--------------------------------------------------------------------------------
+-- Standardize the email address
+--------------------------------------------------------------------------------
+
+>> encoded_email = email_address.encode("URL")
+
+*service: ct-programs-vercel-app
+	*method: GET
+	*path: /utils/standardize-email-address?email_address={encoded_email}
+	*success
+		*if: "email_address" in it
+			>> email_address = it["email_address"]
+	*error
+		>> errors = 1
+
+*if: errors = 1
+	Something went wrong while validating your email address. Please try again later.
+	*button: Done
+	*goto: EndLabel
+
+--------------------------------------------------------------------------------
+-- Ask subscribe or unsubscribe
+--------------------------------------------------------------------------------
+
+*question: Would you like to subscribe to or unsubscribe from our mailing list?
+	Subscribe
+		>> status = "active"
+	Unsubscribe
+		>> status = "inactive"
+
+--------------------------------------------------------------------------------
+-- Upsert to Airtable
+--------------------------------------------------------------------------------
+
+>> record_fields = {}
+>> record_fields["email_address"] = email_address
+>> record_fields["status"] = status
+>> record_fields["utm_source"] = utm_source
+>> record_fields["utm_medium"] = utm_medium
+>> record_fields["utm_campaign"] = utm_campaign
+
+>> record = { "fields" -> record_fields }
+
+>> payload = {}
+>> payload["records"] = [record]
+>> payload["performUpsert"] = { "fieldsToMergeOn" -> ["email_address"] }
+
+*service: Airtable
+	*method: PUT
+	*path: /{airtable_base_id}/{airtable_table_id}
+	*send: payload
+	*success
+		>> response = it
+		*if: "createdRecords" in it
+			*if: it["createdRecords"].size > 0
+				>> is_new_subscriber = 1
+	*error
+		>> errors = 1
+		>> response = it
+
+*if: errors = 1
+	Something went wrong while updating your subscription. Please try again later.
+	*button: Done
+	*goto: EndLabel
+
+--------------------------------------------------------------------------------
+-- Send welcome email to new subscribers
+--------------------------------------------------------------------------------
+
+*if: is_new_subscriber = 1
+	*if: status = "active"
+		*email
+			*to: email_address
+			*subject: Welcome to our mailing list!
+			*body
+				Thank you for subscribing! We're excited to have you on board. You'll receive updates about our latest programs, tools, and resources. If you ever wish to unsubscribe, you can do so at any time.
+
+--------------------------------------------------------------------------------
+-- Display confirmation message
+--------------------------------------------------------------------------------
+
+*if: status = "active"
+	You have been successfully subscribed to our mailing list!
+	*if: is_new_subscriber = 1
+		A welcome email has been sent to {email_address}.
+
+*if: status = "inactive"
+	You have been successfully unsubscribed from our mailing list. We're sorry to see you go!
+
+*button: Done
+
+--------------------------------------------------------------------------------
+-- Clean up
+--------------------------------------------------------------------------------
+
+*label: EndLabel
+
+>> airtable_base_id = ""
+>> airtable_table_id = ""
+>> email_address = ""
+>> encoded_email = ""
+>> errors = ""
+>> is_new_subscriber = ""
+>> payload = ""
+>> record = ""
+>> record_fields = ""
+>> response = ""
+>> status = ""
