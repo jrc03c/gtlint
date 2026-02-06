@@ -36,7 +36,12 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(npx vitest run:*)",
       "WebFetch(domain:skills.sh)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(git -C /home/josh/Desktop/gt-linter status)",
+      "Bash(git -C /home/josh/Desktop/gt-linter diff)",
+      "Bash(git -C /home/josh/Desktop/gt-linter log --oneline -5)",
+      "Bash(git -C /home/josh/Desktop/gt-linter add package.json)",
+      "Bash(git -C /home/josh/Desktop/gt-linter commit -m \"$\\(cat <<''EOF''\nAdd VSIX packaging to root build script\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }
