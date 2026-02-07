@@ -2,7 +2,7 @@
   "name": "gtlint-vscode",
   "displayName": "GTLint - GuidedTrack Linter",
   "description": "Linting, formatting, and code actions for GuidedTrack (.gt) files",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "publisher": "gtlint",
   "engines": {
     "vscode": "^1.85.0"
@@ -97,6 +97,24 @@
             "spaceAroundArrow": {
               "type": "boolean",
               "default": true
+            },
+            "spaceInsideBraces": {
+              "type": "number",
+              "default": 0,
+              "minimum": 0,
+              "description": "Number of spaces inside curly braces (e.g., 1 formats as { \"key\" -> \"val\" })"
+            },
+            "spaceInsideBrackets": {
+              "type": "number",
+              "default": 0,
+              "minimum": 0,
+              "description": "Number of spaces inside square brackets (e.g., 1 formats as [ 1, 2, 3 ])"
+            },
+            "spaceInsideParens": {
+              "type": "number",
+              "default": 0,
+              "minimum": 0,
+              "description": "Number of spaces inside parentheses (e.g., 1 formats as ( x + y ))"
             },
             "trimTrailingWhitespace": {
               "type": "boolean",

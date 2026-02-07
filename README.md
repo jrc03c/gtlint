@@ -286,18 +286,42 @@ Configure the formatter in your `gtlint.config.js`:
 
 ```javascript
 export default {
-  formatter: {
+  format: {
+    // Add spaces around operators (=, +, -, etc.)
+    spaceAroundOperators: true,
+
+    // Add a space after commas in arrays and arguments
+    spaceAfterComma: true,
+
+    // Add spaces around the arrow operator (->)
+    spaceAroundArrow: true,
+
+    // Number of spaces inside curly braces: { like this } vs {like this}
+    // Set to 0 for no spaces (default), 1 for single spaces, etc.
+    // Empty braces {} are never padded.
+    spaceInsideBraces: 0,
+
+    // Number of spaces inside square brackets: [ like this ] vs [like this]
+    // Set to 0 for no spaces (default), 1 for single spaces, etc.
+    // Empty brackets [] are never padded.
+    spaceInsideBrackets: 0,
+
+    // Number of spaces inside parentheses: ( like this ) vs (like this)
+    // Set to 0 for no spaces (default), 1 for single spaces, etc.
+    // Empty parentheses () are never padded.
+    spaceInsideParens: 0,
+
     // Remove trailing whitespace from lines
-    removeTrailingWhitespace: true,
+    trimTrailingWhitespace: true,
 
     // Ensure file ends with a newline
-    ensureNewlineAtEndOfFile: true,
-
-    // Maximum number of consecutive blank lines allowed
-    maxConsecutiveBlankLines: 2
+    insertFinalNewline: true,
   }
 };
 ```
+
+> **Note:** String interpolation braces (e.g., `{variable}` inside text) are not affected
+> by `spaceInsideBraces` — they occur inside string literals which the formatter preserves.
 
 ## Example
 

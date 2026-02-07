@@ -100,18 +100,122 @@ describe('Formatter', () => {
   });
 
   describe('Bracket spacing', () => {
-    it('should remove extra spaces after opening brackets', () => {
+    it('should remove extra spaces after opening brackets by default', () => {
       const source = '>> x = [ 1, 2, 3]\n';
       const result = format(source);
 
       expect(result).toContain('[1,');
     });
 
-    it('should remove extra spaces before closing brackets', () => {
+    it('should remove extra spaces before closing brackets by default', () => {
       const source = '>> x = [1, 2, 3 ]\n';
       const result = format(source);
 
       expect(result).toContain('3]');
+    });
+
+    it('should add spaces inside brackets when spaceInsideBrackets is set', () => {
+      const source = '>> x = [1, 2, 3]\n';
+      const result = format(source, { spaceInsideBrackets: 1 });
+
+      expect(result).toBe('>> x = [ 1, 2, 3 ]\n');
+    });
+
+    it('should normalize existing spaces inside brackets to configured amount', () => {
+      const source = '>> x = [   1, 2, 3   ]\n';
+      const result = format(source, { spaceInsideBrackets: 1 });
+
+      expect(result).toBe('>> x = [ 1, 2, 3 ]\n');
+    });
+
+    it('should remove spaces inside brackets when spaceInsideBrackets is 0', () => {
+      const source = '>> x = [ 1, 2, 3 ]\n';
+      const result = format(source, { spaceInsideBrackets: 0 });
+
+      expect(result).toBe('>> x = [1, 2, 3]\n');
+    });
+
+    it('should not add spaces inside empty brackets', () => {
+      const source = '>> x = []\n';
+      const result = format(source, { spaceInsideBrackets: 1 });
+
+      expect(result).toBe('>> x = []\n');
+    });
+
+    it('should add spaces inside braces when spaceInsideBraces is set', () => {
+      const source = '>> person = {"name" -> "Alice"}\n';
+      const result = format(source, { spaceInsideBraces: 1 });
+
+      expect(result).toBe('>> person = { "name" -> "Alice" }\n');
+    });
+
+    it('should normalize existing spaces inside braces to configured amount', () => {
+      const source = '>> person = {    "name" -> "Alice"    }\n';
+      const result = format(source, { spaceInsideBraces: 1 });
+
+      expect(result).toBe('>> person = { "name" -> "Alice" }\n');
+    });
+
+    it('should remove spaces inside braces when spaceInsideBraces is 0', () => {
+      const source = '>> person = { "name" -> "Alice" }\n';
+      const result = format(source, { spaceInsideBraces: 0 });
+
+      expect(result).toBe('>> person = {"name" -> "Alice"}\n');
+    });
+
+    it('should not add spaces inside empty braces', () => {
+      const source = '>> x = {}\n';
+      const result = format(source, { spaceInsideBraces: 1 });
+
+      expect(result).toBe('>> x = {}\n');
+    });
+
+    it('should add spaces inside parentheses when spaceInsideParens is set', () => {
+      const source = '>> x = (1 + 2)\n';
+      const result = format(source, { spaceInsideParens: 1 });
+
+      expect(result).toBe('>> x = ( 1 + 2 )\n');
+    });
+
+    it('should remove spaces inside parentheses when spaceInsideParens is 0', () => {
+      const source = '>> x = ( 1 + 2 )\n';
+      const result = format(source, { spaceInsideParens: 0 });
+
+      expect(result).toBe('>> x = (1 + 2)\n');
+    });
+
+    it('should not add spaces inside empty parentheses', () => {
+      const source = '>> x = text.split()\n';
+      const result = format(source, { spaceInsideParens: 1 });
+
+      expect(result).toBe('>> x = text.split()\n');
+    });
+
+    it('should handle different spacing for braces and brackets independently', () => {
+      const source = '>> x = {"items" -> [1, 2, 3]}\n';
+      const result = format(source, { spaceInsideBraces: 1, spaceInsideBrackets: 0 });
+
+      expect(result).toBe('>> x = { "items" -> [1, 2, 3] }\n');
+    });
+
+    it('should be idempotent with spaceInsideBraces', () => {
+      const formatter = new Formatter({ spaceInsideBraces: 1 });
+      const source = '>> person = {"name" -> "Alice"}\n';
+
+      const once = formatter.format(source);
+      const twice = formatter.format(once);
+
+      expect(once).toBe(twice);
+    });
+
+    it('should be idempotent with spaceInsideBrackets', () => {
+      const formatter = new Formatter({ spaceInsideBrackets: 1 });
+      const source = '>> x = [1, 2, 3]\n';
+
+      const once = formatter.format(source);
+      const twice = formatter.format(once);
+
+      expect(once).toBe(twice);
     });
   });
 

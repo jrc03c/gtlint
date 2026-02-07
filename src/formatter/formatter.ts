@@ -256,18 +256,49 @@ export class Formatter {
         continue;
       }
 
-      // Cleanup extra spaces after opening brackets
+      // Normalize spaces after opening brackets
       if (ch === '[' || ch === '(' || ch === '{') {
         result += ch;
-        // Skip all spaces after opening bracket
+        // Skip all existing spaces after opening bracket
         while (i + 1 < content.length && content[i + 1] === ' ') {
           i++;
+        }
+        // Add configured number of spaces (but not for empty brackets)
+        const nextNonSpace = content[i + 1] || '';
+        const isEmpty = (ch === '[' && nextNonSpace === ']') ||
+                        (ch === '(' && nextNonSpace === ')') ||
+                        (ch === '{' && nextNonSpace === '}');
+        if (!isEmpty) {
+          const spaces = ch === '{' ? this.config.spaceInsideBraces :
+                         ch === '[' ? this.config.spaceInsideBrackets :
+                         this.config.spaceInsideParens;
+          result += ' '.repeat(spaces);
         }
         continue;
       }
 
-      // Cleanup extra spaces before closing brackets
+      // Normalize spaces before closing brackets
       if (ch === ' ' && (next === ']' || next === ')' || next === '}')) {
+        // Skip all spaces before closing bracket (we'll add the configured amount below)
+        continue;
+      }
+      if (ch === ']' || ch === ')' || ch === '}') {
+        // Check if bracket is empty (previous char is the matching opener)
+        const lastChar = result[result.length - 1] || '';
+        const isEmpty = (ch === ']' && lastChar === '[') ||
+                        (ch === ')' && lastChar === '(') ||
+                        (ch === '}' && lastChar === '{');
+        if (!isEmpty) {
+          const spaces = ch === '}' ? this.config.spaceInsideBraces :
+                         ch === ']' ? this.config.spaceInsideBrackets :
+                         this.config.spaceInsideParens;
+          // Remove any trailing spaces from result before adding the configured amount
+          while (result.length > 0 && result[result.length - 1] === ' ') {
+            result = result.slice(0, -1);
+          }
+          result += ' '.repeat(spaces);
+        }
+        result += ch;
         continue;
       }
 
