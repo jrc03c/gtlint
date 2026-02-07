@@ -1,6 +1,6 @@
 # GTLint
 
-A linter and formatter for the [GuidedTrack](https://guidedtrack.com) language, inspired by ESLint and Prettier.
+A linter and formatter for the [GuidedTrack](https://guidedtrack.com) language, inspired by ESLint and Prettier. Can be used at the command line or installed as a VSCode extension.
 
 ## Installation
 
