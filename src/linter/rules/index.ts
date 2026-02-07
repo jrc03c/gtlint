@@ -15,6 +15,7 @@ import { noInlineArgument } from './no-inline-argument.js';
 import { gotoNeedsResetInEvents } from './goto-needs-reset-in-events.js';
 import { purchaseSubkeywordConstraints } from './purchase-subkeyword-constraints.js';
 import { correctIndentation } from './correct-indentation.js';
+import { noDuplicateLabels } from './no-duplicate-labels.js';
 
 export const rules: Record<string, LintRule> = {
   'no-undefined-vars': noUndefinedVars,
@@ -33,6 +34,7 @@ export const rules: Record<string, LintRule> = {
   'goto-needs-reset-in-events': gotoNeedsResetInEvents,
   'purchase-subkeyword-constraints': purchaseSubkeywordConstraints,
   'correct-indentation': correctIndentation,
+  'no-duplicate-labels': noDuplicateLabels,
 };
 
 export function getRule(name: string): LintRule | undefined {

@@ -76,6 +76,7 @@ The core infrastructure for GTLint is now in place:
   - `no-undefined-vars` - detects use of undefined variables
   - `no-unused-vars` - warns about defined but unused variables
   - `no-invalid-goto` - checks `*goto:` references valid `*label:` targets
+  - `no-duplicate-labels` - detects duplicate `*label:` definitions
   - `no-unreachable-code` - detects unreachable code (constant false conditions, code after `*goto:`)
   - `valid-keyword` - validates keyword names against known set
   - `valid-sub-keyword` - validates sub-keyword names

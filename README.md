@@ -109,6 +109,7 @@ export default {
     'no-undefined-vars': 'error',
     'no-unused-vars': 'warn',
     'no-invalid-goto': 'error',
+    'no-duplicate-labels': 'error',
     'valid-keyword': 'error',
     'valid-sub-keyword': 'error',
     'no-unclosed-string': 'error',
@@ -139,6 +140,7 @@ GTLint includes the following linting rules:
 - **`no-undefined-vars`** - Detects use of undefined variables
 - **`no-unused-vars`** - Warns about variables that are defined but never used
 - **`no-invalid-goto`** - Ensures `*goto:` statements reference valid `*label:` targets
+- **`no-duplicate-labels`** - Detects duplicate `*label:` definitions within a program
 
 ### Syntax Validation
 
