@@ -9,13 +9,13 @@ A linter and formatter for the [GuidedTrack](https://guidedtrack.com) language, 
 Install GTLint via pnpm:
 
 ```bash
-pnpm add gt-lint
+pnpm add @jrc03c/gt-lint
 ```
 
 Or via npm:
 
 ```bash
-npm install gt-lint
+npm install @jrc03c/gt-lint
 ```
 
 Or use it directly with npx:
@@ -106,24 +106,24 @@ Create a `gtlint.config.js` file in your project root to customize GTLint behavi
 ```javascript
 export default {
   rules: {
-    'indent-style': 'error',
-    'no-undefined-vars': 'error',
-    'no-unused-vars': 'warn',
-    'no-invalid-goto': 'error',
-    'no-duplicate-labels': 'error',
-    'valid-keyword': 'error',
-    'valid-sub-keyword': 'error',
-    'no-unclosed-string': 'error',
-    'no-unclosed-bracket': 'error',
-    'no-single-quotes': 'warn',
-    'correct-indentation': 'error'
+    "indent-style": "error",
+    "no-undefined-vars": "error",
+    "no-unused-vars": "warn",
+    "no-invalid-goto": "error",
+    "no-duplicate-labels": "error",
+    "valid-keyword": "error",
+    "valid-sub-keyword": "error",
+    "no-unclosed-string": "error",
+    "no-unclosed-bracket": "error",
+    "no-single-quotes": "warn",
+    "correct-indentation": "error",
   },
   formatter: {
     removeTrailingWhitespace: true,
     ensureNewlineAtEndOfFile: true,
-    maxConsecutiveBlankLines: 2
-  }
-};
+    maxConsecutiveBlankLines: 2,
+  },
+}
 ```
 
 ### Rule Severity Levels
@@ -196,30 +196,30 @@ You can disable linting and/or formatting for specific lines or sections using i
 
 **Combined (lint + format):**
 
-| Directive | Behavior |
-|-----------|----------|
-| `-- gt-disable` | Disable lint + format until `gt-enable` or EOF |
-| `-- gt-enable` | Re-enable lint + format |
-| `-- gt-disable-next-line` | Disable lint + format for next line only |
+| Directive                              | Behavior                                           |
+| -------------------------------------- | -------------------------------------------------- |
+| `-- gt-disable`                        | Disable lint + format until `gt-enable` or EOF     |
+| `-- gt-enable`                         | Re-enable lint + format                            |
+| `-- gt-disable-next-line`              | Disable lint + format for next line only           |
 | `-- gt-disable-next-line rule1, rule2` | Disable specific lint rules + format for next line |
 
 **Lint-only:**
 
-| Directive | Behavior |
-|-----------|----------|
-| `-- gtlint-disable` | Disable all lint rules until `gtlint-enable` or EOF |
-| `-- gtlint-disable rule1, rule2` | Disable specific lint rules |
-| `-- gtlint-enable` | Re-enable all lint rules |
-| `-- gtlint-enable rule1` | Re-enable specific lint rule |
-| `-- gtlint-disable-next-line` | Disable all lint rules for next line |
-| `-- gtlint-disable-next-line rule1, rule2` | Disable specific rules for next line |
+| Directive                                  | Behavior                                            |
+| ------------------------------------------ | --------------------------------------------------- |
+| `-- gtlint-disable`                        | Disable all lint rules until `gtlint-enable` or EOF |
+| `-- gtlint-disable rule1, rule2`           | Disable specific lint rules                         |
+| `-- gtlint-enable`                         | Re-enable all lint rules                            |
+| `-- gtlint-enable rule1`                   | Re-enable specific lint rule                        |
+| `-- gtlint-disable-next-line`              | Disable all lint rules for next line                |
+| `-- gtlint-disable-next-line rule1, rule2` | Disable specific rules for next line                |
 
 **Format-only:**
 
-| Directive | Behavior |
-|-----------|----------|
+| Directive             | Behavior                                          |
+| --------------------- | ------------------------------------------------- |
 | `-- gtformat-disable` | Disable formatting until `gtformat-enable` or EOF |
-| `-- gtformat-enable` | Re-enable formatting |
+| `-- gtformat-enable`  | Re-enable formatting                              |
 
 Note: `gtformat-*` directives don't support rule lists since formatting isn't rule-based.
 
@@ -267,10 +267,12 @@ When writing a **parent program** that calls a child, use `@to-child` and `@from
 ### API Directive Reference
 
 **From child program's perspective:**
+
 - `-- @from-parent: var1, var2, ...` - Variables received from parent program (suppresses `no-undefined-vars`)
 - `-- @to-parent: var1, var2, ...` - Variables returned to parent program (suppresses `no-unused-vars`)
 
 **From parent program's perspective:**
+
 - `-- @to-child: var1, var2, ...` - Variables sent to child program (suppresses `no-unused-vars`)
 - `-- @from-child: var1, var2, ...` - Variables received from child program (suppresses `no-undefined-vars`)
 
@@ -290,26 +292,28 @@ Configure the formatter in your `gtlint.config.js`:
 ```javascript
 export default {
   format: {
-    spaceAroundOperators: true,       // Spaces around =, +, -, etc. (default: true)
-    spaceAfterComma: true,            // Space after commas in lists (default: true)
-    spaceAroundArrow: true,           // Spaces around -> in associations (default: true)
-    spaceInsideBraces: 0,             // Spaces inside { } (default: 0)
-    spaceInsideBrackets: 0,           // Spaces inside [ ] (default: 0)
-    spaceInsideParens: 0,             // Spaces inside ( ) (default: 0)
-    trimTrailingWhitespace: true,     // Remove trailing whitespace (default: true)
-    insertFinalNewline: true,         // Ensure file ends with newline (default: true)
-  }
-};
+    spaceAroundOperators: true, // Spaces around =, +, -, etc. (default: true)
+    spaceAfterComma: true, // Space after commas in lists (default: true)
+    spaceAroundArrow: true, // Spaces around -> in associations (default: true)
+    spaceInsideBraces: 0, // Spaces inside { } (default: 0)
+    spaceInsideBrackets: 0, // Spaces inside [ ] (default: 0)
+    spaceInsideParens: 0, // Spaces inside ( ) (default: 0)
+    trimTrailingWhitespace: true, // Remove trailing whitespace (default: true)
+    insertFinalNewline: true, // Ensure file ends with newline (default: true)
+  },
+}
 ```
 
 ### Spacing Options
 
 **Operator and delimiter spacing:**
+
 - `spaceAroundOperators` - Adds spaces around operators like `=`, `+`, `-`, `*`, `/`, etc.
 - `spaceAfterComma` - Adds a space after commas in lists and function arguments
 - `spaceAroundArrow` - Adds spaces around the `->` operator in object associations
 
 **Bracket padding:**
+
 - `spaceInsideBraces` - Number of spaces inside `{ }` braces
 - `spaceInsideBrackets` - Number of spaces inside `[ ]` brackets
 - `spaceInsideParens` - Number of spaces inside `( )` parentheses
@@ -319,21 +323,25 @@ Each bracket type is independently configurable. Empty pairs (`{}`, `[]`, `()`) 
 **Examples:**
 
 With `spaceInsideBraces: 1`:
+
 ```
 >> person = { "name" -> "Alice", "age" -> 30 }
 ```
 
 With `spaceInsideBrackets: 1`:
+
 ```
 >> numbers = [ 1, 2, 3, 4, 5 ]
 ```
 
 With `spaceInsideParens: 1`:
+
 ```
 >> result = calculate( x + y )
 ```
 
 **Whitespace cleanup:**
+
 - `trimTrailingWhitespace` - Removes spaces and tabs at the end of lines
 - `insertFinalNewline` - Ensures the file ends with a newline character
 

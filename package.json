@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "main": "dist/index.js",
-  "name": "gt-lint",
+  "name": "@jrc03c/gt-lint",
   "packageManager": "pnpm@10.28.2",
   "repository": {
     "type": "git",

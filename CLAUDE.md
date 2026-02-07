@@ -33,7 +33,7 @@ The goal of this project is to produce a linter and formatter for the GuidedTrac
 Ideally, it will be installable via NPM/pnpm, like this:
 
 ```bash
-pnpm add gt-lint
+pnpm add @jrc03c/gt-lint
 ```
 
 And it should have a simple command line API that can be invoked with `npx` and look something like this:
@@ -52,6 +52,7 @@ Also, it should produce extensions for IDEs like VSCode. These extensions should
 The core infrastructure for GTLint is now in place:
 
 ### Lexer (`src/lexer/`)
+
 - Tokenizes GuidedTrack source code into tokens
 - Handles keywords, sub-keywords, operators, strings, numbers, comments
 - Tracks indentation (INDENT/DEDENT tokens) for Python-like syntax
@@ -60,6 +61,7 @@ The core infrastructure for GTLint is now in place:
 - Context-aware formatting: URLs/paths in keywords like `*image:`, `*audio:`, `*path:` don't apply formatting
 
 ### Parser (`src/parser/`)
+
 - Converts token stream into an Abstract Syntax Tree (AST)
 - AST node types include:
   - `KeywordStatement` - for `*keyword:` statements with optional sub-keywords and body
@@ -70,6 +72,7 @@ The core infrastructure for GTLint is now in place:
 - Expression types: Binary, Unary, Member, Call, Index, Array, Object, Identifier, Literal, InterpolatedString
 
 ### Linter (`src/linter/`)
+
 - Rule-based linting system inspired by ESLint
 - Current rules:
   - `indent-style` - enforces tab-only indentation
@@ -90,6 +93,7 @@ The core infrastructure for GTLint is now in place:
   - `gtformat-*` directives affect formatting only
 
 ### Formatter (`src/formatter/`)
+
 - Automatically formats GuidedTrack code
 - Configurable options for spacing, trailing whitespace, final newline
 - Configurable spaces inside braces (`spaceInsideBraces`), brackets (`spaceInsideBrackets`), and parentheses (`spaceInsideParens`) — each independently configurable, defaults to 0; empty pairs are never padded; string interpolation braces in text lines are unaffected
@@ -97,11 +101,13 @@ The core infrastructure for GTLint is now in place:
 - Respects `gtformat-disable` and `gt-disable` directive regions
 
 ### CLI (`src/cli.ts`)
+
 - Command-line interface with `gtlint lint` and `gtlint format` commands
 - Glob pattern support for linting/formatting multiple files
 - Configuration file support (`gtlint.config.js`)
 
 ### VSCode Extension (`vscode-extension/`)
+
 - Syntax highlighting for `.gt` files
   - Keywords, sub-keywords, operators, strings, numbers, comments
   - Bold text formatting (`*text*`) rendered in bold
@@ -112,6 +118,7 @@ The core infrastructure for GTLint is now in place:
 - Language configuration (brackets, comments, auto-closing pairs)
 
 ### Language Specification (`src/language/`)
+
 - Formal TypeScript specification of all GuidedTrack keywords
 - Defines for each keyword:
   - Argument requirements (required/optional, type: url, text, number, expression, etc.)
@@ -123,6 +130,7 @@ The core infrastructure for GTLint is now in place:
 - Helper functions for querying the specification
 
 ### Integration Tests (`tests/gt-lib-fixtures.test.ts`, `tests/keyword-audit.test.ts`)
+
 - Fixture-based integration tests using 162 `.gt` files from the `gt-lib` submodule
 - Lexer/parser crash tests: every fixture is tokenized and parsed without throwing
 - Linter false-positive detection: valid fixtures are checked for `errorCount === 0`
@@ -187,6 +195,7 @@ cd vscode-extension && pnpm run package
 ```
 
 **Version bump guidelines (semver):**
+
 - **Patch** (0.1.0 → 0.1.1): Bug fixes, minor improvements
 - **Minor** (0.1.0 → 0.2.0): New features, new rules, new directives
 - **Major** (0.1.0 → 1.0.0): Breaking changes, major rewrites
