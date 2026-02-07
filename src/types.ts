@@ -76,6 +76,7 @@ export const DEFAULT_LINTER_CONFIG: LinterConfig = {
     'goto-needs-reset-in-events': 'warn',
     'purchase-subkeyword-constraints': 'error',
     'correct-indentation': 'error',
+    'no-duplicate-labels': 'error',
   },
   format: DEFAULT_FORMATTER_CONFIG,
   ignore: ['**/node_modules/**', '**/dist/**'],

@@ -189,6 +189,61 @@ describe('Linter', () => {
     });
   });
 
+  describe('no-duplicate-labels rule', () => {
+    it('should report error for duplicate label definitions', () => {
+      const source = `*label: myLabel
+*goto: myLabel
+*label: myLabel`;
+      const result = lint(source);
+
+      const dupErrors = result.messages.filter(m => m.ruleId === 'no-duplicate-labels');
+      expect(dupErrors).toHaveLength(1);
+      expect(dupErrors[0].severity).toBe('error');
+      expect(dupErrors[0].message).toContain("Duplicate label 'myLabel'");
+      expect(dupErrors[0].message).toContain('line 1');
+    });
+
+    it('should not report error when all labels are unique', () => {
+      const source = `*label: labelA
+*label: labelB
+*label: labelC`;
+      const result = lint(source);
+
+      const dupErrors = result.messages.filter(m => m.ruleId === 'no-duplicate-labels');
+      expect(dupErrors).toHaveLength(0);
+    });
+
+    it('should report multiple errors for three identical labels', () => {
+      const source = `*label: dup
+*label: dup
+*label: dup`;
+      const result = lint(source);
+
+      const dupErrors = result.messages.filter(m => m.ruleId === 'no-duplicate-labels');
+      expect(dupErrors).toHaveLength(2);
+    });
+
+    it('should detect duplicates inside nested blocks', () => {
+      const source = `*label: top
+*if: 1
+\t*label: top`;
+      const result = lint(source);
+
+      const dupErrors = result.messages.filter(m => m.ruleId === 'no-duplicate-labels');
+      expect(dupErrors).toHaveLength(1);
+      expect(dupErrors[0].message).toContain("Duplicate label 'top'");
+    });
+
+    it('should be configurable to off', () => {
+      const source = `*label: x
+*label: x`;
+      const result = lint(source, { rules: { 'no-duplicate-labels': 'off' } });
+
+      const dupErrors = result.messages.filter(m => m.ruleId === 'no-duplicate-labels');
+      expect(dupErrors).toHaveLength(0);
+    });
+  });
+
   describe('indent-style rule', () => {
     it('should report error for space indentation', () => {
       const source = `*if: true
