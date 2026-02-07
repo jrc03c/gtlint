@@ -4,11 +4,11 @@ import { Linter } from '../src/linter/linter.js';
 import { Formatter } from '../src/formatter/formatter.js';
 
 describe('Directives Parser', () => {
-  describe('gtlint-disable / gtlint-enable', () => {
+  describe('@gtlint-disable / @gtlint-enable', () => {
     it('should disable all rules in a region', () => {
-      const source = `-- gtlint-disable
+      const source = `-- @gtlint-disable
 *set: x
--- gtlint-enable`;
+-- @gtlint-enable`;
       const state = parseDirectives(source);
 
       expect(isRuleDisabled(state, 2, 'no-unused-vars')).toBe(true);
@@ -17,9 +17,9 @@ describe('Directives Parser', () => {
     });
 
     it('should disable specific rules in a region', () => {
-      const source = `-- gtlint-disable no-unused-vars
+      const source = `-- @gtlint-disable no-unused-vars
 *set: x
--- gtlint-enable`;
+-- @gtlint-enable`;
       const state = parseDirectives(source);
 
       expect(isRuleDisabled(state, 2, 'no-unused-vars')).toBe(true);
@@ -27,9 +27,9 @@ describe('Directives Parser', () => {
     });
 
     it('should handle multiple specific rules', () => {
-      const source = `-- gtlint-disable no-unused-vars, no-undefined-vars
+      const source = `-- @gtlint-disable no-unused-vars, no-undefined-vars
 *set: x
--- gtlint-enable`;
+-- @gtlint-enable`;
       const state = parseDirectives(source);
 
       expect(isRuleDisabled(state, 2, 'no-unused-vars')).toBe(true);
@@ -38,11 +38,11 @@ describe('Directives Parser', () => {
     });
 
     it('should re-enable specific rules while keeping others disabled', () => {
-      const source = `-- gtlint-disable no-unused-vars, no-undefined-vars
+      const source = `-- @gtlint-disable no-unused-vars, no-undefined-vars
 *set: x
--- gtlint-enable no-unused-vars
+-- @gtlint-enable no-unused-vars
 *set: y
--- gtlint-enable`;
+-- @gtlint-enable`;
       const state = parseDirectives(source);
 
       // Line 2: both disabled
@@ -58,7 +58,7 @@ describe('Directives Parser', () => {
     });
 
     it('should handle unclosed disable regions (until end of file)', () => {
-      const source = `-- gtlint-disable no-unused-vars
+      const source = `-- @gtlint-disable no-unused-vars
 *set: x
 *set: y`;
       const state = parseDirectives(source);
@@ -68,9 +68,9 @@ describe('Directives Parser', () => {
     });
   });
 
-  describe('gtlint-disable-next-line', () => {
+  describe('@gtlint-disable-next-line', () => {
     it('should disable all rules for the next line only', () => {
-      const source = `-- gtlint-disable-next-line
+      const source = `-- @gtlint-disable-next-line
 *set: x
 *set: y`;
       const state = parseDirectives(source);
@@ -81,7 +81,7 @@ describe('Directives Parser', () => {
     });
 
     it('should disable specific rules for the next line only', () => {
-      const source = `-- gtlint-disable-next-line no-unused-vars
+      const source = `-- @gtlint-disable-next-line no-unused-vars
 *set: x
 *set: y`;
       const state = parseDirectives(source);
@@ -92,7 +92,7 @@ describe('Directives Parser', () => {
     });
 
     it('should handle multiple rules in disable-next-line', () => {
-      const source = `-- gtlint-disable-next-line no-unused-vars, no-undefined-vars
+      const source = `-- @gtlint-disable-next-line no-unused-vars, no-undefined-vars
 *set: x = y`;
       const state = parseDirectives(source);
 
@@ -162,12 +162,12 @@ describe('Directives Parser', () => {
 });
 
 describe('Linter with Directives', () => {
-  describe('gtlint-disable', () => {
+  describe('@gtlint-disable', () => {
     it('should suppress all warnings in disabled region', () => {
       const linter = new Linter();
-      const source = `-- gtlint-disable
+      const source = `-- @gtlint-disable
 >> x = undefinedVar
--- gtlint-enable`;
+-- @gtlint-enable`;
       const result = linter.lint(source);
 
       expect(result.messages).toHaveLength(0);
@@ -175,9 +175,9 @@ describe('Linter with Directives', () => {
 
     it('should suppress specific rule in disabled region', () => {
       const linter = new Linter();
-      const source = `-- gtlint-disable no-undefined-vars
+      const source = `-- @gtlint-disable no-undefined-vars
 >> x = undefinedVar
--- gtlint-enable`;
+-- @gtlint-enable`;
       const result = linter.lint(source);
 
       // Should have unused-vars warning but not undefined-vars
@@ -189,10 +189,10 @@ describe('Linter with Directives', () => {
     });
   });
 
-  describe('gtlint-disable-next-line', () => {
+  describe('@gtlint-disable-next-line', () => {
     it('should suppress warnings for next line only', () => {
       const linter = new Linter();
-      const source = `-- gtlint-disable-next-line
+      const source = `-- @gtlint-disable-next-line
 >> x = undefinedVar1
 >> y = undefinedVar2`;
       const result = linter.lint(source);
@@ -330,12 +330,12 @@ describe('Linter with Directives', () => {
     });
   });
 
-  describe('gt-disable / gt-enable (combined)', () => {
+  describe('@gt-disable / @gt-enable (combined)', () => {
     it('should disable all lint rules in a region', () => {
       const linter = new Linter();
-      const source = `-- gt-disable
+      const source = `-- @gt-disable
 >> x = undefinedVar
--- gt-enable`;
+-- @gt-enable`;
       const result = linter.lint(source);
 
       expect(result.messages).toHaveLength(0);
@@ -343,9 +343,9 @@ describe('Linter with Directives', () => {
 
     it('should disable specific lint rules in a region', () => {
       const linter = new Linter();
-      const source = `-- gt-disable no-undefined-vars
+      const source = `-- @gt-disable no-undefined-vars
 >> x = undefinedVar
--- gt-enable`;
+-- @gt-enable`;
       const result = linter.lint(source);
 
       // Should have unused-vars warning but not undefined-vars
@@ -357,10 +357,10 @@ describe('Linter with Directives', () => {
     });
   });
 
-  describe('gt-disable-next-line', () => {
+  describe('@gt-disable-next-line', () => {
     it('should disable all lint rules for the next line only', () => {
       const linter = new Linter();
-      const source = `-- gt-disable-next-line
+      const source = `-- @gt-disable-next-line
 >> x = undefinedVar1
 >> y = undefinedVar2`;
       const result = linter.lint(source);
@@ -375,7 +375,7 @@ describe('Linter with Directives', () => {
 
     it('should disable specific lint rules for the next line only', () => {
       const linter = new Linter();
-      const source = `-- gt-disable-next-line no-undefined-vars
+      const source = `-- @gt-disable-next-line no-undefined-vars
 >> x = undefinedVar
 >> y = anotherUndefined`;
       const result = linter.lint(source);
@@ -394,19 +394,19 @@ describe('Linter with Directives', () => {
 });
 
 describe('Directives Parser - Format Directives', () => {
-  describe('gtformat-disable / gtformat-enable', () => {
+  describe('@gtformat-disable / @gtformat-enable', () => {
     it('should mark lines as format-disabled in a region', () => {
-      const source = `-- gtformat-disable
+      const source = `-- @gtformat-disable
 >>   x   =   5
--- gtformat-enable`;
+-- @gtformat-enable`;
       const state = parseDirectives(source);
 
       expect(isFormatDisabled(state, 2)).toBe(true);
       expect(isFormatDisabled(state, 3)).toBe(false);
     });
 
-    it('should handle unclosed gtformat-disable (until EOF)', () => {
-      const source = `-- gtformat-disable
+    it('should handle unclosed @gtformat-disable (until EOF)', () => {
+      const source = `-- @gtformat-disable
 >>   x   =   5
 >>   y   =   10`;
       const state = parseDirectives(source);
@@ -416,19 +416,19 @@ describe('Directives Parser - Format Directives', () => {
     });
   });
 
-  describe('gt-disable / gt-enable affects format', () => {
-    it('should mark lines as format-disabled with gt-disable', () => {
-      const source = `-- gt-disable
+  describe('@gt-disable / @gt-enable affects format', () => {
+    it('should mark lines as format-disabled with @gt-disable', () => {
+      const source = `-- @gt-disable
 >>   x   =   5
--- gt-enable`;
+-- @gt-enable`;
       const state = parseDirectives(source);
 
       expect(isFormatDisabled(state, 2)).toBe(true);
       expect(isFormatDisabled(state, 3)).toBe(false);
     });
 
-    it('should mark next line as format-disabled with gt-disable-next-line', () => {
-      const source = `-- gt-disable-next-line
+    it('should mark next line as format-disabled with @gt-disable-next-line', () => {
+      const source = `-- @gt-disable-next-line
 >>   x   =   5
 >>   y   =   10`;
       const state = parseDirectives(source);
@@ -438,11 +438,11 @@ describe('Directives Parser - Format Directives', () => {
     });
   });
 
-  describe('gtlint-disable does NOT affect format', () => {
-    it('should not mark lines as format-disabled with gtlint-disable', () => {
-      const source = `-- gtlint-disable
+  describe('@gtlint-disable does NOT affect format', () => {
+    it('should not mark lines as format-disabled with @gtlint-disable', () => {
+      const source = `-- @gtlint-disable
 >>   x   =   5
--- gtlint-enable`;
+-- @gtlint-enable`;
       const state = parseDirectives(source);
 
       expect(isFormatDisabled(state, 2)).toBe(false);
@@ -453,12 +453,12 @@ describe('Directives Parser - Format Directives', () => {
 });
 
 describe('Formatter with Directives', () => {
-  describe('gtformat-disable', () => {
+  describe('@gtformat-disable', () => {
     it('should preserve lines exactly in disabled regions', () => {
       const formatter = new Formatter();
-      const source = `-- gtformat-disable
+      const source = `-- @gtformat-disable
 >>   x   =   5
--- gtformat-enable`;
+-- @gtformat-enable`;
       const result = formatter.format(source);
 
       // The badly-spaced line should be preserved
@@ -468,9 +468,9 @@ describe('Formatter with Directives', () => {
     it('should format lines outside disabled regions', () => {
       const formatter = new Formatter();
       const source = `>>   x   =   5
--- gtformat-disable
+-- @gtformat-disable
 >>   y   =   10
--- gtformat-enable
+-- @gtformat-enable
 >>   z   =   15`;
       const result = formatter.format(source);
 
@@ -483,12 +483,12 @@ describe('Formatter with Directives', () => {
     });
   });
 
-  describe('gt-disable', () => {
-    it('should preserve lines in gt-disable regions', () => {
+  describe('@gt-disable', () => {
+    it('should preserve lines in @gt-disable regions', () => {
       const formatter = new Formatter();
-      const source = `-- gt-disable
+      const source = `-- @gt-disable
 >>   x   =   5
--- gt-enable`;
+-- @gt-enable`;
       const result = formatter.format(source);
 
       // The badly-spaced line should be preserved
@@ -496,10 +496,10 @@ describe('Formatter with Directives', () => {
     });
   });
 
-  describe('gt-disable-next-line', () => {
+  describe('@gt-disable-next-line', () => {
     it('should preserve the next line only', () => {
       const formatter = new Formatter();
-      const source = `-- gt-disable-next-line
+      const source = `-- @gt-disable-next-line
 >>   x   =   5
 >>   y   =   10`;
       const result = formatter.format(source);
@@ -511,15 +511,15 @@ describe('Formatter with Directives', () => {
     });
   });
 
-  describe('gtlint-disable does NOT affect formatter', () => {
-    it('should still format lines in gtlint-disable regions', () => {
+  describe('@gtlint-disable does NOT affect formatter', () => {
+    it('should still format lines in @gtlint-disable regions', () => {
       const formatter = new Formatter();
-      const source = `-- gtlint-disable
+      const source = `-- @gtlint-disable
 >>   x   =   5
--- gtlint-enable`;
+-- @gtlint-enable`;
       const result = formatter.format(source);
 
-      // The line should be formatted since gtlint-disable doesn't affect formatter
+      // The line should be formatted since @gtlint-disable doesn't affect formatter
       expect(result).toContain('>> x = 5');
     });
   });

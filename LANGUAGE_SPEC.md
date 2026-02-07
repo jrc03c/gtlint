@@ -382,26 +382,26 @@ Control linting and formatting behavior with special comments. Three prefix type
 
 **Combined directives** (affect both linting and formatting):
 ```guidedtrack
--- gt-disable                    -- Disable lint + format until gt-enable or EOF
--- gt-enable                     -- Re-enable lint + format
--- gt-disable-next-line          -- Disable lint + format for next line only
--- gt-disable-next-line rule1    -- Disable specific lint rules + format for next line
+-- @gt-disable                    -- Disable lint + format until @gt-enable or EOF
+-- @gt-enable                     -- Re-enable lint + format
+-- @@gt-disable-next-line          -- Disable lint + format for next line only
+-- @@gt-disable-next-line rule1    -- Disable specific lint rules + format for next line
 ```
 
 **Lint-only directives**:
 ```guidedtrack
--- gtlint-disable                -- Disable all lint rules until gtlint-enable or EOF
--- gtlint-disable rule1, rule2   -- Disable specific lint rules
--- gtlint-enable                 -- Re-enable all lint rules
--- gtlint-enable rule1           -- Re-enable specific lint rule
--- gtlint-disable-next-line      -- Disable all lint rules for next line
--- gtlint-disable-next-line rule1, rule2  -- Disable specific rules for next line
+-- @gtlint-disable                -- Disable all lint rules until @gtlint-enable or EOF
+-- @gtlint-disable rule1, rule2   -- Disable specific lint rules
+-- @gtlint-enable                 -- Re-enable all lint rules
+-- @gtlint-enable rule1           -- Re-enable specific lint rule
+-- @@gtlint-disable-next-line      -- Disable all lint rules for next line
+-- @@gtlint-disable-next-line rule1, rule2  -- Disable specific rules for next line
 ```
 
 **Format-only directives**:
 ```guidedtrack
--- gtformat-disable              -- Disable formatting until gtformat-enable or EOF
--- gtformat-enable               -- Re-enable formatting
+-- @gtformat-disable              -- Disable formatting until @gtformat-enable or EOF
+-- @gtformat-enable               -- Re-enable formatting
 ```
 
 Note: `gtformat-*` directives don't support rule lists since formatting isn't rule-based.

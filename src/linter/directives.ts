@@ -4,22 +4,22 @@
  * Supported directives:
  *
  * Combined (affects both linting and formatting):
- * - `-- gt-disable` - Disable both lint and format until `gt-enable` or EOF
- * - `-- gt-enable` - Re-enable both lint and format
- * - `-- gt-disable-next-line` - Disable both lint and format for next line only
- * - `-- gt-disable-next-line rule1, rule2` - Disable specific lint rules and format for next line
+ * - `-- @gt-disable` - Disable both lint and format until `@gt-enable` or EOF
+ * - `-- @gt-enable` - Re-enable both lint and format
+ * - `-- @gt-disable-next-line` - Disable both lint and format for next line only
+ * - `-- @gt-disable-next-line rule1, rule2` - Disable specific lint rules and format for next line
  *
  * Lint-only:
- * - `-- gtlint-disable` - Disable all lint rules until `gtlint-enable` or EOF
- * - `-- gtlint-disable rule1, rule2` - Disable specific lint rules
- * - `-- gtlint-enable` - Re-enable all lint rules
- * - `-- gtlint-enable rule1` - Re-enable specific lint rule
- * - `-- gtlint-disable-next-line` - Disable all lint rules for next line
- * - `-- gtlint-disable-next-line rule1, rule2` - Disable specific lint rules for next line
+ * - `-- @gtlint-disable` - Disable all lint rules until `@gtlint-enable` or EOF
+ * - `-- @gtlint-disable rule1, rule2` - Disable specific lint rules
+ * - `-- @gtlint-enable` - Re-enable all lint rules
+ * - `-- @gtlint-enable rule1` - Re-enable specific lint rule
+ * - `-- @gtlint-disable-next-line` - Disable all lint rules for next line
+ * - `-- @gtlint-disable-next-line rule1, rule2` - Disable specific lint rules for next line
  *
  * Format-only:
- * - `-- gtformat-disable` - Disable formatting until `gtformat-enable` or EOF
- * - `-- gtformat-enable` - Re-enable formatting
+ * - `-- @gtformat-disable` - Disable formatting until `@gtformat-enable` or EOF
+ * - `-- @gtformat-enable` - Re-enable formatting
  *
  * Variable tracking:
  * - `-- @from-parent: var1, var2` - Variables received from parent program (suppresses no-undefined-vars)
@@ -84,9 +84,9 @@ export function parseDirectives(source: string): DirectiveState {
 
     const commentContent = commentMatch[1].trim();
 
-    // Parse gt-disable-next-line (combined lint + format)
-    if (commentContent.startsWith('gt-disable-next-line')) {
-      const rulesStr = commentContent.slice('gt-disable-next-line'.length).trim();
+    // Parse @gt-disable-next-line (combined lint + format)
+    if (commentContent.startsWith('@gt-disable-next-line')) {
+      const rulesStr = commentContent.slice('@gt-disable-next-line'.length).trim();
       if (rulesStr) {
         nextLineLintDisable = parseRuleList(rulesStr);
       } else {
@@ -96,9 +96,9 @@ export function parseDirectives(source: string): DirectiveState {
       continue;
     }
 
-    // Parse gt-disable (combined lint + format)
-    if (commentContent.startsWith('gt-disable') && !commentContent.startsWith('gt-disable-next-line')) {
-      const rulesStr = commentContent.slice('gt-disable'.length).trim();
+    // Parse @gt-disable (combined lint + format)
+    if (commentContent.startsWith('@gt-disable') && !commentContent.startsWith('@gt-disable-next-line')) {
+      const rulesStr = commentContent.slice('@gt-disable'.length).trim();
       if (rulesStr) {
         const rules = parseRuleList(rulesStr);
         for (const rule of rules) {
@@ -114,9 +114,9 @@ export function parseDirectives(source: string): DirectiveState {
       continue;
     }
 
-    // Parse gt-enable (combined lint + format)
-    if (commentContent.startsWith('gt-enable')) {
-      const rulesStr = commentContent.slice('gt-enable'.length).trim();
+    // Parse @gt-enable (combined lint + format)
+    if (commentContent.startsWith('@gt-enable')) {
+      const rulesStr = commentContent.slice('@gt-enable'.length).trim();
       if (rulesStr) {
         // Re-enable specific lint rules
         const rules = parseRuleList(rulesStr);
@@ -146,9 +146,9 @@ export function parseDirectives(source: string): DirectiveState {
       continue;
     }
 
-    // Parse gtlint-disable-next-line
-    if (commentContent.startsWith('gtlint-disable-next-line')) {
-      const rulesStr = commentContent.slice('gtlint-disable-next-line'.length).trim();
+    // Parse @gtlint-disable-next-line
+    if (commentContent.startsWith('@gtlint-disable-next-line')) {
+      const rulesStr = commentContent.slice('@gtlint-disable-next-line'.length).trim();
       if (rulesStr) {
         nextLineLintDisable = parseRuleList(rulesStr);
       } else {
@@ -157,9 +157,9 @@ export function parseDirectives(source: string): DirectiveState {
       continue;
     }
 
-    // Parse gtlint-disable
-    if (commentContent.startsWith('gtlint-disable') && !commentContent.startsWith('gtlint-disable-next-line')) {
-      const rulesStr = commentContent.slice('gtlint-disable'.length).trim();
+    // Parse @gtlint-disable
+    if (commentContent.startsWith('@gtlint-disable') && !commentContent.startsWith('@gtlint-disable-next-line')) {
+      const rulesStr = commentContent.slice('@gtlint-disable'.length).trim();
       if (rulesStr) {
         const rules = parseRuleList(rulesStr);
         for (const rule of rules) {
@@ -171,9 +171,9 @@ export function parseDirectives(source: string): DirectiveState {
       continue;
     }
 
-    // Parse gtlint-enable
-    if (commentContent.startsWith('gtlint-enable')) {
-      const rulesStr = commentContent.slice('gtlint-enable'.length).trim();
+    // Parse @gtlint-enable
+    if (commentContent.startsWith('@gtlint-enable')) {
+      const rulesStr = commentContent.slice('@gtlint-enable'.length).trim();
       if (rulesStr) {
         // Re-enable specific rules
         const rules = parseRuleList(rulesStr);
@@ -199,16 +199,16 @@ export function parseDirectives(source: string): DirectiveState {
       continue;
     }
 
-    // Parse gtformat-disable
-    if (commentContent.startsWith('gtformat-disable') && !commentContent.startsWith('gtformat-disable-next-line')) {
+    // Parse @gtformat-disable
+    if (commentContent.startsWith('@gtformat-disable') && !commentContent.startsWith('@gtformat-disable-next-line')) {
       if (formatDisableStart === null) {
         formatDisableStart = lineNum;
       }
       continue;
     }
 
-    // Parse gtformat-enable
-    if (commentContent.startsWith('gtformat-enable')) {
+    // Parse @gtformat-enable
+    if (commentContent.startsWith('@gtformat-enable')) {
       if (formatDisableStart !== null) {
         addFormatDisabledRegion(state, formatDisableStart, lineNum - 1);
         formatDisableStart = null;

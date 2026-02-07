@@ -4,22 +4,22 @@
  * Supported directives:
  *
  * Combined (affects both linting and formatting):
- * - `-- gt-disable` - Disable both lint and format until `gt-enable` or EOF
- * - `-- gt-enable` - Re-enable both lint and format
- * - `-- gt-disable-next-line` - Disable both lint and format for next line only
- * - `-- gt-disable-next-line rule1, rule2` - Disable specific lint rules and format for next line
+ * - `-- @gt-disable` - Disable both lint and format until `@gt-enable` or EOF
+ * - `-- @gt-enable` - Re-enable both lint and format
+ * - `-- @gt-disable-next-line` - Disable both lint and format for next line only
+ * - `-- @gt-disable-next-line rule1, rule2` - Disable specific lint rules and format for next line
  *
  * Lint-only:
- * - `-- gtlint-disable` - Disable all lint rules until `gtlint-enable` or EOF
- * - `-- gtlint-disable rule1, rule2` - Disable specific lint rules
- * - `-- gtlint-enable` - Re-enable all lint rules
- * - `-- gtlint-enable rule1` - Re-enable specific lint rule
- * - `-- gtlint-disable-next-line` - Disable all lint rules for next line
- * - `-- gtlint-disable-next-line rule1, rule2` - Disable specific lint rules for next line
+ * - `-- @gtlint-disable` - Disable all lint rules until `@gtlint-enable` or EOF
+ * - `-- @gtlint-disable rule1, rule2` - Disable specific lint rules
+ * - `-- @gtlint-enable` - Re-enable all lint rules
+ * - `-- @gtlint-enable rule1` - Re-enable specific lint rule
+ * - `-- @gtlint-disable-next-line` - Disable all lint rules for next line
+ * - `-- @gtlint-disable-next-line rule1, rule2` - Disable specific lint rules for next line
  *
  * Format-only:
- * - `-- gtformat-disable` - Disable formatting until `gtformat-enable` or EOF
- * - `-- gtformat-enable` - Re-enable formatting
+ * - `-- @gtformat-disable` - Disable formatting until `@gtformat-enable` or EOF
+ * - `-- @gtformat-enable` - Re-enable formatting
  *
  * Variable tracking:
  * - `-- @from-parent: var1, var2` - Variables received from parent program (suppresses no-undefined-vars)

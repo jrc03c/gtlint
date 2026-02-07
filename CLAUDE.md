@@ -88,9 +88,9 @@ The core infrastructure for GTLint is now in place:
   - `no-single-quotes` - enforces double quotes for strings
   - `correct-indentation` - validates indentation levels (over-indentation, body not allowed)
 - Supports inline directive comments with three prefix types:
-  - `gt-*` directives affect both linting and formatting
-  - `gtlint-*` directives affect linting only
-  - `gtformat-*` directives affect formatting only
+  - `@gt-*` directives affect both linting and formatting
+  - `@gtlint-*` directives affect linting only
+  - `@gtformat-*` directives affect formatting only
 
 ### Formatter (`src/formatter/`)
 
@@ -98,7 +98,7 @@ The core infrastructure for GTLint is now in place:
 - Configurable options for spacing, trailing whitespace, final newline
 - Configurable spaces inside braces (`spaceInsideBraces`), brackets (`spaceInsideBrackets`), and parentheses (`spaceInsideParens`) — each independently configurable, defaults to 0; empty pairs are never padded; string interpolation braces in text lines are unaffected
 - Normalizes blank lines: collapses multiple consecutive blank lines to at most one (does not insert blank lines — the author controls blank line placement)
-- Respects `gtformat-disable` and `gt-disable` directive regions
+- Respects `@gtformat-disable` and `@gt-disable` directive regions
 
 ### CLI (`src/cli.ts`)
 

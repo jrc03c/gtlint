@@ -304,11 +304,11 @@ Second line
       expect(result).toBe('*header: Welcome\nSome text here\n');
     });
 
-    it('should respect gtformat-disable regions', () => {
-      const source = '-- gtformat-disable\n*question: Name?\n\t*save: name\nHi!\n-- gtformat-enable\n';
+    it('should respect @gtformat-disable regions', () => {
+      const source = '-- @gtformat-disable\n*question: Name?\n\t*save: name\nHi!\n-- @gtformat-enable\n';
       const result = format(source);
 
-      expect(result).toBe('-- gtformat-disable\n*question: Name?\n\t*save: name\nHi!\n-- gtformat-enable\n');
+      expect(result).toBe('-- @gtformat-disable\n*question: Name?\n\t*save: name\nHi!\n-- @gtformat-enable\n');
     });
 
     it('should be idempotent', () => {

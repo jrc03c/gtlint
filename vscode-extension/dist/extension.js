@@ -3738,8 +3738,8 @@ function parseDirectives(source) {
     if (!commentMatch)
       continue;
     const commentContent = commentMatch[1].trim();
-    if (commentContent.startsWith("gt-disable-next-line")) {
-      const rulesStr = commentContent.slice("gt-disable-next-line".length).trim();
+    if (commentContent.startsWith("@gt-disable-next-line")) {
+      const rulesStr = commentContent.slice("@gt-disable-next-line".length).trim();
       if (rulesStr) {
         nextLineLintDisable = parseRuleList(rulesStr);
       } else {
@@ -3748,8 +3748,8 @@ function parseDirectives(source) {
       nextLineFormatDisable = true;
       continue;
     }
-    if (commentContent.startsWith("gt-disable") && !commentContent.startsWith("gt-disable-next-line")) {
-      const rulesStr = commentContent.slice("gt-disable".length).trim();
+    if (commentContent.startsWith("@gt-disable") && !commentContent.startsWith("@gt-disable-next-line")) {
+      const rulesStr = commentContent.slice("@gt-disable".length).trim();
       if (rulesStr) {
         const rules2 = parseRuleList(rulesStr);
         for (const rule of rules2) {
@@ -3763,8 +3763,8 @@ function parseDirectives(source) {
       }
       continue;
     }
-    if (commentContent.startsWith("gt-enable")) {
-      const rulesStr = commentContent.slice("gt-enable".length).trim();
+    if (commentContent.startsWith("@gt-enable")) {
+      const rulesStr = commentContent.slice("@gt-enable".length).trim();
       if (rulesStr) {
         const rules2 = parseRuleList(rulesStr);
         for (const rule of rules2) {
@@ -3790,8 +3790,8 @@ function parseDirectives(source) {
       }
       continue;
     }
-    if (commentContent.startsWith("gtlint-disable-next-line")) {
-      const rulesStr = commentContent.slice("gtlint-disable-next-line".length).trim();
+    if (commentContent.startsWith("@gtlint-disable-next-line")) {
+      const rulesStr = commentContent.slice("@gtlint-disable-next-line".length).trim();
       if (rulesStr) {
         nextLineLintDisable = parseRuleList(rulesStr);
       } else {
@@ -3799,8 +3799,8 @@ function parseDirectives(source) {
       }
       continue;
     }
-    if (commentContent.startsWith("gtlint-disable") && !commentContent.startsWith("gtlint-disable-next-line")) {
-      const rulesStr = commentContent.slice("gtlint-disable".length).trim();
+    if (commentContent.startsWith("@gtlint-disable") && !commentContent.startsWith("@gtlint-disable-next-line")) {
+      const rulesStr = commentContent.slice("@gtlint-disable".length).trim();
       if (rulesStr) {
         const rules2 = parseRuleList(rulesStr);
         for (const rule of rules2) {
@@ -3811,8 +3811,8 @@ function parseDirectives(source) {
       }
       continue;
     }
-    if (commentContent.startsWith("gtlint-enable")) {
-      const rulesStr = commentContent.slice("gtlint-enable".length).trim();
+    if (commentContent.startsWith("@gtlint-enable")) {
+      const rulesStr = commentContent.slice("@gtlint-enable".length).trim();
       if (rulesStr) {
         const rules2 = parseRuleList(rulesStr);
         for (const rule of rules2) {
@@ -3834,13 +3834,13 @@ function parseDirectives(source) {
       }
       continue;
     }
-    if (commentContent.startsWith("gtformat-disable") && !commentContent.startsWith("gtformat-disable-next-line")) {
+    if (commentContent.startsWith("@gtformat-disable") && !commentContent.startsWith("@gtformat-disable-next-line")) {
       if (formatDisableStart === null) {
         formatDisableStart = lineNum;
       }
       continue;
     }
-    if (commentContent.startsWith("gtformat-enable")) {
+    if (commentContent.startsWith("@gtformat-enable")) {
       if (formatDisableStart !== null) {
         addFormatDisabledRegion(state, formatDisableStart, lineNum - 1);
         formatDisableStart = null;

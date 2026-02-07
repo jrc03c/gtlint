@@ -1,4 +1,4 @@
--- gtlint-disable-next-line
+-- @gtlint-disable-next-line
 {{docs}}
 
 -- @from-parent: alternateEmailSolicitation
