@@ -281,6 +281,98 @@ describe('Linter', () => {
     });
   });
 
+  describe('correct-indentation rule', () => {
+    it('should report error for over-indentation', () => {
+      const source = `*if: 0 < 1\n\t\t*program: Some Cool Program`;
+      const result = lint(source);
+
+      const errors = result.messages.filter(m => m.ruleId === 'correct-indentation');
+      const overIndent = errors.find(m => m.message.includes('Expected indentation'));
+      expect(overIndent).toBeDefined();
+      expect(overIndent?.message).toBe('Expected indentation of 1 tab but found 2');
+    });
+
+    it('should report error when body is not allowed', () => {
+      const source = `*button: Click me\n\tSome text`;
+      const result = lint(source);
+
+      const errors = result.messages.filter(m => m.ruleId === 'correct-indentation');
+      const bodyNotAllowed = errors.find(m => m.message.includes('does not allow'));
+      expect(bodyNotAllowed).toBeDefined();
+      expect(bodyNotAllowed?.message).toBe("'*button:' does not allow an indented body");
+    });
+
+    it('should not report error for valid indentation', () => {
+      const source = `*if: 0 < 1\n\t*program: Some Cool Program`;
+      const result = lint(source);
+
+      const errors = result.messages.filter(m => m.ruleId === 'correct-indentation');
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should not report error for optional body absent', () => {
+      const source = `*question: What?\nGreat!`;
+      const result = lint(source);
+
+      const errors = result.messages.filter(m => m.ruleId === 'correct-indentation');
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should not report error for optional body present', () => {
+      const source = `*question: What?\n\tRed\n\tGreen`;
+      const result = lint(source);
+
+      const errors = result.messages.filter(m => m.ruleId === 'correct-indentation');
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should report error for nested over-indentation', () => {
+      const source = `*if: 0 < 1\n\t*if: 1 < 2\n\t\t\tSome text`;
+      const result = lint(source);
+
+      const errors = result.messages.filter(m => m.ruleId === 'correct-indentation');
+      const overIndent = errors.find(m => m.message.includes('Expected indentation'));
+      expect(overIndent).toBeDefined();
+      expect(overIndent?.message).toBe('Expected indentation of 2 tabs but found 3');
+    });
+
+    it('should report error for sub-keyword over-indentation', () => {
+      const source = `*question: What?\n\t\t*save: answer`;
+      const result = lint(source);
+
+      const errors = result.messages.filter(m => m.ruleId === 'correct-indentation');
+      const overIndent = errors.find(m => m.message.includes('Expected indentation'));
+      expect(overIndent).toBeDefined();
+      expect(overIndent?.message).toBe('Expected indentation of 1 tab but found 2');
+    });
+
+    it('should report error for sub-keyword body over-indentation', () => {
+      const source = `*chart: My Chart\n\t*xaxis:\n\t\t\tCategory A`;
+      const result = lint(source);
+
+      const errors = result.messages.filter(m => m.ruleId === 'correct-indentation');
+      const overIndent = errors.find(m => m.message.includes('Expected indentation'));
+      expect(overIndent).toBeDefined();
+      expect(overIndent?.message).toBe('Expected indentation of 2 tabs but found 3');
+    });
+
+    it('should not report error for empty body on body-required keyword', () => {
+      const source = `*if: 0 < 1\n*program: Some Cool Program`;
+      const result = lint(source);
+
+      const errors = result.messages.filter(m => m.ruleId === 'correct-indentation');
+      expect(errors).toHaveLength(0);
+    });
+
+    it('should not report error for indented comments', () => {
+      const source = `Some text\n\t--a comment\n\t-- another comment`;
+      const result = lint(source);
+
+      const errors = result.messages.filter(m => m.ruleId === 'correct-indentation');
+      expect(errors).toHaveLength(0);
+    });
+  });
+
   describe('Auto-fix', () => {
     it('should have fix method on Linter', () => {
       const linter = new Linter();

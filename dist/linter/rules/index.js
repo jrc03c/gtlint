@@ -13,6 +13,7 @@ import { validSubkeywordValue } from './valid-subkeyword-value.js';
 import { noInlineArgument } from './no-inline-argument.js';
 import { gotoNeedsResetInEvents } from './goto-needs-reset-in-events.js';
 import { purchaseSubkeywordConstraints } from './purchase-subkeyword-constraints.js';
+import { correctIndentation } from './correct-indentation.js';
 export const rules = {
     'no-undefined-vars': noUndefinedVars,
     'no-unused-vars': noUnusedVars,
@@ -29,6 +30,7 @@ export const rules = {
     'no-inline-argument': noInlineArgument,
     'goto-needs-reset-in-events': gotoNeedsResetInEvents,
     'purchase-subkeyword-constraints': purchaseSubkeywordConstraints,
+    'correct-indentation': correctIndentation,
 };
 export function getRule(name) {
     return rules[name];

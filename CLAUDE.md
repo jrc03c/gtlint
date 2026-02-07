@@ -82,6 +82,7 @@ The core infrastructure for GTLint is now in place:
   - `no-unclosed-string` - detects unclosed string literals
   - `no-unclosed-bracket` - detects unclosed brackets/braces/parentheses
   - `no-single-quotes` - enforces double quotes for strings
+  - `correct-indentation` - validates indentation levels (over-indentation, body not allowed)
 - Supports inline directive comments with three prefix types:
   - `gt-*` directives affect both linting and formatting
   - `gtlint-*` directives affect linting only

@@ -1459,7 +1459,8 @@ var DEFAULT_LINTER_CONFIG = {
     "valid-subkeyword-value": "error",
     "no-inline-argument": "error",
     "goto-needs-reset-in-events": "warn",
-    "purchase-subkeyword-constraints": "error"
+    "purchase-subkeyword-constraints": "error",
+    "correct-indentation": "error"
   },
   format: DEFAULT_FORMATTER_CONFIG,
   ignore: ["**/node_modules/**", "**/dist/**"]
@@ -3531,6 +3532,88 @@ var purchaseSubkeywordConstraints = {
   }
 };
 
+// ../dist/linter/rules/correct-indentation.js
+var correctIndentation = {
+  name: "correct-indentation",
+  description: "Validate indentation levels",
+  severity: "error",
+  create(context) {
+    return {
+      Program(node) {
+        const source = context.getSourceCode();
+        const lines = source.split("\n");
+        for (const stmt of node.body) {
+          if (stmt.type === "KeywordStatement") {
+            const actualIndent = getIndentLevel(lines, stmt.loc.start.line);
+            walkKeyword(stmt, actualIndent, lines, context);
+          } else if (stmt.type === "AnswerOption") {
+            const actualIndent = getIndentLevel(lines, stmt.loc.start.line);
+            walkAnswerOption(stmt, actualIndent, lines, context);
+          }
+        }
+      }
+    };
+  }
+};
+function getIndentLevel(lines, lineNumber) {
+  const line = lines[lineNumber - 1];
+  if (!line)
+    return 0;
+  let tabs = 0;
+  while (tabs < line.length && line[tabs] === "	")
+    tabs++;
+  return tabs;
+}
+function walkStatements(statements, expectedIndent, lines, context) {
+  for (const stmt of statements) {
+    if (stmt.type === "CommentStatement")
+      continue;
+    const actualIndent = getIndentLevel(lines, stmt.loc.start.line);
+    if (actualIndent > expectedIndent) {
+      context.report({
+        message: `Expected indentation of ${expectedIndent} ${expectedIndent === 1 ? "tab" : "tabs"} but found ${actualIndent}`,
+        line: stmt.loc.start.line,
+        column: 1
+      });
+    }
+    if (stmt.type === "KeywordStatement") {
+      walkKeyword(stmt, expectedIndent, lines, context);
+    } else if (stmt.type === "AnswerOption") {
+      walkAnswerOption(stmt, expectedIndent, lines, context);
+    }
+  }
+}
+function walkKeyword(node, expectedIndent, lines, context) {
+  const spec = getKeywordSpec(node.keyword);
+  if (spec && !spec.body.allowed && node.body.length > 0) {
+    const firstBodyStmt = node.body[0];
+    context.report({
+      message: `'*${node.keyword}:' does not allow an indented body`,
+      line: firstBodyStmt.loc.start.line,
+      column: firstBodyStmt.loc.start.column
+    });
+  }
+  walkStatements(node.body, expectedIndent + 1, lines, context);
+  for (const sub of node.subKeywords) {
+    walkSubKeyword(sub, expectedIndent, lines, context);
+  }
+}
+function walkSubKeyword(sub, parentIndent, lines, context) {
+  const expectedSubIndent = parentIndent + 1;
+  const actualSubIndent = getIndentLevel(lines, sub.loc.start.line);
+  if (actualSubIndent > expectedSubIndent) {
+    context.report({
+      message: `Expected indentation of ${expectedSubIndent} ${expectedSubIndent === 1 ? "tab" : "tabs"} but found ${actualSubIndent}`,
+      line: sub.loc.start.line,
+      column: 1
+    });
+  }
+  walkStatements(sub.body, parentIndent + 2, lines, context);
+}
+function walkAnswerOption(node, expectedIndent, lines, context) {
+  walkStatements(node.body, expectedIndent + 1, lines, context);
+}
+
 // ../dist/linter/rules/index.js
 var rules = {
   "no-undefined-vars": noUndefinedVars,
@@ -3547,7 +3630,8 @@ var rules = {
   "valid-subkeyword-value": validSubkeywordValue,
   "no-inline-argument": noInlineArgument,
   "goto-needs-reset-in-events": gotoNeedsResetInEvents,
-  "purchase-subkeyword-constraints": purchaseSubkeywordConstraints
+  "purchase-subkeyword-constraints": purchaseSubkeywordConstraints,
+  "correct-indentation": correctIndentation
 };
 
 // ../dist/linter/directives.js

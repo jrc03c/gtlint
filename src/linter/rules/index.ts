@@ -14,6 +14,7 @@ import { validSubkeywordValue } from './valid-subkeyword-value.js';
 import { noInlineArgument } from './no-inline-argument.js';
 import { gotoNeedsResetInEvents } from './goto-needs-reset-in-events.js';
 import { purchaseSubkeywordConstraints } from './purchase-subkeyword-constraints.js';
+import { correctIndentation } from './correct-indentation.js';
 
 export const rules: Record<string, LintRule> = {
   'no-undefined-vars': noUndefinedVars,
@@ -31,6 +32,7 @@ export const rules: Record<string, LintRule> = {
   'no-inline-argument': noInlineArgument,
   'goto-needs-reset-in-events': gotoNeedsResetInEvents,
   'purchase-subkeyword-constraints': purchaseSubkeywordConstraints,
+  'correct-indentation': correctIndentation,
 };
 
 export function getRule(name: string): LintRule | undefined {

@@ -105,7 +105,8 @@ export default {
     'valid-sub-keyword': 'error',
     'no-unclosed-string': 'error',
     'no-unclosed-bracket': 'error',
-    'no-single-quotes': 'warn'
+    'no-single-quotes': 'warn',
+    'correct-indentation': 'error'
   },
   formatter: {
     removeTrailingWhitespace: true,
@@ -138,9 +139,13 @@ GTLint includes the following linting rules:
 - **`no-unclosed-string`** - Detects unclosed string literals
 - **`no-unclosed-bracket`** - Detects unclosed brackets, braces, or parentheses
 
-### Style
+### Indentation
 
 - **`indent-style`** - Enforces tab-only indentation (GuidedTrack requirement)
+- **`correct-indentation`** - Validates indentation levels: detects over-indentation and content indented under keywords that forbid bodies
+
+### Style
+
 - **`no-single-quotes`** - Enforces double quotes for string literals
 
 ## Disabling Rules and Formatting

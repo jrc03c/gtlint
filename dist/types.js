@@ -22,6 +22,7 @@ export const DEFAULT_LINTER_CONFIG = {
         'no-inline-argument': 'error',
         'goto-needs-reset-in-events': 'warn',
         'purchase-subkeyword-constraints': 'error',
+        'correct-indentation': 'error',
     },
     format: DEFAULT_FORMATTER_CONFIG,
     ignore: ['**/node_modules/**', '**/dist/**'],
