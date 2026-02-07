@@ -2,7 +2,7 @@
   "name": "gtlint-vscode",
   "displayName": "GTLint - GuidedTrack Linter",
   "description": "Linting, formatting, and code actions for GuidedTrack (.gt) files",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "publisher": "gtlint",
   "engines": {
     "vscode": "^1.85.0"
@@ -143,7 +143,7 @@
     "vscode:prepublish": "pnpm run build",
     "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
     "watch": "pnpm run build -- --watch",
-    "package": "vsce package --no-dependencies -o dist/gtlint-vscode-$npm_package_version.vsix"
+    "package": "vsce package --no-dependencies -o dist/gt-lint.vsix"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",

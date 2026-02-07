@@ -200,4 +200,4 @@ cd vscode-extension && pnpm run package
 - **Minor** (0.1.0 → 0.2.0): New features, new rules, new directives
 - **Major** (0.1.0 → 1.0.0): Breaking changes, major rewrites
 
-The `.vsix` file will be created at `vscode-extension/dist/gtlint-vscode-<version>.vsix`.
+The `.vsix` file will be created at `vscode-extension/dist/gt-lint.vsix` and is committed to the repository for easy installation.

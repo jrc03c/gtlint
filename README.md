@@ -88,7 +88,10 @@ npx gtlint format --check "src/**/*.gt"
 
 GTLint provides a VSCode extension for an integrated development experience:
 
-1. Install the extension from the `vscode-extension/` directory
+1. Install the extension:
+   ```bash
+   code --install-extension vscode-extension/dist/gt-lint.vsix
+   ```
 2. Open any `.gt` file to see syntax highlighting
    - Bold text (`*text*`) renders in bold
    - Italic text (`/text/`) renders in italics
