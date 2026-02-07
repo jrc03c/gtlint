@@ -1,37 +1,12 @@
 {
-  "name": "gt-lint",
-  "version": "0.5.1",
-  "description": "A linter and formatter for the GuidedTrack language",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "author": "jrc03c",
   "bin": {
     "gtlint": "./bin/gtlint.js"
-  },
-  "scripts": {
-    "build": "tsc && pnpm run build:vscode && pnpm run package:vscode",
-    "build:vscode": "cd vscode-extension && pnpm run build",
-    "package:vscode": "cd vscode-extension && pnpm run package",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "node bin/gtlint.js lint",
-    "format": "node bin/gtlint.js format"
-  },
-  "keywords": [
-    "guidedtrack",
-    "linter",
-    "formatter",
-    "gt"
-  ],
-  "author": "",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jrc03c/gt-lint"
   },
   "dependencies": {
     "glob": "^10.3.0"
   },
+  "description": "A linter and formatter for the GuidedTrack language",
   "devDependencies": {
     "@types/node": "^20.10.0",
     "typescript": "^5.3.0",
@@ -41,8 +16,34 @@
     "node": ">=18.0.0"
   },
   "files": [
-    "dist",
-    "bin"
+    "bin",
+    "dist"
   ],
-  "packageManager": "pnpm@10.28.2"
+  "keywords": [
+    "formatter",
+    "gt",
+    "guidedtrack",
+    "linter"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "name": "gt-lint",
+  "packageManager": "pnpm@10.28.2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jrc03c/gt-lint"
+  },
+  "scripts": {
+    "build": "tsc && pnpm run build:vscode && pnpm run package:vscode",
+    "build:vscode": "cd vscode-extension && pnpm run build",
+    "format": "node bin/gtlint.js format",
+    "lint": "node bin/gtlint.js lint",
+    "package:vscode": "cd vscode-extension && pnpm run package",
+    "pub": "npm publish --access=public",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "version": "0.5.1"
 }
