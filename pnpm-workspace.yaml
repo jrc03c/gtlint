@@ -1,6 +1,8 @@
 packages:
-  - '.'
-  - 'vscode-extension'
+  - .
+  - vscode-extension
 
 onlyBuiltDependencies:
+  - '@vscode/vsce-sign'
   - esbuild
+  - keytar
