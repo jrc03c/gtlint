@@ -2,7 +2,7 @@
   "name": "gtlint-vscode",
   "displayName": "GTLint - GuidedTrack Linter",
   "description": "Linting, formatting, and code actions for GuidedTrack (.gt) files",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "publisher": "gtlint",
   "engines": {
     "vscode": "^1.85.0"
@@ -45,7 +45,10 @@
       {
         "language": "guidedtrack",
         "scopeName": "source.guidedtrack",
-        "path": "./syntaxes/guidedtrack.tmLanguage.json"
+        "path": "./syntaxes/guidedtrack.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.html": "html"
+        }
       }
     ],
     "configuration": {

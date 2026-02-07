@@ -105,6 +105,7 @@ The core infrastructure for GTLint is now in place:
   - Bold text formatting (`*text*`) rendered in bold
   - Italic text formatting (`/text/`) rendered in italics
   - Context-aware: formatting disabled for URL/path keywords
+  - Embedded HTML syntax highlighting in `*html` blocks (delegates to VSCode's built-in HTML grammar)
 - Integration with the linter (shows diagnostics in editor)
 - Language configuration (brackets, comments, auto-closing pairs)
 

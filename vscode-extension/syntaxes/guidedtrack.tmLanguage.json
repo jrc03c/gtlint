@@ -5,6 +5,7 @@
   "patterns": [
     { "include": "#comments" },
     { "include": "#expression-keywords" },
+    { "include": "#html-block" },
     { "include": "#keywords-no-formatting" },
     { "include": "#keywords" },
     { "include": "#sub-keywords-no-formatting" },
@@ -42,6 +43,18 @@
             }
           }
         }
+      ]
+    },
+    "html-block": {
+      "begin": "^(\\t*)(\\*)(html)\\s*$",
+      "end": "^(?!$)(?!\\1\\t)",
+      "beginCaptures": {
+        "2": { "name": "punctuation.definition.keyword.guidedtrack" },
+        "3": { "name": "keyword.control.guidedtrack" }
+      },
+      "contentName": "meta.embedded.block.html",
+      "patterns": [
+        { "include": "text.html.basic" }
       ]
     },
     "keywords-no-formatting": {

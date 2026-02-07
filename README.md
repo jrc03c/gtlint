@@ -95,6 +95,7 @@ GTLint provides a VSCode extension for an integrated development experience:
    - Bold text (`*text*`) renders in bold
    - Italic text (`/text/`) renders in italics
    - Context-aware: formatting disabled in URL/path keywords
+   - `*html` blocks get full HTML syntax highlighting, IntelliSense, and auto-closing tags via VSCode's built-in HTML support
 3. Linting diagnostics appear automatically in the editor
 4. Errors and warnings are underlined in your code
 
