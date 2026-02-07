@@ -322,6 +322,100 @@ Second line
     });
   });
 
+  describe('Space inside braces', () => {
+    it('should remove spaces inside braces by default', () => {
+      const source = '>> person = { "name" -> "Alice" }\n';
+      const result = format(source);
+
+      expect(result).toContain('{"name" -> "Alice"}');
+    });
+
+    it('should add spaces inside braces when configured', () => {
+      const source = '>> person = {"name" -> "Alice"}\n';
+      const result = format(source, { spaceInsideBraces: 1 });
+
+      expect(result).toContain('{ "name" -> "Alice" }');
+    });
+
+    it('should normalize existing spaces inside braces', () => {
+      const source = '>> person = {   "name" -> "Alice"   }\n';
+      const result = format(source, { spaceInsideBraces: 1 });
+
+      expect(result).toContain('{ "name" -> "Alice" }');
+    });
+
+    it('should not pad empty braces', () => {
+      const source = '>> x = {}\n';
+      const result = format(source, { spaceInsideBraces: 1 });
+
+      expect(result).toContain('{}');
+    });
+  });
+
+  describe('Space inside brackets', () => {
+    it('should remove spaces inside brackets by default', () => {
+      const source = '>> arr = [ 1, 2, 3 ]\n';
+      const result = format(source);
+
+      expect(result).toContain('[1, 2, 3]');
+    });
+
+    it('should add spaces inside brackets when configured', () => {
+      const source = '>> arr = [1, 2, 3]\n';
+      const result = format(source, { spaceInsideBrackets: 1 });
+
+      expect(result).toContain('[ 1, 2, 3 ]');
+    });
+
+    it('should not pad empty brackets', () => {
+      const source = '>> x = []\n';
+      const result = format(source, { spaceInsideBrackets: 1 });
+
+      expect(result).toContain('[]');
+    });
+  });
+
+  describe('Space inside parentheses', () => {
+    it('should remove spaces inside parentheses by default', () => {
+      const source = '>> x = ( 1 + 2 )\n';
+      const result = format(source);
+
+      expect(result).toContain('(1 + 2)');
+    });
+
+    it('should add spaces inside parentheses when configured', () => {
+      const source = '>> x = (1 + 2)\n';
+      const result = format(source, { spaceInsideParens: 1 });
+
+      expect(result).toContain('( 1 + 2 )');
+    });
+
+    it('should not pad empty parentheses', () => {
+      const source = '>> x = text.split()\n';
+      const result = format(source, { spaceInsideParens: 1 });
+
+      expect(result).toContain('()');
+    });
+  });
+
+  describe('Independent bracket type configuration', () => {
+    it('should allow spaces in braces but not brackets', () => {
+      const source = '>> x = {"key" -> [1, 2, 3]}\n';
+      const result = format(source, { spaceInsideBraces: 1, spaceInsideBrackets: 0 });
+
+      expect(result).toContain('{ "key" -> [1, 2, 3] }');
+    });
+
+    it('should not affect string interpolation braces in text', () => {
+      const source = 'Hello {name}, welcome!\n';
+      const result = format(source, { spaceInsideBraces: 1 });
+
+      // Text lines use braces for interpolation, not as literal delimiters,
+      // so spacing config should not apply to them
+      expect(result).toBe('Hello {name}, welcome!\n');
+    });
+  });
+
   describe('Formatter class', () => {
     it('should be instantiable with custom config', () => {
       const formatter = new Formatter({

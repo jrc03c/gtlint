@@ -286,18 +286,26 @@ Configure the formatter in your `gtlint.config.js`:
 
 ```javascript
 export default {
-  formatter: {
-    // Remove trailing whitespace from lines
-    removeTrailingWhitespace: true,
-
-    // Ensure file ends with a newline
-    ensureNewlineAtEndOfFile: true,
-
-    // Maximum number of consecutive blank lines allowed
-    maxConsecutiveBlankLines: 2
+  format: {
+    spaceAroundOperators: true,   // Spaces around =, +, -, etc.
+    spaceAfterComma: true,        // Space after commas in lists
+    spaceAroundArrow: true,       // Spaces around -> in associations
+    spaceInsideBraces: 0,         // Spaces inside { } (0 = no spaces)
+    spaceInsideBrackets: 0,       // Spaces inside [ ] (0 = no spaces)
+    spaceInsideParens: 0,         // Spaces inside ( ) (0 = no spaces)
+    trimTrailingWhitespace: true, // Remove trailing whitespace
+    insertFinalNewline: true,     // Ensure file ends with newline
   }
 };
 ```
+
+The `spaceInsideBraces`, `spaceInsideBrackets`, and `spaceInsideParens` options control the number of spaces inserted immediately inside paired delimiters. For example, with `spaceInsideBraces: 1`:
+
+```
+>> person = { "name" -> "Alice" }
+```
+
+Each bracket type is independently configurable. Empty pairs (`{}`, `[]`, `()`) are never padded. String interpolation braces in text lines (`{variable}`) are unaffected.
 
 ## Example
 

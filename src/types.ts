@@ -40,6 +40,9 @@ export interface FormatterConfig {
   spaceAroundOperators: boolean;
   spaceAfterComma: boolean;
   spaceAroundArrow: boolean;
+  spaceInsideBraces: number;
+  spaceInsideBrackets: number;
+  spaceInsideParens: number;
   trimTrailingWhitespace: boolean;
   insertFinalNewline: boolean;
 }
@@ -54,6 +57,9 @@ export const DEFAULT_FORMATTER_CONFIG: FormatterConfig = {
   spaceAroundOperators: true,
   spaceAfterComma: true,
   spaceAroundArrow: true,
+  spaceInsideBraces: 0,
+  spaceInsideBrackets: 0,
+  spaceInsideParens: 0,
   trimTrailingWhitespace: true,
   insertFinalNewline: true,
 };
