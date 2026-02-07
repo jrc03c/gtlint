@@ -2,6 +2,8 @@
 
 A linter and formatter for the [GuidedTrack](https://guidedtrack.com) language, inspired by ESLint and Prettier.
 
+> ✨ **TIP:** Mention `@claude` in issues to ask Claude to work on something!
+
 ## Installation
 
 Install GTLint via npm:
