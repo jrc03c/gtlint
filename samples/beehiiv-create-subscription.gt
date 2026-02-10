@@ -87,6 +87,7 @@
 -- @to-parent: beehiiv_subscription
 
 -- @gtformat-disable
+-- @gtlint-disable-next-line
 {{ something }}
 -- @gtformat-enable
 

@@ -87,6 +87,7 @@ The core infrastructure for GTLint is now in place:
   - `no-unclosed-bracket` - detects unclosed brackets/braces/parentheses
   - `no-single-quotes` - enforces double quotes for strings
   - `correct-indentation` - validates indentation levels (over-indentation, body not allowed)
+- Automatically suppresses lint rules inside `*html` block bodies (HTML content is not GuidedTrack code); only `no-undefined-vars` still reports for `{variable}` interpolations
 - Supports inline directive comments with three prefix types:
   - `@gt-*` directives affect both linting and formatting
   - `@gtlint-*` directives affect linting only

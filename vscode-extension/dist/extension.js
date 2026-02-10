@@ -3932,6 +3932,76 @@ function isFormatDisabled(state, line) {
 }
 
 // ../dist/linter/linter.js
+function computeHtmlBodyRanges(ast) {
+  const ranges = [];
+  function walk(node) {
+    if (!node || typeof node !== "object")
+      return;
+    if (node.type === "KeywordStatement") {
+      const kw = node;
+      if (kw.keyword === "html" && kw.body.length > 0) {
+        const bodyStart = kw.body[0].loc.start.line;
+        const bodyEnd = kw.loc.end.line;
+        ranges.push({ start: bodyStart, end: bodyEnd });
+      }
+      if (kw.argument && typeof kw.argument === "object")
+        walk(kw.argument);
+      for (const sub of kw.subKeywords)
+        walk(sub);
+      for (const stmt of kw.body)
+        walk(stmt);
+    } else if (node.type === "Program") {
+      for (const stmt of node.body)
+        walk(stmt);
+    } else if (node.type === "SubKeyword") {
+      for (const stmt of node.body)
+        walk(stmt);
+    } else if (node.type === "AnswerOption") {
+      for (const stmt of node.body)
+        walk(stmt);
+    }
+  }
+  walk(ast);
+  return ranges;
+}
+function isLikelyGTInterpolation(sourceLine, column) {
+  let i = 0;
+  while (i < sourceLine.length) {
+    if (sourceLine[i] === "{") {
+      const braceStart = i;
+      let depth = 1;
+      let j = i + 1;
+      let hasColon = false;
+      let inStr = false;
+      let strCh = "";
+      while (j < sourceLine.length && depth > 0) {
+        const ch = sourceLine[j];
+        if (inStr) {
+          if (ch === strCh)
+            inStr = false;
+        } else if (ch === '"' || ch === "'") {
+          inStr = true;
+          strCh = ch;
+        } else if (ch === "{") {
+          depth++;
+        } else if (ch === "}") {
+          depth--;
+        } else if (ch === ":" && depth === 1) {
+          hasColon = true;
+        }
+        j++;
+      }
+      const braceEnd = j - 1;
+      if (column > braceStart && column < braceEnd) {
+        return !hasColon;
+      }
+      i = j;
+    } else {
+      i++;
+    }
+  }
+  return true;
+}
 var Linter = class {
   config;
   messages = [];
@@ -3985,6 +4055,20 @@ var Linter = class {
       this.visitNode(ast, visitor);
     }
     this.messages = this.messages.filter((msg) => !isRuleDisabled(directives, msg.line, msg.ruleId));
+    const htmlBodyRanges = computeHtmlBodyRanges(ast);
+    if (htmlBodyRanges.length > 0) {
+      const sourceLines = source.split("\n");
+      this.messages = this.messages.filter((msg) => {
+        const inHtml = htmlBodyRanges.some((r) => msg.line >= r.start && msg.line <= r.end);
+        if (!inHtml)
+          return true;
+        if (msg.ruleId === "no-undefined-vars") {
+          const line = sourceLines[msg.line - 1] || "";
+          return isLikelyGTInterpolation(line, msg.column);
+        }
+        return false;
+      });
+    }
     this.messages.sort((a, b) => {
       if (a.line !== b.line)
         return a.line - b.line;

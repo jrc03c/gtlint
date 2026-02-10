@@ -1,0 +1,8 @@
+*html
+	<style>
+		.whatever {text-align: center}
+	</style>
+
+	<p>
+		Hello, {name}!
+	</p>

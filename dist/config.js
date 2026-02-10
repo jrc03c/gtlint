@@ -2,6 +2,20 @@ import { existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { pathToFileURL } from 'url';
 import { DEFAULT_LINTER_CONFIG, DEFAULT_FORMATTER_CONFIG } from './types.js';
+/**
+ * Convert camelCase to kebab-case (e.g., noUnusedVars → no-unused-vars).
+ * Strings that are already kebab-case pass through unchanged.
+ */
+function camelToKebab(str) {
+    return str.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
+}
+function normalizeRuleKeys(rules) {
+    const normalized = {};
+    for (const [key, value] of Object.entries(rules)) {
+        normalized[camelToKebab(key)] = value;
+    }
+    return normalized;
+}
 const CONFIG_FILENAMES = [
     'gtlint.config.js',
     'gtlint.config.mjs',
@@ -54,7 +68,7 @@ export function mergeConfig(userConfig) {
         ...DEFAULT_LINTER_CONFIG,
         rules: {
             ...DEFAULT_LINTER_CONFIG.rules,
-            ...userConfig.rules,
+            ...(userConfig.rules ? normalizeRuleKeys(userConfig.rules) : {}),
         },
         format: {
             ...DEFAULT_LINTER_CONFIG.format,

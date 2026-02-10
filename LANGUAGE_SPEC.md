@@ -406,6 +406,19 @@ Control linting and formatting behavior with special comments. Three prefix type
 
 Note: `gtformat-*` directives don't support rule lists since formatting isn't rule-based.
 
+## `*html` Blocks
+
+`*html` blocks embed raw HTML content:
+
+```guidedtrack
+*html
+	<div class="container">
+		<p>Hello, {name}!</p>
+	</div>
+```
+
+The body of `*html` blocks is HTML, not GuidedTrack. The linter automatically suppresses all rules inside `*html` body lines except `no-undefined-vars` (which checks `{variable}` interpolations). Rules still apply to the `*html` keyword line itself.
+
 ## Formatting Conventions
 
 1. **Indentation**: One tab per level

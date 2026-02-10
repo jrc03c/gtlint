@@ -163,6 +163,10 @@ GTLint includes the following linting rules:
 
 - **`no-single-quotes`** - Enforces double quotes for string literals
 
+### `*html` Blocks
+
+Lint rules are automatically suppressed inside `*html` block bodies since the content is HTML, not GuidedTrack code. The only exception is `no-undefined-vars`, which still reports for `{variable}` interpolations inside HTML. Rules still apply to the `*html` keyword line itself.
+
 ## Disabling Rules and Formatting
 
 You can disable linting and/or formatting for specific lines or sections using inline comments. GTLint supports three directive prefixes:

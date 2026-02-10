@@ -428,6 +428,83 @@ describe('Linter', () => {
     });
   });
 
+  describe('*html block handling', () => {
+    it('should suppress rules in *html body', () => {
+      const source = `*html
+\t<div class='foo'>hello</div>`;
+      const result = lint(source);
+
+      const singleQuoteError = result.messages.find(m => m.ruleId === 'no-single-quotes');
+      expect(singleQuoteError).toBeUndefined();
+    });
+
+    it('should still report no-undefined-vars in *html body', () => {
+      const source = `*html
+\t<p>{undefinedHtmlVar}</p>`;
+      const result = lint(source);
+
+      const undefinedVarError = result.messages.find(
+        m => m.ruleId === 'no-undefined-vars' && m.message.includes('undefinedHtmlVar')
+      );
+      expect(undefinedVarError).toBeDefined();
+    });
+
+    it('should still count variable usages in *html body for no-unused-vars', () => {
+      const source = `>> myVar = 5
+*html
+\t<p>{myVar}</p>`;
+      const result = lint(source);
+
+      const unusedVarWarning = result.messages.find(
+        m => m.ruleId === 'no-unused-vars' && m.message.includes('myVar')
+      );
+      expect(unusedVarWarning).toBeUndefined();
+    });
+
+    it('should still apply rules on the *html keyword line itself', () => {
+      const source = '*invalidkeyword: test';
+      const result = lint(source);
+
+      // valid-keyword fires on invalid keywords - this is just a control test
+      const keywordError = result.messages.find(m => m.ruleId === 'valid-keyword');
+      expect(keywordError).toBeDefined();
+    });
+
+    it('should not flag CSS properties inside {…} as undefined vars', () => {
+      const source = `*html
+\t<style>
+\t\t.whatever {text-align: center}
+\t</style>
+\t<p>Hello, {name}!</p>`;
+      const result = lint(source);
+
+      // CSS identifiers inside {text-align: center} should NOT be reported
+      const cssErrors = result.messages.filter(
+        m => m.ruleId === 'no-undefined-vars' &&
+          (m.message.includes("'text'") || m.message.includes("'align'") || m.message.includes("'center'"))
+      );
+      expect(cssErrors).toHaveLength(0);
+
+      // GT interpolation {name} should still be reported as undefined
+      const nameError = result.messages.find(
+        m => m.ruleId === 'no-undefined-vars' && m.message.includes("'name'")
+      );
+      expect(nameError).toBeDefined();
+    });
+
+    it('should handle multiple *html blocks in one file', () => {
+      const source = `*html
+\t<div class='one'>first</div>
+*button: Click me
+*html
+\t<div class='two'>second</div>`;
+      const result = lint(source);
+
+      const singleQuoteErrors = result.messages.filter(m => m.ruleId === 'no-single-quotes');
+      expect(singleQuoteErrors).toHaveLength(0);
+    });
+  });
+
   describe('Auto-fix', () => {
     it('should have fix method on Linter', () => {
       const linter = new Linter();

@@ -17,12 +17,14 @@ function camelToKebab(str: string): string {
  * kebab-case (internal convention). Keys already in kebab-case are
  * unaffected.
  */
+type RuleSeverity = 'off' | 'warn' | 'error';
+
 function normalizeRuleKeys(
   rules: Record<string, string>
-): Record<string, string> {
-  const normalized: Record<string, string> = {};
+): Record<string, RuleSeverity> {
+  const normalized: Record<string, RuleSeverity> = {};
   for (const [key, value] of Object.entries(rules)) {
-    normalized[camelToKebab(key)] = value;
+    normalized[camelToKebab(key)] = value as RuleSeverity;
   }
   return normalized;
 }
