@@ -273,6 +273,4 @@ export async function main(args = process.argv.slice(2)) {
         process.exit(1);
     }
 }
-// Run CLI if this is the main module
-main();
 //# sourceMappingURL=cli.js.map

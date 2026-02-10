@@ -317,6 +317,3 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
     process.exit(1);
   }
 }
-
-// Run CLI if this is the main module
-main();
