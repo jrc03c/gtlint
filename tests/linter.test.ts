@@ -84,6 +84,21 @@ describe('Linter', () => {
       expect(undefinedVarError).toBeUndefined();
     });
 
+    it('should report correct column for undefined var interpolated in a quoted string', () => {
+      // ">> message = " is 14 chars (cols 0-13), then the string starts at col 14
+      // Inside the string: "It's nice to meet you, {name}!"
+      // The opening quote is at col 14, then 23 chars of text, then '{' at col 38, then 'name' at col 39
+      const source = '>> message = "It\'s nice to meet you, {name}!"';
+      const result = lint(source);
+
+      const nameError = result.messages.find(
+        m => m.ruleId === 'no-undefined-vars' && m.message.includes("'name'")
+      );
+      expect(nameError).toBeDefined();
+      // 'name' should start at col 39, not at the start of the string (col 14)
+      expect(nameError!.column).toBe(39);
+    });
+
     it('should not report error for index variable in *for: i, v in collection', () => {
       const source = `>> x = ["a", "b", "c"]
 *for: i, v in x

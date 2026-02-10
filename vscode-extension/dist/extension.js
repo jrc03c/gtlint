@@ -1626,7 +1626,7 @@ var noUndefinedVars = {
           usedVars.push({
             name: match[1],
             line: node.loc.start.line,
-            column: node.loc.start.column
+            column: node.loc.start.column + 1 + match.index + 1
           });
         }
       } else if (node.type === "InterpolatedString") {

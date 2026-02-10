@@ -171,10 +171,11 @@ export const noUndefinedVars: LintRule = {
         const regex = /\{([a-zA-Z_]\w*)/g;
         let match;
         while ((match = regex.exec(node.value)) !== null) {
+          // +1 for opening quote, +match.index for position within string content, +1 for opening brace
           usedVars.push({
             name: match[1],
             line: node.loc.start.line,
-            column: node.loc.start.column,
+            column: node.loc.start.column + 1 + match.index + 1,
           });
         }
       } else if (node.type === 'InterpolatedString') {
