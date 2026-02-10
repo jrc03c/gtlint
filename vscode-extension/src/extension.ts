@@ -3,6 +3,7 @@ import { getVSCodeSettings } from './configuration';
 import { scheduleLint, lintNow, clearDiagnostics, lintAllOpen, dispose as disposeDiagnostics } from './diagnostics';
 import { GTLintFormatterProvider } from './formatter';
 import { GTLintCodeActionProvider } from './codeActions';
+import { GTLintCompletionProvider } from './completions';
 
 let outputChannel: vscode.OutputChannel;
 
@@ -28,6 +29,16 @@ export function activate(context: vscode.ExtensionContext) {
       {
         providedCodeActionKinds: GTLintCodeActionProvider.providedCodeActionKinds,
       }
+    )
+  );
+
+  // Register completion provider for directives
+  const completionProvider = new GTLintCompletionProvider();
+  context.subscriptions.push(
+    vscode.languages.registerCompletionItemProvider(
+      { language: 'guidedtrack' },
+      completionProvider,
+      '@', ',', ' '
     )
   );
 

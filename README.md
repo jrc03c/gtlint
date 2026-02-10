@@ -99,6 +99,7 @@ GTLint provides a VSCode extension for an integrated development experience:
    - `*html` blocks get full HTML syntax highlighting, IntelliSense, and auto-closing tags via VSCode's built-in HTML support
 3. Linting diagnostics appear automatically in the editor
 4. Errors and warnings are underlined in your code
+5. Directive autocompletions: type `-- @` in a comment to see all available directives, and after a directive that accepts rule names (e.g., `-- @gtlint-disable `), get completions for all lint rule names
 
 ## Configuration
 

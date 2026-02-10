@@ -34,7 +34,7 @@ __export(extension_exports, {
   deactivate: () => deactivate
 });
 module.exports = __toCommonJS(extension_exports);
-var vscode5 = __toESM(require("vscode"));
+var vscode6 = __toESM(require("vscode"));
 
 // src/configuration.ts
 var vscode = __toESM(require("vscode"));
@@ -3008,7 +3008,7 @@ var KEYWORD_SPECS = {
       method: {
         required: true,
         valueType: "enum",
-        enumValues: ["GET", "POST", "PUT", "DELETE"],
+        enumValues: ["CONNECT", "DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", "TRACE"],
         description: "HTTP method to use"
       },
       send: {
@@ -4849,21 +4849,89 @@ var GTLintCodeActionProvider = class {
   }
 };
 
+// src/completions.ts
+var vscode5 = __toESM(require("vscode"));
+var DIRECTIVES = [
+  // Combined (lint + format)
+  { label: "@gt-disable", detail: "Disable linting and formatting until @gt-enable", snippet: "@gt-disable" },
+  { label: "@gt-enable", detail: "Re-enable linting and formatting", snippet: "@gt-enable" },
+  { label: "@gt-disable-next-line", detail: "Disable linting and formatting for the next line", snippet: "@gt-disable-next-line" },
+  // Lint-only
+  { label: "@gtlint-disable", detail: "Disable all lint rules until @gtlint-enable", snippet: "@gtlint-disable" },
+  { label: "@gtlint-enable", detail: "Re-enable all lint rules", snippet: "@gtlint-enable" },
+  { label: "@gtlint-disable-next-line", detail: "Disable all lint rules for the next line", snippet: "@gtlint-disable-next-line" },
+  // Format-only
+  { label: "@gtformat-disable", detail: "Disable formatting until @gtformat-enable", snippet: "@gtformat-disable" },
+  { label: "@gtformat-enable", detail: "Re-enable formatting", snippet: "@gtformat-enable" },
+  // Variable tracking
+  { label: "@from-parent:", detail: "Variables received from parent program", snippet: "@from-parent: ${1:var1, var2}" },
+  { label: "@from-child:", detail: "Variables received from child program", snippet: "@from-child: ${1:var1, var2}" },
+  { label: "@to-parent:", detail: "Variables sent to parent program", snippet: "@to-parent: ${1:var1, var2}" },
+  { label: "@to-child:", detail: "Variables sent to child program", snippet: "@to-child: ${1:var1, var2}" }
+];
+var RULE_LIST_DIRECTIVES = [
+  "@gt-disable-next-line",
+  "@gt-disable",
+  "@gtlint-disable-next-line",
+  "@gtlint-disable",
+  "@gtlint-enable"
+];
+function getLinePrefix(document, position) {
+  return document.lineAt(position.line).text.slice(0, position.character);
+}
+var GTLintCompletionProvider = class {
+  provideCompletionItems(document, position, _token, _context) {
+    const linePrefix = getLinePrefix(document, position);
+    if (!/^\s*--/.test(linePrefix)) {
+      return void 0;
+    }
+    const afterDashes = linePrefix.replace(/^\s*--\s*/, "");
+    if (afterDashes === "" || afterDashes.startsWith("@") && !afterDashes.includes(" ")) {
+      return DIRECTIVES.map((d, i) => {
+        const item = new vscode5.CompletionItem(d.label, vscode5.CompletionItemKind.Keyword);
+        item.detail = d.detail;
+        item.insertText = new vscode5.SnippetString(d.snippet);
+        item.sortText = String(i).padStart(2, "0");
+        const startCol = linePrefix.length - afterDashes.length;
+        item.range = new vscode5.Range(position.line, startCol, position.line, position.character);
+        return item;
+      });
+    }
+    for (const directive of RULE_LIST_DIRECTIVES) {
+      if (afterDashes.startsWith(directive)) {
+        const afterDirective = afterDashes.slice(directive.length);
+        const lastSep = Math.max(afterDirective.lastIndexOf(","), afterDirective.lastIndexOf(" "));
+        const fragment = afterDirective.slice(lastSep + 1).trim();
+        const ruleNames = Object.keys(rules);
+        const startCol = position.character - fragment.length;
+        return ruleNames.map((name) => {
+          const rule = rules[name];
+          const item = new vscode5.CompletionItem(name, vscode5.CompletionItemKind.EnumMember);
+          item.detail = rule.description;
+          item.range = new vscode5.Range(position.line, startCol, position.line, position.character);
+          return item;
+        });
+      }
+    }
+    return void 0;
+  }
+};
+
 // src/extension.ts
 var outputChannel;
 function activate(context) {
-  outputChannel = vscode5.window.createOutputChannel("GTLint");
+  outputChannel = vscode6.window.createOutputChannel("GTLint");
   outputChannel.appendLine("GTLint extension activated");
   const formatterProvider = new GTLintFormatterProvider();
   context.subscriptions.push(
-    vscode5.languages.registerDocumentFormattingEditProvider(
+    vscode6.languages.registerDocumentFormattingEditProvider(
       { language: "guidedtrack" },
       formatterProvider
     )
   );
   const codeActionProvider = new GTLintCodeActionProvider();
   context.subscriptions.push(
-    vscode5.languages.registerCodeActionsProvider(
+    vscode6.languages.registerCodeActionsProvider(
       { language: "guidedtrack" },
       codeActionProvider,
       {
@@ -4871,9 +4939,19 @@ function activate(context) {
       }
     )
   );
+  const completionProvider = new GTLintCompletionProvider();
+  context.subscriptions.push(
+    vscode6.languages.registerCompletionItemProvider(
+      { language: "guidedtrack" },
+      completionProvider,
+      "@",
+      ",",
+      " "
+    )
+  );
   lintAllOpen();
   context.subscriptions.push(
-    vscode5.workspace.onDidChangeTextDocument((event) => {
+    vscode6.workspace.onDidChangeTextDocument((event) => {
       const settings = getVSCodeSettings();
       if (settings.enable && settings.lintOnType) {
         scheduleLint(event.document, settings.lintOnTypeDelay);
@@ -4881,7 +4959,7 @@ function activate(context) {
     })
   );
   context.subscriptions.push(
-    vscode5.workspace.onDidSaveTextDocument((document) => {
+    vscode6.workspace.onDidSaveTextDocument((document) => {
       const settings = getVSCodeSettings();
       if (settings.enable && settings.lintOnSave) {
         lintNow(document);
@@ -4889,7 +4967,7 @@ function activate(context) {
     })
   );
   context.subscriptions.push(
-    vscode5.workspace.onDidOpenTextDocument((document) => {
+    vscode6.workspace.onDidOpenTextDocument((document) => {
       if (document.languageId === "guidedtrack") {
         const settings = getVSCodeSettings();
         if (settings.enable) {
@@ -4899,12 +4977,12 @@ function activate(context) {
     })
   );
   context.subscriptions.push(
-    vscode5.workspace.onDidCloseTextDocument((document) => {
+    vscode6.workspace.onDidCloseTextDocument((document) => {
       clearDiagnostics(document);
     })
   );
   context.subscriptions.push(
-    vscode5.workspace.onDidChangeConfiguration((event) => {
+    vscode6.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration("gtlint")) {
         outputChannel.appendLine("GTLint configuration changed, re-linting all documents");
         lintAllOpen();
@@ -4912,8 +4990,8 @@ function activate(context) {
     })
   );
   context.subscriptions.push(
-    vscode5.commands.registerCommand("gtlint.lintFile", () => {
-      const editor = vscode5.window.activeTextEditor;
+    vscode6.commands.registerCommand("gtlint.lintFile", () => {
+      const editor = vscode6.window.activeTextEditor;
       if (editor && editor.document.languageId === "guidedtrack") {
         lintNow(editor.document);
         outputChannel.appendLine(`Linted: ${editor.document.fileName}`);
@@ -4921,10 +4999,10 @@ function activate(context) {
     })
   );
   context.subscriptions.push(
-    vscode5.commands.registerCommand("gtlint.formatFile", async () => {
-      const editor = vscode5.window.activeTextEditor;
+    vscode6.commands.registerCommand("gtlint.formatFile", async () => {
+      const editor = vscode6.window.activeTextEditor;
       if (editor && editor.document.languageId === "guidedtrack") {
-        await vscode5.commands.executeCommand("editor.action.formatDocument");
+        await vscode6.commands.executeCommand("editor.action.formatDocument");
         outputChannel.appendLine(`Formatted: ${editor.document.fileName}`);
       }
     })

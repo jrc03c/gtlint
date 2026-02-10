@@ -117,6 +117,11 @@ The core infrastructure for GTLint is now in place:
   - Context-aware: formatting disabled for URL/path keywords
   - Embedded HTML syntax highlighting in `*html` blocks (delegates to VSCode's built-in HTML grammar)
 - Integration with the linter (shows diagnostics in editor)
+- Directive autocompletions (`vscode-extension/src/completions.ts`)
+  - Triggered inside `--` comment lines when typing `@`
+  - Completes all directive names (`@gt-disable`, `@gtlint-disable-next-line`, `@from-parent:`, etc.)
+  - After directives that accept rule lists, completes lint rule names with descriptions
+  - Trigger characters: `@`, `,`, space
 - Language configuration (brackets, comments, auto-closing pairs)
 
 ### Language Specification (`src/language/`)

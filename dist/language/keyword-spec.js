@@ -498,7 +498,7 @@ export const KEYWORD_SPECS = {
             method: {
                 required: true,
                 valueType: 'enum',
-                enumValues: ['GET', 'POST', 'PUT', 'DELETE'],
+                enumValues: ['CONNECT', 'DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT', 'TRACE'],
                 description: 'HTTP method to use',
             },
             send: {
