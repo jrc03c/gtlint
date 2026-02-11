@@ -1,0 +1,243 @@
+-- @gtlint-disable-next-line
+{{docs}}
+
+-- @from-parent: currentProgramName
+-- @to-child: error_is_fatal
+-- @to-child: error_message
+-- @to-child: error_title
+
+>> error_title = "{{ title }}"
+
+*if: not error_is_fatal
+	>> error_is_fatal = "no"
+
+*if: not currentProgramName
+	>> error_message = "You must define a variable called <code>currentProgramName</code> that has a string value representing the name of the Clearer Thinking tool!"
+	*program: @jrc03c/show-error
+	*goto: ErrorReportLabel
+
+*if: not utm_source
+	>> utm_source = "(none)"
+
+*if: not utm_medium
+	>> utm_medium = "(none)"
+
+*if: not utm_campaign
+	>> utm_campaign = "(none)"
+
+>> mailchimp_list_id = "f2e9d15594"
+
+--------------------------------------------------------------------------------
+-- Ask the user for their email address
+--------------------------------------------------------------------------------
+
+*html
+	<style>
+		.center {text-align: center}
+	</style>
+
+*randomize
+	-- *name: emailpitch
+	*group: originalpitch
+		>> textUnderMailImage = "[ClearerThinking.org|http://www.clearerthinking.org] is constantly creating new mini-courses and tools that can help you enhance your decision-making and sharpen your reasoning. Our totally free programs are designed to improve your life!"
+	*group: selfinterestpitch
+		>> textUnderMailImage = "[ClearerThinking.org|http://www.clearerthinking.org] regularly creates mini-courses and tools that can help you improve your work performance, get along better with your loved ones, and become a happier, healthier person. Sign up for our newsletter to start achieving your goals and reaching your potential with our totally free programs!"
+	*group: newnesspitch
+		>> textUnderMailImage = "[ClearerThinking.org|http://www.clearerthinking.org] releases newly developed mini-courses and tools on a regular basis. If you sign up for our newsletter, you'll be one of the first people to gain access to these powerful programs and put their valuable lessons to use in the parts of life you care about most."
+	*group: fearoflosspitch
+		>> textUnderMailImage = "[ClearerThinking.org|http://www.clearerthinking.org] releases brand-new mini-courses and tools on a regular basis. Don't miss out on the chance to learn valuable lessons and powerful life hacks from these free programs!"
+
+>> noReport = 1
+
+*if: headerBeforeEmailSolicitation
+	*header: {headerBeforeEmailSolicitation}
+
+*if: textUnderMailImage
+	{textUnderMailImage}
+
+*if: displayWhyEnterEmail
+	*if: displayWhyEnterEmail = 1
+		*html
+			<br><br>
+		*header: Why add your email? 💌
+		*html
+			<h4>
+			• Save your report for future reference. <br>
+			• Receive a comparison of your personalities if a friend you invite takes the test.
+			</h4>
+
+*trigger: changePage
+	*send: {"page" -> "reached_email_ask"}
+
+*trigger: gtmEvent
+	*send: {"event" -> "reached_email_ask"}
+
+-- in this mode "noe" they are asked explicitly whether they want to give their email address, and they are never subscribed to the email list
+*if: noReport
+	*if: noReport = 1
+		*question: Would you like to subscribe to the Clearer Thinking newsletter?
+			*tip: Your information will be kept secure and will never be shared with third parties. You can unsubscribe at any time, with one click. No fuss, no spam. If you would prefer not to sign up to the newsletter, leave the box blank and click 'Submit'.
+			*before: Email:
+			*blank
+			*default: email
+			*save: theirEmail
+
+		*goto: alreadyAsked
+
+*if: noe
+	>> theirEmail = ""
+
+	*question: Would you like to enter your email address so that all your results can be emailed to you at the end of the tool?
+		Yes, I'll enter my email so that my results can be emailed to me at the end of the tool
+
+			*question: What is your email address?
+				*tip: your information will be kept completely private and confidential
+				*save: theirEmail
+				*default: email
+
+			Great, we'll send you your results via email at the end, just check your email once you finish using the tool.
+
+			*goto: alreadyAsked
+
+		No thanks
+			>> invalidEmail = 1
+			No problem.
+			*goto: endOfEmailAskProgram
+
+*if: alternateEmailSolicitation
+	*question: {alternateEmailSolicitation}
+		*tip: Your information will be kept secure and will never be shared with third parties. You may receive occasional updates about how to improve your decisions and better achieve your goals, which you can unsubscribe from any time with one click. If you would prefer not to receive email, leave the box blank. Either way, you can view the rest of this program in your browser.
+		*before: Email:
+		*blank
+		*default: email
+		*save: theirEmail
+
+	*goto: alreadyAsked
+
+*if: getGoing_program
+	*question: Please enter your email address so we can email your customized report based on your answers.
+		*tip: Your information will be kept secure and will never be shared with third parties. You may receive occasional updates about how to improve your decisions and better achieve your goals, which you can unsubscribe from any time with one click. If you would prefer not to receive email, leave the box blank. Either way, you can view your report in your browser.
+		*before: Email:
+		*blank
+		*throwaway
+		*default: email
+		*save: theirEmail
+
+	*goto: alreadyAsked
+
+*question: Please enter your email address so we can email your customized report based on your answers.
+	*tip: Your information will be kept secure and will never be shared with third parties. You may receive occasional updates from {brands} about how to {topics}, which you can unsubscribe from any time with one click. If you would prefer not to receive email, leave the box blank. Either way, you can view your report in your browser.
+	*before: Email:
+	*blank
+	*default: email
+	*save: theirEmail
+
+*question: {question}
+	*tip: {tip}
+	*before: Email:
+	*blank
+	*default: theirEmail
+	*save: theirEmail
+
+>> inputText = theirEmail
+	*program: Simple check if email seems valid
+
+*trigger: changePage
+	*send: {"page" -> "made_it_passed_email_ask"}
+
+*trigger: gtmEvent
+	*send: {"event" -> "finished_exercise"}
+
+*trigger: gtmEvent
+	*send: {"event" -> "made_it_passed_email_ask"}
+
+*if: not theirEmail
+	*goto: EndLabel
+
+--------------------------------------------------------------------------------
+-- Update the dashboard
+--------------------------------------------------------------------------------
+
+>> saveToDashboard = 1
+*program: CTDB - update completed course in database
+*program: CTDB - log course completed
+
+--------------------------------------------------------------------------------
+-- Fetch the user's mailing list profile
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+-- Display the beta tester invitation (only if the user hasn't already responded
+-- to it)
+--------------------------------------------------------------------------------
+
+*program: Clearer Thinking | Mailing List | Beta Tester Sign-Up
+
+--------------------------------------------------------------------------------
+-- Create / update the user's mailing list profile
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+-- Send a welcome email to new mailing list subscribers
+--------------------------------------------------------------------------------
+
+*program: Clearer Thinking | Mailing List | Send Welcome Email
+
+--------------------------------------------------------------------------------
+-- Report errors
+--------------------------------------------------------------------------------
+
+*label: ErrorReportLabel
+
+*if: errors = 1
+	>> warning_message = "Uh-oh! Something went wrong. 💥 Our developers have been notified and will hopefully fix the problem soon!"
+	>> warning_title = "Error"
+	*program: @jrc03c/show-warning
+
+	*if: debug
+		*program: @jrc03c/show-error
+
+	-- Send notification emails to interested parties
+	>> payload = {}
+	>> payload["to"] = error_notification_recipients
+	>> payload["subject"] = "{{ title }}"
+	>> payload["html"] = error_message
+	>> response = {}
+
+	*service: ct-programs-vercel-app
+		*method: POST
+		*path: /utils/send-email-via-mailgun
+		*send: payload
+		*success
+			>> response = it
+		*error
+			>> response = it
+
+	*if: debug
+		>> html = ""
+		>> html = "{html}<details>"
+		>> html = "{html}<summary><b>CT-PROGRAMS-VERCEL-APP RESPONSE:</b></summary>"
+		>> html = "{html}<pre><code>{response.text}</code></pre>"
+		>> html = "{html}</details>"
+		>> warning_message = html
+		>> warning_title = "{{ title }}"
+		*program: @jrc03c/show-warning
+		*button: Continue
+
+--------------------------------------------------------------------------------
+-- Clean up
+--------------------------------------------------------------------------------
+
+*label: EndLabel
+
+-- @gtlint-disable-next-line
+{{cleanup}}
+
+*html
+	<style>
+		#countdown {visibility: hidden !important;}
+	</style>
+
+*question: {""}
+	*countdown: .1.seconds
+	*classes: hidden
