@@ -60,7 +60,11 @@ export class Parser {
       // Check for DEDENT - means we're exiting this block
       if (this.check(TokenType.DEDENT)) {
         this.advance();
-        break;
+        if (minIndent > 0) {
+          break;
+        }
+        // At top level, skip orphan DEDENTs and continue parsing
+        continue;
       }
 
       const stmt = this.parseStatement();

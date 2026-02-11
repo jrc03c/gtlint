@@ -940,7 +940,10 @@ var Parser = class {
         break;
       if (this.check(TokenType.DEDENT)) {
         this.advance();
-        break;
+        if (minIndent > 0) {
+          break;
+        }
+        continue;
       }
       const stmt = this.parseStatement();
       if (stmt) {
