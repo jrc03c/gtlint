@@ -4,6 +4,7 @@ A linter and formatter for the [GuidedTrack](https://guidedtrack.com) language (
 
 ## Reference Files
 
+- **`/ARCHITECTURE.md`** — Read this first before making code changes. Describes module responsibilities, entry points, data flow, and dependencies.
 - `/samples` — Production GuidedTrack programs (valid code, useful for understanding the language)
 - `/gt.pdf` — [Function & Keyword API](https://docs.guidedtrack.com/api/) reference
 - `/LANGUAGE_SPEC.md` — Concise language specification
