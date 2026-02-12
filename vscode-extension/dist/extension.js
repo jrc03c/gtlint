@@ -1480,7 +1480,7 @@ var noUndefinedVars = {
   description: "Disallow use of undefined variables",
   severity: "error",
   create(context) {
-    const definedVars = /* @__PURE__ */ new Set();
+    const definedVars = /* @__PURE__ */ new Map();
     const usedVars = [];
     const builtins = /* @__PURE__ */ new Set([
       "it",
@@ -1496,6 +1496,12 @@ var noUndefinedVars = {
       "months",
       "years"
     ]);
+    function defineVar(name, line) {
+      const existing = definedVars.get(name);
+      if (existing === void 0 || line < existing) {
+        definedVars.set(name, line);
+      }
+    }
     function collectDefinitions(node) {
       if (!node || typeof node !== "object")
         return;
@@ -1508,7 +1514,7 @@ var noUndefinedVars = {
         if (kw.keyword === "label" && kw.argument && kw.argument.type === "TextContent") {
           const text = kw.argument.parts.find((p) => typeof p === "string");
           if (text) {
-            definedVars.add(text.trim());
+            defineVar(text.trim(), kw.loc.start.line);
           }
         }
         if (kw.keyword === "for" && kw.argument && kw.argument.type === "BinaryExpression") {
@@ -1517,14 +1523,14 @@ var noUndefinedVars = {
         if (kw.keyword === "set" && kw.argument && kw.argument.type === "TextContent") {
           const text = kw.argument.parts.find((p) => typeof p === "string");
           if (text) {
-            definedVars.add(text.trim());
+            defineVar(text.trim(), kw.loc.start.line);
           }
         }
         for (const sub of kw.subKeywords) {
           if (sub.keyword === "save" && sub.argument && sub.argument.type === "TextContent") {
             const text = sub.argument.parts.find((p) => typeof p === "string");
             if (text) {
-              definedVars.add(text.trim());
+              defineVar(text.trim(), sub.loc.start.line);
             }
           }
           collectDefinitions(sub);
@@ -1535,7 +1541,7 @@ var noUndefinedVars = {
       } else if (node.type === "ExpressionStatement") {
         if (node.expression.type === "BinaryExpression" && node.expression.operator === "=") {
           if (node.expression.left.type === "Identifier") {
-            definedVars.add(node.expression.left.name);
+            defineVar(node.expression.left.name, node.loc.start.line);
           }
         }
       } else if (node.type === "AnswerOption") {
@@ -1551,7 +1557,7 @@ var noUndefinedVars = {
     function collectForVars(expr) {
       if (expr.type === "BinaryExpression" && expr.operator.toLowerCase() === "in") {
         if (expr.left.type === "Identifier") {
-          definedVars.add(expr.left.name);
+          defineVar(expr.left.name, expr.left.loc.start.line);
         } else if (expr.left.type === "BinaryExpression" && expr.left.operator === ",") {
           collectForVars(expr.left);
         }
@@ -1559,7 +1565,7 @@ var noUndefinedVars = {
         collectForVars(expr.left);
         collectForVars(expr.right);
       } else if (expr.type === "Identifier") {
-        definedVars.add(expr.name);
+        defineVar(expr.name, expr.loc.start.line);
       }
     }
     function collectUsages(node, isAssignmentContext = false) {
@@ -1659,9 +1665,19 @@ var noUndefinedVars = {
         const fromParentVars = context.getFromParentVars();
         const fromChildVars = context.getFromChildVars();
         for (const usage of usedVars) {
-          if (!definedVars.has(usage.name) && !builtins.has(usage.name) && !fromParentVars.has(usage.name) && !fromChildVars.has(usage.name)) {
+          if (builtins.has(usage.name) || fromParentVars.has(usage.name) || fromChildVars.has(usage.name)) {
+            continue;
+          }
+          const defLine = definedVars.get(usage.name);
+          if (defLine === void 0) {
             context.report({
               message: `'${usage.name}' is not defined`,
+              line: usage.line,
+              column: usage.column
+            });
+          } else if (usage.line < defLine) {
+            context.report({
+              message: `'${usage.name}' is used before it is defined`,
               line: usage.line,
               column: usage.column
             });

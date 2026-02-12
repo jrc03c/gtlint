@@ -143,7 +143,7 @@ GTLint includes the following linting rules:
 
 ### Code Quality
 
-- **`no-undefined-vars`** - Detects use of undefined variables
+- **`no-undefined-vars`** - Detects use of undefined variables and variables used before they are defined
 - **`no-unused-vars`** - Warns about variables that are defined but never used
 - **`no-invalid-goto`** - Ensures `*goto:` statements reference valid `*label:` targets
 - **`no-duplicate-labels`** - Detects duplicate `*label:` definitions within a program

@@ -7,7 +7,7 @@ export const noUndefinedVars: LintRule = {
   severity: 'error',
 
   create(context: RuleContext) {
-    const definedVars = new Set<string>();
+    const definedVars = new Map<string, number>();  // name → earliest definition line
     const usedVars: Array<{ name: string; line: number; column: number }> = [];
 
     // Built-in variables and functions
@@ -15,6 +15,13 @@ export const noUndefinedVars: LintRule = {
       'it', 'true', 'false', 'calendar', 'data',
       'seconds', 'minutes', 'hours', 'days', 'weeks', 'months', 'years',
     ]);
+
+    function defineVar(name: string, line: number): void {
+      const existing = definedVars.get(name);
+      if (existing === undefined || line < existing) {
+        definedVars.set(name, line);
+      }
+    }
 
     function collectDefinitions(node: Program | Statement | Expression | SubKeyword | TextContent): void {
       if (!node || typeof node !== 'object') return;
@@ -30,7 +37,7 @@ export const noUndefinedVars: LintRule = {
         if (kw.keyword === 'label' && kw.argument && kw.argument.type === 'TextContent') {
           const text = kw.argument.parts.find(p => typeof p === 'string') as string | undefined;
           if (text) {
-            definedVars.add(text.trim());
+            defineVar(text.trim(), kw.loc.start.line);
           }
         }
 
@@ -44,7 +51,7 @@ export const noUndefinedVars: LintRule = {
         if (kw.keyword === 'set' && kw.argument && kw.argument.type === 'TextContent') {
           const text = kw.argument.parts.find(p => typeof p === 'string') as string | undefined;
           if (text) {
-            definedVars.add(text.trim());
+            defineVar(text.trim(), kw.loc.start.line);
           }
         }
 
@@ -53,7 +60,7 @@ export const noUndefinedVars: LintRule = {
           if (sub.keyword === 'save' && sub.argument && sub.argument.type === 'TextContent') {
             const text = sub.argument.parts.find(p => typeof p === 'string') as string | undefined;
             if (text) {
-              definedVars.add(text.trim());
+              defineVar(text.trim(), sub.loc.start.line);
             }
           }
           collectDefinitions(sub);
@@ -67,7 +74,7 @@ export const noUndefinedVars: LintRule = {
         // Check for assignments
         if (node.expression.type === 'BinaryExpression' && node.expression.operator === '=') {
           if (node.expression.left.type === 'Identifier') {
-            definedVars.add(node.expression.left.name);
+            defineVar(node.expression.left.name, node.loc.start.line);
           }
         }
       } else if (node.type === 'AnswerOption') {
@@ -85,7 +92,7 @@ export const noUndefinedVars: LintRule = {
       if (expr.type === 'BinaryExpression' && expr.operator.toLowerCase() === 'in') {
         // Left side contains the loop variable(s)
         if (expr.left.type === 'Identifier') {
-          definedVars.add(expr.left.name);
+          defineVar(expr.left.name, expr.left.loc.start.line);
         } else if (expr.left.type === 'BinaryExpression' && expr.left.operator === ',') {
           // index, value pattern - collect from both sides of comma
           collectForVars(expr.left);
@@ -95,7 +102,7 @@ export const noUndefinedVars: LintRule = {
         collectForVars(expr.left);
         collectForVars(expr.right);
       } else if (expr.type === 'Identifier') {
-        definedVars.add(expr.name);
+        defineVar(expr.name, expr.loc.start.line);
       }
     }
 
@@ -210,19 +217,24 @@ export const noUndefinedVars: LintRule = {
         const fromParentVars = context.getFromParentVars();
         const fromChildVars = context.getFromChildVars();
 
-        // Report undefined variables
+        // Report undefined and use-before-define variables
         for (const usage of usedVars) {
-          // A variable is considered defined if:
-          // - It's defined in this program
-          // - It's a built-in
-          // - It comes from parent (@from-parent)
-          // - It comes from child (@from-child)
-          if (!definedVars.has(usage.name) &&
-              !builtins.has(usage.name) &&
-              !fromParentVars.has(usage.name) &&
-              !fromChildVars.has(usage.name)) {
+          if (builtins.has(usage.name) ||
+              fromParentVars.has(usage.name) ||
+              fromChildVars.has(usage.name)) {
+            continue;
+          }
+
+          const defLine = definedVars.get(usage.name);
+          if (defLine === undefined) {
             context.report({
               message: `'${usage.name}' is not defined`,
+              line: usage.line,
+              column: usage.column,
+            });
+          } else if (usage.line < defLine) {
+            context.report({
+              message: `'${usage.name}' is used before it is defined`,
               line: usage.line,
               column: usage.column,
             });
