@@ -33,6 +33,7 @@ A linter and formatter for the [GuidedTrack](https://guidedtrack.com) language (
 ### 1. Update Documentation
 
 - `/CLAUDE.md` — Update if project-level conventions or instructions changed
+- `/ARCHITECTURE.md` — Update if modules, entry points, or data flow changed
 - `/LANGUAGE_SPEC.md` — Update if language behavior or directives changed
 - `/README.md` — Update user-facing documentation (usage, rules, configuration, etc.)
 
