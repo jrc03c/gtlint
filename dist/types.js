@@ -28,6 +28,7 @@ export const DEFAULT_LINTER_CONFIG = {
         'correct-indentation': 'error',
         'no-duplicate-labels': 'error',
         'no-unused-labels': 'warn',
+        'no-empty-blocks': 'error',
     },
     format: DEFAULT_FORMATTER_CONFIG,
     ignore: ['**/node_modules/**', '**/dist/**'],

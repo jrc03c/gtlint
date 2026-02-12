@@ -149,6 +149,8 @@ GTLint includes the following linting rules:
 - **`no-duplicate-labels`** - Detects duplicate `*label:` definitions within a program
 - **`no-unused-labels`** - Warns about `*label:` definitions that are never referenced by a `*goto`
 
+- **`no-empty-blocks`** - Detects empty keyword blocks where a body is required (e.g., `*if`, `*while`, `*page`, `*else`)
+
 ### Syntax Validation
 
 - **`valid-keyword`** - Validates that keywords are recognized GuidedTrack keywords

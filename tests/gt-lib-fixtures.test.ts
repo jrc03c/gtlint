@@ -57,6 +57,7 @@ const ERROR_CASE_FIXTURES = new Set([
   'component_with_invalid_nodes',
   'duration_errors',
   'email_without_cancel_or_content',
+  'empty_if_and_group',
   'email_without_content_underneath_body',
   'email_without_subject',
   'events_twice_in_program',

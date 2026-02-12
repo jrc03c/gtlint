@@ -16,6 +16,7 @@ import { purchaseSubkeywordConstraints } from './purchase-subkeyword-constraints
 import { correctIndentation } from './correct-indentation.js';
 import { noDuplicateLabels } from './no-duplicate-labels.js';
 import { noUnusedLabels } from './no-unused-labels.js';
+import { noEmptyBlocks } from './no-empty-blocks.js';
 export const rules = {
     'no-undefined-vars': noUndefinedVars,
     'no-unused-vars': noUnusedVars,
@@ -35,6 +36,7 @@ export const rules = {
     'correct-indentation': correctIndentation,
     'no-duplicate-labels': noDuplicateLabels,
     'no-unused-labels': noUnusedLabels,
+    'no-empty-blocks': noEmptyBlocks,
 };
 export function getRule(name) {
     return rules[name];

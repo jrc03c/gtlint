@@ -2195,7 +2195,8 @@ var DEFAULT_LINTER_CONFIG = {
     "purchase-subkeyword-constraints": "error",
     "correct-indentation": "error",
     "no-duplicate-labels": "error",
-    "no-unused-labels": "warn"
+    "no-unused-labels": "warn",
+    "no-empty-blocks": "error"
   },
   format: DEFAULT_FORMATTER_CONFIG,
   ignore: ["**/node_modules/**", "**/dist/**"]
@@ -3796,6 +3797,38 @@ var noUnusedLabels = {
   }
 };
 
+// ../dist/linter/rules/no-empty-blocks.js
+var noEmptyBlocks = {
+  name: "no-empty-blocks",
+  description: "Disallow empty keyword blocks",
+  severity: "error",
+  create(context) {
+    return {
+      KeywordStatement(node) {
+        if (node.body.length > 0 || node.subKeywords.length > 0)
+          return;
+        const keyword = node.keyword.toLowerCase();
+        if (keyword === "else" || keyword === "elseif") {
+          context.report({
+            message: `\`*${keyword}:\` block is empty`,
+            line: node.loc.start.line,
+            column: node.loc.start.column
+          });
+          return;
+        }
+        const spec = getKeywordSpec(keyword);
+        if (spec?.body.required && node.body.length === 0) {
+          context.report({
+            message: `\`*${keyword}:\` block is empty`,
+            line: node.loc.start.line,
+            column: node.loc.start.column
+          });
+        }
+      }
+    };
+  }
+};
+
 // ../dist/linter/rules/index.js
 var rules = {
   "no-undefined-vars": noUndefinedVars,
@@ -3815,7 +3848,8 @@ var rules = {
   "purchase-subkeyword-constraints": purchaseSubkeywordConstraints,
   "correct-indentation": correctIndentation,
   "no-duplicate-labels": noDuplicateLabels,
-  "no-unused-labels": noUnusedLabels
+  "no-unused-labels": noUnusedLabels,
+  "no-empty-blocks": noEmptyBlocks
 };
 
 // ../dist/linter/directives.js

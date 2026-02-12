@@ -17,6 +17,7 @@ import { purchaseSubkeywordConstraints } from './purchase-subkeyword-constraints
 import { correctIndentation } from './correct-indentation.js';
 import { noDuplicateLabels } from './no-duplicate-labels.js';
 import { noUnusedLabels } from './no-unused-labels.js';
+import { noEmptyBlocks } from './no-empty-blocks.js';
 
 export const rules: Record<string, LintRule> = {
   'no-undefined-vars': noUndefinedVars,
@@ -37,6 +38,7 @@ export const rules: Record<string, LintRule> = {
   'correct-indentation': correctIndentation,
   'no-duplicate-labels': noDuplicateLabels,
   'no-unused-labels': noUnusedLabels,
+  'no-empty-blocks': noEmptyBlocks,
 };
 
 export function getRule(name: string): LintRule | undefined {
