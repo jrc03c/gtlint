@@ -80,13 +80,17 @@ npx gt-lint format path/to/some-dir
 
 ## Installation
 
-(1) Download the [`vscode-extension/dist/gt-lint.vsix`](https://github.com/jrc03c/gt-lint/blob/main/vscode-extension/dist/gt-lint.vsix) file.
+(1) Clone the repo and build the `.vsix` file:
+
+```bash
+cd vscode-extension && pnpm run package
+```
 
 (2) In VSCode, navigate to the Extensions pane, click on the tri-dot menu, and select "Install from VSIX...".
 
 ![](https://github.com/user-attachments/assets/f1ec5ba1-9027-475d-b9a8-29666d5d26fc)
 
-(3) Select the `gt-lint.vsix` file you downloaded.
+(3) Select the `vscode-extension/dist/gt-lint.vsix` file that was built in step 1.
 
 ## Usage
 

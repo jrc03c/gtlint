@@ -107,10 +107,10 @@ export async function getConfigForDocument(document: vscode.TextDocument): Promi
   let rules = { ...DEFAULT_LINTER_CONFIG.rules };
   let format = { ...DEFAULT_FORMATTER_CONFIG };
 
-  // Try to find and load gtlint.config.js
+  // Only load config files in trusted workspaces (they execute arbitrary JS)
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
   const searchDir = workspaceFolder?.uri.fsPath || path.dirname(document.uri.fsPath);
-  const configPath = findConfigFile(searchDir);
+  const configPath = vscode.workspace.isTrusted ? findConfigFile(searchDir) : null;
 
   if (configPath) {
     const fileConfig = await loadConfigFile(configPath);

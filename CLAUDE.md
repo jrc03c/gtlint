@@ -48,4 +48,4 @@ cd vscode-extension && pnpm run package
 
 **Semver guidelines:** Patch = bug fixes. Minor = new features/rules/directives. Major = breaking changes.
 
-The `.vsix` file at `vscode-extension/dist/gt-lint.vsix` is committed to the repo for easy installation.
+The `.vsix` file is gitignored (not committed) — it is built locally via this command. Build artifacts (`dist/` and `*.vsix`) should never be committed to the repo.

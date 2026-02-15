@@ -4657,7 +4657,7 @@ async function getConfigForDocument(document) {
   let format2 = { ...DEFAULT_FORMATTER_CONFIG };
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
   const searchDir = workspaceFolder?.uri.fsPath || path.dirname(document.uri.fsPath);
-  const configPath = findConfigFile(searchDir);
+  const configPath = vscode.workspace.isTrusted ? findConfigFile(searchDir) : null;
   if (configPath) {
     const fileConfig = await loadConfigFile(configPath);
     if (fileConfig) {
