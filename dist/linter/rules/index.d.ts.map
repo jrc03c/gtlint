@@ -1,1 +1,0 @@
-{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/linter/rules/index.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,QAAQ,EAAE,MAAM,cAAc,CAAC;AAqB7C,eAAO,MAAM,KAAK,EAAE,MAAM,CAAC,MAAM,EAAE,QAAQ,CAoB1C,CAAC;AAEF,wBAAgB,OAAO,CAAC,IAAI,EAAE,MAAM,GAAG,QAAQ,GAAG,SAAS,CAE1D;AAED,wBAAgB,WAAW,IAAI,QAAQ,EAAE,CAExC"}

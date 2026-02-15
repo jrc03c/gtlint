@@ -1,6 +1,6 @@
 # Intro
 
-**GTLint** is linter, formatter, and syntax highlighter for the [GuidedTrack](https://guidedtrack.com) language, inspired by ESLint and Prettier. It can be used at the command line or installed as a VSCode extension.
+**GTLint** is a linter, formatter, and syntax highlighter for the [GuidedTrack](https://guidedtrack.com) language, inspired by ESLint and Prettier. It can be used at the command line or installed as a VSCode extension.
 
 - [Intro](#intro)
 - [Disclaimer](#disclaimer)
@@ -38,52 +38,52 @@ npm install -g @jrc03c/gt-lint
 
 ## Usage
 
-> **NOTE:** When installed in a specific project, GTLint must be invoked with `npx gt-lint`. When installed globally, it can be invoked with just `gt-lint`. The examples below assume that it has been installed in a specific project.
+> **NOTE:** When installed in a specific project, GTLint must be invoked with `npx gtlint`. When installed globally, it can be invoked with just `gtlint`. The examples below assume that it has been installed in a specific project.
 
 **Syntax:**
 
 ```
 # lint:
-npx gt-lint lint [options] [files]
+npx gtlint lint [options] [files]
 
 # format:
-npx gt-lint format [options] [files]
+npx gtlint format [options] [files]
 ```
 
 **Show help:**
 
 ```bash
-npx gt-lint
+npx gtlint
 ```
 
 **Lint:**
 
 ```bash
 # show errors and warnings in a particular file
-npx gt-lint lint path/to/some-file.gt
+npx gtlint lint path/to/some-file.gt
 
 # show all errors and warnings in all *.gt files in a directory (recursive)
-npx gt-lint lint path/to/some-dir
+npx gtlint lint path/to/some-dir
 ```
 
 **Format:**
 
 ```bash
 # format a specific file
-npx gt-lint format path/to/some-file.gt
+npx gtlint format path/to/some-file.gt
 
 # format all *.gt files in a directory (recursive)
-npx gt-lint format path/to/some-dir
+npx gtlint format path/to/some-dir
 ```
 
 # VSCode extension
 
 ## Installation
 
-(1) Clone the repo and build the `.vsix` file:
+(1) Clone the repo, install dependencies, and build the `.vsix` file:
 
 ```bash
-cd vscode-extension && pnpm run package
+pnpm install && cd vscode-extension && pnpm run package
 ```
 
 (2) In VSCode, navigate to the Extensions pane, click on the tri-dot menu, and select "Install from VSIX...".
@@ -178,6 +178,10 @@ Here are the available directives and what they do:
 - `@gtformat-enable` = Re-enable formatting
 
 > **NOTE:** `@gtformat-*` directives don't support rule lists since formatting isn't rule-based.
+
+# Feedback
+
+If you run into bugs or have feature requests, please [open an issue](https://github.com/jrc03c/gt-lint/issues).
 
 # License
 

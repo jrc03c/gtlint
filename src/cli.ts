@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 
 import { readFileSync, writeFileSync, existsSync, statSync } from 'fs';
-import { resolve, relative, extname } from 'path';
+import { resolve, relative, extname, dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { globSync } from 'glob';
 import { Linter } from './linter/index.js';
 import { Formatter } from './formatter/index.js';
 import { loadConfig } from './config.js';
 import type { LintResult } from './types.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const { version } = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf-8'));
 
 interface CLIOptions {
   config?: string;
@@ -47,7 +51,7 @@ Examples:
 }
 
 function printVersion(): void {
-  console.log('gtlint v0.1.0');
+  console.log(`gtlint v${version}`);
 }
 
 function parseArgs(args: string[]): { command: string; files: string[]; options: CLIOptions } {

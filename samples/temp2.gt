@@ -1,4 +1,0 @@
->> service_responses = []
-
-*for: i, response in service_responses
-	RESPONSE #{i} = {response.text}

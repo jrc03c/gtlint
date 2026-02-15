@@ -1,9 +1,0 @@
--- @to-child: email_address
--- @from-child: was_added
-
->> email_address = "someone@example.com"
-
-*program: Add Email Address to Mailing List
-
-*if: was_added = "yes"
-	We added you to our mailing list!

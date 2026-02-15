@@ -1,1 +1,0 @@
-{"version":3,"file":"no-unreachable-code.d.ts","sourceRoot":"","sources":["../../../src/linter/rules/no-unreachable-code.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,QAAQ,EAAe,MAAM,cAAc,CAAC;AA4G1D,eAAO,MAAM,iBAAiB,EAAE,QAkI/B,CAAC"}
