@@ -179,6 +179,14 @@ Here are the available directives and what they do:
 
 > **NOTE:** `@gtformat-*` directives don't support rule lists since formatting isn't rule-based.
 
+# Running Tests
+
+```bash
+pnpm test
+```
+
+The test suite includes integration tests that exercise real GuidedTrack programs from a git submodule (`submodules/gt-lib`). This submodule points to a private repository and is optional — if it's not initialized, those tests are skipped automatically. All other tests will run normally.
+
 # Feedback
 
 If you run into bugs or have feature requests, please [open an issue](https://github.com/jrc03c/gt-lint/issues).
