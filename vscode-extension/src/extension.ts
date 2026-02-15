@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getVSCodeSettings } from './configuration';
+import { getVSCodeSettings, initConfigWatcher, disposeConfigWatcher } from './configuration';
 import { scheduleLint, lintNow, clearDiagnostics, lintAllOpen, dispose as disposeDiagnostics } from './diagnostics';
 import { GTLintFormatterProvider } from './formatter';
 
@@ -10,6 +10,12 @@ let outputChannel: vscode.OutputChannel;
 export function activate(context: vscode.ExtensionContext) {
   outputChannel = vscode.window.createOutputChannel('GTLint');
   outputChannel.appendLine('GTLint extension activated');
+
+  // Watch config files so cached configs are invalidated on change
+  context.subscriptions.push(initConfigWatcher(() => {
+    outputChannel.appendLine('GTLint config file changed, re-linting all documents');
+    lintAllOpen();
+  }));
 
   // Register formatter
   const formatterProvider = new GTLintFormatterProvider();
@@ -108,6 +114,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {
   disposeDiagnostics();
+  disposeConfigWatcher();
   if (outputChannel) {
     outputChannel.dispose();
   }

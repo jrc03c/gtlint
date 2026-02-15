@@ -153,7 +153,8 @@ function formatCompact(results: LintResult[]): string {
 }
 
 function formatJson(results: LintResult[]): string {
-  return JSON.stringify(results, null, 2);
+  const sanitized = results.map(({ source, output, ...rest }) => rest);
+  return JSON.stringify(sanitized, null, 2);
 }
 
 async function runLint(files: string[], options: CLIOptions): Promise<number> {

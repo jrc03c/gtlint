@@ -36,6 +36,41 @@ export interface GTLintSettings {
 
 const CONFIG_FILENAMES = ['gtlint.config.js', 'gtlint.config.mjs'];
 
+// Cache for loaded config files, keyed by absolute config path
+const configCache = new Map<string, { rules?: Record<string, 'off' | 'warn' | 'error'>; format?: Partial<FormatterConfig> } | null>();
+let configWatcher: vscode.FileSystemWatcher | undefined;
+
+/**
+ * Initialize the FileSystemWatcher that invalidates cached configs when
+ * config files are created, changed, or deleted.
+ * @param onInvalidate Optional callback invoked after cache invalidation
+ */
+export function initConfigWatcher(onInvalidate?: () => void): vscode.Disposable {
+  if (configWatcher) return configWatcher;
+
+  const pattern = `**/{${CONFIG_FILENAMES.join(',')}}`;
+  configWatcher = vscode.workspace.createFileSystemWatcher(pattern);
+
+  const invalidate = (uri: vscode.Uri) => {
+    configCache.delete(uri.fsPath);
+    onInvalidate?.();
+  };
+  configWatcher.onDidChange(invalidate);
+  configWatcher.onDidCreate(invalidate);
+  configWatcher.onDidDelete(invalidate);
+
+  return configWatcher;
+}
+
+/**
+ * Dispose of the config watcher and clear the cache.
+ */
+export function disposeConfigWatcher(): void {
+  configWatcher?.dispose();
+  configWatcher = undefined;
+  configCache.clear();
+}
+
 /**
  * Get VSCode settings for GTLint
  */
@@ -75,19 +110,26 @@ function findConfigFile(startDir: string): string | null {
 }
 
 /**
- * Load a gtlint.config.js file
+ * Load a gtlint.config.js file (cached; invalidated by FileSystemWatcher)
  */
 async function loadConfigFile(
   configPath: string
 ): Promise<{ rules?: Record<string, 'off' | 'warn' | 'error'>; format?: Partial<FormatterConfig> } | null> {
+  if (configCache.has(configPath)) {
+    return configCache.get(configPath)!;
+  }
+
   try {
-    // Clear require cache to pick up changes
+    // Clear require cache so the fresh file content is loaded
     delete require.cache[require.resolve(configPath)];
     // Use require for CommonJS compatibility in VSCode extension
     const module = require(configPath);
-    return module.default || module;
+    const result = module.default || module;
+    configCache.set(configPath, result);
+    return result;
   } catch (error) {
     console.error(`Failed to load GTLint config: ${configPath}`, error);
+    configCache.set(configPath, null);
     return null;
   }
 }
