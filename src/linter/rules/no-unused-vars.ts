@@ -7,6 +7,10 @@ interface VarInfo {
   column: number;
   usages: number;
   source?: 'from-parent' | 'from-child';
+  /** Earliest line where this variable is read (only tracked for directive vars) */
+  firstReadLine?: number;
+  /** Earliest line where this variable is defined in code (only tracked for directive vars) */
+  firstDefineLine?: number;
 }
 
 export const noUnusedVars: LintRule = {
@@ -18,15 +22,23 @@ export const noUnusedVars: LintRule = {
     const definedVars = new Map<string, VarInfo>();
 
     function addDefinition(name: string, line: number, column: number): void {
-      if (!definedVars.has(name)) {
+      const existing = definedVars.get(name);
+      if (!existing) {
         definedVars.set(name, { name, line, column, usages: 0 });
+      } else if (existing.source && existing.firstDefineLine === undefined) {
+        // First in-code definition of a directive-declared variable
+        existing.firstDefineLine = line;
       }
     }
 
-    function addUsage(name: string): void {
+    function addUsage(name: string, readLine?: number): void {
       const info = definedVars.get(name);
       if (info) {
         info.usages++;
+        if (info.source && readLine !== undefined &&
+            (info.firstReadLine === undefined || readLine < info.firstReadLine)) {
+          info.firstReadLine = readLine;
+        }
       }
     }
 
@@ -125,7 +137,7 @@ export const noUnusedVars: LintRule = {
           collectUsages(stmt);
         }
       } else if (node.type === 'Identifier') {
-        addUsage(node.name);
+        addUsage(node.name, node.loc.start.line);
       } else if (node.type === 'KeywordStatement') {
         const kw = node as KeywordStatement;
         if (kw.argument) {
@@ -189,7 +201,7 @@ export const noUnusedVars: LintRule = {
         const regex = /\{([a-zA-Z_]\w*)/g;
         let match;
         while ((match = regex.exec(node.value)) !== null) {
-          addUsage(match[1]);
+          addUsage(match[1], node.loc.start.line);
         }
       } else if (node.type === 'InterpolatedString') {
         for (const part of node.parts) {
@@ -240,24 +252,36 @@ export const noUnusedVars: LintRule = {
 
         // Report unused variables
         for (const [name, info] of definedVars) {
-          // A variable is considered used if:
-          // - It's used within this program
-          // - It's sent to parent (@to-parent)
-          // - It's sent to child (@to-child)
-          if (info.usages === 0 &&
-              !toParentVars.has(name) &&
-              !toChildVars.has(name)) {
-            const directive = info.source === 'from-parent' ? '@from-parent'
-              : info.source === 'from-child' ? '@from-child'
-              : null;
-            const message = directive
-              ? `'${name}' is declared in ${directive} but never used`
-              : `'${name}' is defined but never used`;
-            context.report({
-              message,
-              line: info.line,
-              column: info.column,
-            });
+          if (toParentVars.has(name) || toChildVars.has(name)) continue;
+
+          if (info.source) {
+            // Directive-declared variable (@from-parent / @from-child)
+            const directive = info.source === 'from-parent' ? '@from-parent' : '@from-child';
+            if (info.usages === 0) {
+              // Never referenced at all
+              context.report({
+                message: `'${name}' is declared in ${directive} but never used`,
+                line: info.line,
+                column: info.column,
+              });
+            } else if (info.firstDefineLine !== undefined &&
+                       (info.firstReadLine === undefined || info.firstDefineLine < info.firstReadLine)) {
+              // Overwritten before being read — parent-provided value is ignored
+              context.report({
+                message: `'${name}' is declared in ${directive} but its value is overwritten before being read`,
+                line: info.line,
+                column: info.column,
+              });
+            }
+          } else {
+            // Regular in-code variable
+            if (info.usages === 0) {
+              context.report({
+                message: `'${name}' is defined but never used`,
+                line: info.line,
+                column: info.column,
+              });
+            }
           }
         }
       },

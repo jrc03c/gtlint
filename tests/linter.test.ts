@@ -310,6 +310,42 @@ describe('Linter', () => {
       expect(unusedX).toBeDefined();
       expect(unusedX?.message).toContain('@from-parent');
     });
+
+    it('should warn when @from-parent value is overwritten before being read', () => {
+      const source = `-- @from-parent: x
+>> x = 5
+the value of x is {x}.`;
+      const result = lint(source);
+
+      const warning = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'x'")
+      );
+      expect(warning).toBeDefined();
+      expect(warning?.message).toContain('overwritten before being read');
+    });
+
+    it('should not warn when @from-parent value is read before being overwritten', () => {
+      const source = `-- @from-parent: x
+the value of x is {x}.
+>> x = 5`;
+      const result = lint(source);
+
+      const warning = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'x'")
+      );
+      expect(warning).toBeUndefined();
+    });
+
+    it('should not warn when @from-parent value is read and written on same line', () => {
+      const source = `-- @from-parent: x
+>> x = x + 1`;
+      const result = lint(source);
+
+      const warning = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'x'")
+      );
+      expect(warning).toBeUndefined();
+    });
   });
 
   describe('no-invalid-goto rule', () => {
