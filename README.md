@@ -1,17 +1,18 @@
-# Intro
+# GTLint
 
-**GTLint** is a linter, formatter, and syntax highlighter for the [GuidedTrack](https://guidedtrack.com) language, inspired by ESLint and Prettier. It can be used at the command line or installed as a VSCode extension.
+GTLint is a linter, formatter, and syntax highlighter for the [GuidedTrack](https://guidedtrack.com) language, inspired by ESLint and Prettier. It can be used at the command line or installed as a VSCode extension.
 
 - [Intro](#intro)
 - [Disclaimer](#disclaimer)
-- [Command line](#command-line)
-  - [Installation](#installation)
-  - [Usage](#usage)
 - [VSCode extension](#vscode-extension)
   - [Installation](#installation-1)
   - [Usage](#usage-1)
+- [Command Line](#command-line)
+  - [Installation](#installation)
+  - [Usage](#usage)
 - [Configuration](#configuration)
 - [Directives](#directives)
+- [Tests](#tests)
 - [License](#license)
 
 ![](https://github.com/user-attachments/assets/71fc166f-1980-4e2d-a84f-41188f6e0dbe)
@@ -19,6 +20,28 @@
 # Disclaimer
 
 This tool was written almost exclusively by [Claude Code](https://claude.com/product/claude-code). [Josh Castle](https://github.com/jrc03c) directed Claude Code and made a few small changes to `CLAUDE.md`, `README.md`, and the GuidedTrack files in the `samples` directory; but GTLint itself was written entirely by Claude Code.
+
+# VSCode extension
+
+## Installation
+
+(1) Clone the repo, install dependencies, and build the `.vsix` file:
+
+```bash
+pnpm install && cd vscode-extension && pnpm run package
+```
+
+(2) In VSCode, navigate to the Extensions pane, click on the tri-dot menu, and select "Install from VSIX...".
+
+![](https://github.com/user-attachments/assets/f1ec5ba1-9027-475d-b9a8-29666d5d26fc)
+
+(3) Select the `vscode-extension/dist/gt-lint.vsix` file that was built in step 1.
+
+## Usage
+
+The linter works while you write code in `.gt` files and will show errors as soon as it detects them.
+
+The formatter will format code in `.gt` files on save.
 
 # Command Line
 
@@ -77,28 +100,6 @@ npx gtlint format path/to/some-file.gt
 # format all *.gt files in a directory (recursive)
 npx gtlint format path/to/some-dir
 ```
-
-# VSCode extension
-
-## Installation
-
-(1) Clone the repo, install dependencies, and build the `.vsix` file:
-
-```bash
-pnpm install && cd vscode-extension && pnpm run package
-```
-
-(2) In VSCode, navigate to the Extensions pane, click on the tri-dot menu, and select "Install from VSIX...".
-
-![](https://github.com/user-attachments/assets/f1ec5ba1-9027-475d-b9a8-29666d5d26fc)
-
-(3) Select the `vscode-extension/dist/gt-lint.vsix` file that was built in step 1.
-
-## Usage
-
-The linter works while you write code in `.gt` files and will show errors as soon as it detects them.
-
-The formatter will format code in `.gt` files on save.
 
 # Configuration
 
@@ -181,13 +182,13 @@ Here are the available directives and what they do:
 
 > **NOTE:** `@gtformat-*` directives don't support rule lists since formatting isn't rule-based.
 
-# Running Tests
+# Tests
 
 ```bash
 pnpm test
 ```
 
-The test suite includes integration tests that exercise real GuidedTrack programs from a git submodule (`submodules/gt-lib`). This submodule points to a private repository and is optional — if it's not initialized, those tests are skipped automatically. All other tests will run normally.
+The test suite includes integration tests that exercise real GuidedTrack programs from a git submodule (`submodules/gt-lib`). This submodule points to a private repository and is optional. If it's not initialized, those tests are skipped automatically. All other tests will run normally.
 
 # Feedback
 
