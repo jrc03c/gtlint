@@ -2,6 +2,8 @@
 
 **GTLint** is a linter, formatter, and syntax highlighter for the [GuidedTrack](https://guidedtrack.com) language, inspired by ESLint and Prettier. It can be used at the command line or installed as a VSCode extension.
 
+![](https://github.com/user-attachments/assets/95ed2cf5-31fc-45bc-93f5-157247b09dc9)
+
 - [Intro](#intro)
 - [Disclaimer](#disclaimer)
 - [Command line](#command-line)
