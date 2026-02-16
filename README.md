@@ -166,9 +166,9 @@ Here are the available directives and what they do:
 - `@gtlint-enable rule1` = Re-enable specific lint rule
 - `@gtlint-disable-next-line` = Disable all lint rules for next line
 - `@gtlint-disable-next-line rule1, rule2` = Disable specific rules for next line
-- `@from-child: var1, var2, ...` = Do not mark listed variables as undefined (because they are defined in a child program)
-- `@from-parent: var1, var2, ...` = Do not mark listed variables as undefined (because they are defined in a parent program)
-- `@from-url: var1, var2, ...` = Do not mark listed variables as undefined (because they are defined in URL query string parameters)
+- `@from-child: var1, var2, ...` = Do not mark listed variables as undefined (because they are defined in a child program); warns if a listed variable is never used
+- `@from-parent: var1, var2, ...` = Do not mark listed variables as undefined (because they are defined in a parent program); warns if a listed variable is never used
+- `@from-url: var1, var2, ...` = Do not mark listed variables as undefined (because they are defined in URL query string parameters); warns if a listed variable is never used
 - `@to-child: var1, var2, ...` = Do not mark listed variables as unused (because they will be used in a child program)
 - `@to-parent: var1, var2, ...` = Do not mark listed variables as unused (because they will be used in a parent program)
 - `@to-csv: var1, var2, ...` = Do not mark listed variables as unused (because they will be saved in the root program's CSV)

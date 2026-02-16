@@ -249,6 +249,67 @@ describe('Linter', () => {
       );
       expect(unusedWarning).toBeUndefined();
     });
+
+    it('should report warning for unused @from-parent variable', () => {
+      const source = `-- @from-parent: x, y
+*if: not x
+\t>> x = 42`;
+      const result = lint(source);
+
+      const unusedY = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'y'")
+      );
+      expect(unusedY).toBeDefined();
+      expect(unusedY?.message).toContain('@from-parent');
+    });
+
+    it('should not report warning for used @from-parent variable', () => {
+      const source = `-- @from-parent: x
+*if: not x
+\t>> x = 42`;
+      const result = lint(source);
+
+      const unusedX = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'x'")
+      );
+      expect(unusedX).toBeUndefined();
+    });
+
+    it('should report warning for unused @from-child variable', () => {
+      const source = `-- @from-child: result
+*program: child`;
+      const result = lint(source);
+
+      const unusedResult = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'result'")
+      );
+      expect(unusedResult).toBeDefined();
+      expect(unusedResult?.message).toContain('@from-child');
+    });
+
+    it('should not warn for @from-parent var that is also @to-child', () => {
+      const source = `-- @from-parent: config
+-- @to-child: config
+*program: child`;
+      const result = lint(source);
+
+      const unusedConfig = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'config'")
+      );
+      expect(unusedConfig).toBeUndefined();
+    });
+
+    it('should report warning for @from-parent var that is only overwritten', () => {
+      const source = `-- @from-parent: x
+>> x = 42`;
+      const result = lint(source);
+
+      const unusedX = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'x'")
+      );
+      expect(unusedX).toBeDefined();
+      expect(unusedX?.message).toContain('@from-parent');
+    });
   });
 
   describe('no-invalid-goto rule', () => {

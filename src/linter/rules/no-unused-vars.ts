@@ -6,6 +6,7 @@ interface VarInfo {
   line: number;
   column: number;
   usages: number;
+  source?: 'from-parent' | 'from-child';
 }
 
 export const noUnusedVars: LintRule = {
@@ -212,6 +213,21 @@ export const noUnusedVars: LintRule = {
 
     return {
       Program(node: Program) {
+        // Register @from-parent / @from-child variables as definitions
+        // (before the AST walk so they're tracked for usage counting)
+        const fromParentVars = context.getFromParentVars();
+        const fromChildVars = context.getFromChildVars();
+        for (const [name, line] of fromParentVars) {
+          if (!definedVars.has(name)) {
+            definedVars.set(name, { name, line, column: 0, usages: 0, source: 'from-parent' });
+          }
+        }
+        for (const [name, line] of fromChildVars) {
+          if (!definedVars.has(name)) {
+            definedVars.set(name, { name, line, column: 0, usages: 0, source: 'from-child' });
+          }
+        }
+
         // First pass: collect all variable definitions
         collectDefinitions(node);
 
@@ -231,8 +247,14 @@ export const noUnusedVars: LintRule = {
           if (info.usages === 0 &&
               !toParentVars.has(name) &&
               !toChildVars.has(name)) {
+            const directive = info.source === 'from-parent' ? '@from-parent'
+              : info.source === 'from-child' ? '@from-child'
+              : null;
+            const message = directive
+              ? `'${name}' is declared in ${directive} but never used`
+              : `'${name}' is defined but never used`;
             context.report({
-              message: `'${name}' is defined but never used`,
+              message,
               line: info.line,
               column: info.column,
             });

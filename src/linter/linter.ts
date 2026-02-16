@@ -104,10 +104,10 @@ export interface ReportDescriptor {
 export interface RuleContext {
   report(descriptor: ReportDescriptor): void;
   getSourceCode(): string;
-  /** Variables received from parent program (@from-parent) */
-  getFromParentVars(): Set<string>;
-  /** Variables received from child program (@from-child) */
-  getFromChildVars(): Set<string>;
+  /** Variables received from parent program (@from-parent); name → directive line number */
+  getFromParentVars(): Map<string, number>;
+  /** Variables received from child program (@from-child); name → directive line number */
+  getFromChildVars(): Map<string, number>;
   /** Variables sent to parent program (@to-parent) */
   getToParentVars(): Set<string>;
   /** Variables sent to child program (@to-child) */

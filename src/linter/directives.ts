@@ -35,10 +35,10 @@ export interface DirectiveState {
   lintDisabledLines: Map<number, Set<string> | 'all'>;
   /** Set of line numbers where formatting is disabled */
   formatDisabledLines: Set<number>;
-  /** Variables received from parent program */
-  fromParentVars: Set<string>;
-  /** Variables received from child program */
-  fromChildVars: Set<string>;
+  /** Variables received from parent program (name → directive line number) */
+  fromParentVars: Map<string, number>;
+  /** Variables received from child program (name → directive line number) */
+  fromChildVars: Map<string, number>;
   /** Variables sent to parent program */
   toParentVars: Set<string>;
   /** Variables sent to child program */
@@ -50,8 +50,8 @@ export function parseDirectives(source: string): DirectiveState {
   const state: DirectiveState = {
     lintDisabledLines: new Map(),
     formatDisabledLines: new Set(),
-    fromParentVars: new Set(),
-    fromChildVars: new Set(),
+    fromParentVars: new Map(),
+    fromChildVars: new Map(),
     toParentVars: new Set(),
     toChildVars: new Set(),
   };
@@ -224,7 +224,7 @@ export function parseDirectives(source: string): DirectiveState {
       const varsStr = commentContent.slice(prefix.length).trim();
       const vars = parseVarList(varsStr);
       for (const v of vars) {
-        state.fromParentVars.add(v);
+        state.fromParentVars.set(v, lineNum);
       }
       continue;
     }
@@ -234,7 +234,7 @@ export function parseDirectives(source: string): DirectiveState {
       const varsStr = commentContent.slice('@from-child:'.length).trim();
       const vars = parseVarList(varsStr);
       for (const v of vars) {
-        state.fromChildVars.add(v);
+        state.fromChildVars.set(v, lineNum);
       }
       continue;
     }
