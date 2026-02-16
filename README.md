@@ -14,7 +14,7 @@
 - [Directives](#directives)
 - [License](#license)
 
-![](https://github.com/user-attachments/assets/95ed2cf5-31fc-45bc-93f5-157247b09dc9)
+![](https://github.com/user-attachments/assets/71fc166f-1980-4e2d-a84f-41188f6e0dbe)
 
 # Disclaimer
 
