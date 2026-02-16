@@ -82,6 +82,27 @@ describe('Formatter', () => {
       expect(result).toContain('-> ');
     });
 
+    it('should add spaces around arrow in *send sub-keyword', () => {
+      const source = '*send: {"foo"->"bar"}\n';
+      const result = format(source);
+
+      expect(result).toBe('*send: {"foo" -> "bar"}\n');
+    });
+
+    it('should add spaces around operators in *if expressions', () => {
+      const source = '*if: x>7\n';
+      const result = format(source);
+
+      expect(result).toBe('*if: x > 7\n');
+    });
+
+    it('should not add spaces around hyphens in *trigger event names', () => {
+      const source = '*trigger: some-event\n';
+      const result = format(source);
+
+      expect(result).toBe('*trigger: some-event\n');
+    });
+
     it('should not add spaces in negative numbers', () => {
       const source = '>> x = -5\n';
       const result = format(source);

@@ -2,6 +2,7 @@ import type { FormatterConfig } from '../types.js';
 import { DEFAULT_FORMATTER_CONFIG } from '../types.js';
 import { tokenize, Token, TokenType } from '../lexer/index.js';
 import { parseDirectives, isFormatDisabled } from '../linter/directives.js';
+import { KEYWORD_SPECS } from '../language/keyword-spec.js';
 
 export class Formatter {
   private config: FormatterConfig;
@@ -312,6 +313,34 @@ export class Formatter {
     return result;
   }
 
+  // Value types whose content is expression-like and should receive operator formatting
+  private static readonly EXPRESSION_VALUE_TYPES = new Set([
+    'expression', 'collection', 'association', 'iteration',
+  ]);
+
+  /**
+   * Check whether a keyword's value is expression-like (and thus should get
+   * operator spacing), as opposed to a name, label, or free-text value where
+   * inserting spaces around `-`, `>`, etc. would be wrong.
+   */
+  private hasExpressionValue(keywordName: string): boolean {
+    // Check as top-level keyword
+    const spec = KEYWORD_SPECS[keywordName];
+    if (spec) {
+      return Formatter.EXPRESSION_VALUE_TYPES.has(spec.argument.type);
+    }
+
+    // Check as sub-keyword across all parent keywords
+    for (const parentSpec of Object.values(KEYWORD_SPECS)) {
+      const subSpec = parentSpec.subKeywords?.[keywordName];
+      if (subSpec) {
+        return Formatter.EXPRESSION_VALUE_TYPES.has(subSpec.valueType);
+      }
+    }
+
+    return false;
+  }
+
   private formatKeywordLine(content: string): string {
     // Match keyword pattern: *keyword: expression/text
     const colonIndex = content.indexOf(':');
@@ -323,10 +352,11 @@ export class Formatter {
     const keywordPart = content.slice(0, colonIndex + 1); // e.g., "*if:"
     let expressionPart = content.slice(colonIndex + 1); // e.g., " x > 7"
 
-    // Keywords that require expressions (should normalize whitespace)
+    // Keywords whose values benefit from whitespace normalization
     const expressionKeywords = [
       'if', 'while', 'for', 'repeat', 'goto', 'return', 'set', 'wait',
-      'program', 'component', 'service', 'trigger', 'switch'
+      'program', 'component', 'service', 'trigger', 'switch',
+      'send', 'data', 'answers', 'default', 'with'
     ];
 
     // Extract keyword name (remove * and :)
@@ -336,6 +366,12 @@ export class Formatter {
     if (expressionKeywords.includes(keywordName)) {
       // Normalize whitespace in the expression part
       expressionPart = this.normalizeWhitespace(expressionPart);
+
+      // Apply operator spacing for keywords with expression-like values
+      // (but not for name/label types where e.g. hyphens are part of the name)
+      if (this.config.spaceAroundOperators && this.hasExpressionValue(keywordName)) {
+        expressionPart = this.formatOperatorsOutsideStrings(expressionPart);
+      }
     } else {
       // For text-based keywords (like *question:, *header:), just trim leading space
       expressionPart = expressionPart.replace(/^\s+/, ' ');
