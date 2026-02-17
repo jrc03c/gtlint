@@ -32,7 +32,7 @@ This tool was written almost exclusively by [Claude Code](https://claude.com/pro
 
 ![](https://github.com/user-attachments/assets/f1ec5ba1-9027-475d-b9a8-29666d5d26fc)
 
-(3) Select the `vscode-extension/dist/gt-lint.vsix` file that was built in step 1.
+(3) Select the `gt-lint.vsix` file that you downloaded in the first step.
 
 ## Usage
 
