@@ -9,8 +9,8 @@
 - [Command Line](#command-line)
   - [Installation](#installation-1)
   - [Usage](#usage-1)
-- [Configuration](#configuration)
-- [Directives](#directives)
+- [Configuration](#configuration) (i.e., project-wide settings)
+- [Directives](#directives) (i.e., inline settings)
 - [Tests](#tests)
 - [License](#license)
 
@@ -36,9 +36,9 @@ This tool was written almost exclusively by [Claude Code](https://claude.com/pro
 
 ## Usage
 
-The linter works while you write code in `.gt` files and will show errors as soon as it detects them.
+The linter works while you write code in `.gt` files and will show errors as soon as it detects them. The formatter will format code in `.gt` files on save.
 
-The formatter will format code in `.gt` files on save.
+See the [Configuration](#configuration) section below for more info about how to control the extension's behavior.
 
 # Command Line
 
