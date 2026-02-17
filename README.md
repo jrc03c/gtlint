@@ -14,7 +14,9 @@
 - [Tests](#tests)
 - [License](#license)
 
-![](https://github.com/user-attachments/assets/71fc166f-1980-4e2d-a84f-41188f6e0dbe)
+![VSCode extension](https://github.com/user-attachments/assets/71fc166f-1980-4e2d-a84f-41188f6e0dbe)
+
+![CLI tool](https://github.com/user-attachments/assets/06734d44-794c-475c-b5e2-c389a5f5a34c)
 
 # Disclaimer
 
