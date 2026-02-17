@@ -25,11 +25,9 @@ This tool was written almost exclusively by [Claude Code](https://claude.com/pro
 
 ## Installation
 
-(1) Clone the repo, install dependencies, and build the `.vsix` file:
+(1) Download the `.vsix` file from here:
 
-```bash
-pnpm install && cd vscode-extension && pnpm run package
-```
+[https://github.com/jrc03c/gt-lint/releases/latest/download/gt-lint.vsix](https://github.com/jrc03c/gt-lint/releases/latest/download/gt-lint.vsix)
 
 (2) In VSCode, navigate to the Extensions pane, click on the tri-dot menu, and select "Install from VSIX...".
 
