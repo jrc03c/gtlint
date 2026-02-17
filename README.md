@@ -30,9 +30,11 @@ This tool was written almost exclusively by [Claude Code](https://claude.com/pro
 
 [https://github.com/jrc03c/gt-lint/releases/latest/download/gt-lint.vsix](https://github.com/jrc03c/gt-lint/releases/latest/download/gt-lint.vsix)
 
-(2) In VSCode, navigate to the Extensions pane, click on the tri-dot menu, and select "Install from VSIX...".
+(2) In VSCode, open the command palette and search for "vsix":
 
-![](https://github.com/user-attachments/assets/f1ec5ba1-9027-475d-b9a8-29666d5d26fc)
+![](https://github.com/user-attachments/assets/03128194-04c5-4991-9acd-e9efb3e38ec9)
+
+Select "Extensions: Install from VSIX...".
 
 (3) Select the `gt-lint.vsix` file that you downloaded in the first step.
 
