@@ -151,32 +151,65 @@ Here are the available directives and what they do:
 
 **Combined (lint + format):**
 
-- `@gt-disable` = Disable lint + format until `@gt-enable` or EOF
-- `@gt-enable` = Re-enable lint + format
-- `@gt-disable-next-line` = Disable lint + format for next line only
-- `@gt-disable-next-line rule1, rule2` = Disable specific lint rules + format for next line
+- **`@gt-disable`**<br>
+  Disable lint + format until `@gt-enable` or EOF
+
+- **`@gt-enable`**<br>
+  Re-enable lint + format
+
+- **`@gt-disable-next-line`**<br>
+  Disable lint + format for next line only
+
+- **`@gt-disable-next-line rule1, rule2`**<br>
+  Disable specific lint rules + format for next line
 
 **Lint-only:**
 
-- `@gtlint-disable` = Disable all lint rules until `@gtlint-enable` or EOF
-- `@gtlint-disable rule1, rule2` = Disable specific lint rules
-- `@gtlint-enable` = Re-enable all lint rules
-- `@gtlint-enable rule1` = Re-enable specific lint rule
-- `@gtlint-disable-next-line` = Disable all lint rules for next line
-- `@gtlint-disable-next-line rule1, rule2` = Disable specific rules for next line
-- `@from-child: var1, var2, ...` = Do not mark listed variables as undefined (because they are defined in a child program); warns if a listed variable is never used
-- `@from-parent: var1, var2, ...` = Do not mark listed variables as undefined (because they are defined in a parent program); warns if a listed variable is never used
-- `@from-url: var1, var2, ...` = Do not mark listed variables as undefined (because they are defined in URL query string parameters); warns if a listed variable is never used
-- `@to-child: var1, var2, ...` = Do not mark listed variables as unused (because they will be used in a child program)
-- `@to-parent: var1, var2, ...` = Do not mark listed variables as unused (because they will be used in a parent program)
-- `@to-csv: var1, var2, ...` = Do not mark listed variables as unused (because they will be saved in the root program's CSV)
+- **`@gtlint-disable`**<br>
+  Disable all lint rules until `@gtlint-enable` or EOF
+
+- **`@gtlint-disable rule1, rule2`**<br>
+  Disable specific lint rules
+
+- **`@gtlint-enable`**<br>
+  Re-enable all lint rules
+
+- **`@gtlint-enable rule1`**<br>
+  Re-enable specific lint rule
+
+- **`@gtlint-disable-next-line`**<br>
+  Disable all lint rules for next line
+
+- **`@gtlint-disable-next-line rule1, rule2`**<br>
+  Disable specific rules for next line
+
+- **`@from-child: var1, var2, ...`**<br>
+  Do not mark listed variables as undefined (because they are defined in a child program); warns if a listed variable is never used
+
+- **`@from-parent: var1, var2, ...`**<br>
+  Do not mark listed variables as undefined (because they are defined in a parent program); warns if a listed variable is never used
+
+- **`@from-url: var1, var2, ...`**<br>
+  Do not mark listed variables as undefined (because they are defined in URL query string parameters); warns if a listed variable is never used
+
+- **`@to-child: var1, var2, ...`**<br>
+  Do not mark listed variables as unused (because they will be used in a child program)
+
+- **`@to-parent: var1, var2, ...`**<br>
+  Do not mark listed variables as unused (because they will be used in a parent program)
+
+- **`@to-csv: var1, var2, ...`**<br>
+  Do not mark listed variables as unused (because they will be saved in the root program's CSV)
 
 > **NOTE:** Inline directive rule names always use kebab-case (e.g., `no-unused-vars`), even though config files use camelCase.
 
 **Format-only:**
 
-- `@gtformat-disable` = Disable formatting until `@gtformat-enable` or EOF
-- `@gtformat-enable` = Re-enable formatting
+- **`@gtformat-disable`**<br>
+  Disable formatting until `@gtformat-enable` or EOF
+
+- **`@gtformat-enable`**<br>
+  Re-enable formatting
 
 > **NOTE:** `@gtformat-*` directives don't support rule lists since formatting isn't rule-based.
 
