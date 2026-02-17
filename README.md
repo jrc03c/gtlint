@@ -1,8 +1,7 @@
-# GTLint
+# GTLint ✨
 
-GTLint is a linter, formatter, and syntax highlighter for the [GuidedTrack](https://guidedtrack.com) language, inspired by ESLint and Prettier. It can be used at the command line or installed as a VSCode extension.
+**GTLint** is a linter, formatter, and syntax highlighter for the [GuidedTrack](https://guidedtrack.com) language, inspired by ESLint and Prettier. It can be used at the command line or installed as a VSCode extension.
 
-- [Intro](#intro)
 - [Disclaimer](#disclaimer)
 - [VSCode extension](#vscode-extension)
   - [Installation](#installation)
@@ -19,7 +18,7 @@ GTLint is a linter, formatter, and syntax highlighter for the [GuidedTrack](http
 
 # Disclaimer
 
-This tool was written almost exclusively by [Claude Code](https://claude.com/product/claude-code). [Josh Castle](https://github.com/jrc03c) directed Claude Code and made a few small changes to `CLAUDE.md`, `README.md`, and the GuidedTrack files in the `samples` directory; but GTLint itself was written entirely by Claude Code.
+This tool was written almost exclusively by [Claude Code](https://claude.com/product/claude-code). [Josh Castle](https://github.com/jrc03c) directed Claude Code and made a few small changes to `CLAUDE.md`, `README.md`, and the GuidedTrack files in the `samples` directory; but virtually everything else was written by Claude Code.
 
 # VSCode extension
 
