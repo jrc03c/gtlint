@@ -102,6 +102,8 @@ npx gtlint format path/to/some-file.gt
 npx gtlint format path/to/some-dir
 ```
 
+See the [Configuration](#configuration) section below for more info about how to control the command line tool's behavior.
+
 # Configuration
 
 The linter's and formatter's default behaviors can be controlled by settings in a `gtlint.config.js` file at the root of a repository. Here's a sample configuration file containing all of the default values:
