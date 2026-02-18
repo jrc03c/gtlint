@@ -308,7 +308,8 @@ describe('Linter', () => {
         m.ruleId === 'no-unused-vars' && m.message.includes("'x'")
       );
       expect(unusedX).toBeDefined();
-      expect(unusedX?.message).toContain('@from-parent');
+      // With no reads at all, this hits the "never used" path (not "overwritten before read")
+      expect(unusedX?.message).toContain('never used');
     });
 
     it('should warn when @from-parent value is overwritten before being read', () => {
@@ -322,6 +323,8 @@ the value of x is {x}.`;
       );
       expect(warning).toBeDefined();
       expect(warning?.message).toContain('overwritten before being read');
+      // Warning should point at the assignment, not the directive
+      expect(warning?.line).toBe(2);
     });
 
     it('should not warn when @from-parent value is read before being overwritten', () => {
@@ -343,6 +346,20 @@ the value of x is {x}.
 
       const warning = result.messages.find(m =>
         m.ruleId === 'no-unused-vars' && m.message.includes("'x'")
+      );
+      expect(warning).toBeUndefined();
+    });
+
+    it('should not warn when @from-child value is given a default before *program: call', () => {
+      const source = `-- @from-child: user_data
+>> user_data = ""
+*program: Fetch user data
+*if: user_data = ""
+\tUh-oh!`;
+      const result = lint(source);
+
+      const warning = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'user_data'") && m.message.includes('overwritten')
       );
       expect(warning).toBeUndefined();
     });

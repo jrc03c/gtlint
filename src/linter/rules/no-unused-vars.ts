@@ -11,6 +11,8 @@ interface VarInfo {
   firstReadLine?: number;
   /** Earliest line where this variable is defined in code (only tracked for directive vars) */
   firstDefineLine?: number;
+  /** Column of the earliest in-code definition (only tracked for directive vars) */
+  firstDefineColumn?: number;
 }
 
 export const noUnusedVars: LintRule = {
@@ -28,6 +30,7 @@ export const noUnusedVars: LintRule = {
       } else if (existing.source && existing.firstDefineLine === undefined) {
         // First in-code definition of a directive-declared variable
         existing.firstDefineLine = line;
+        existing.firstDefineColumn = column;
       }
     }
 
@@ -264,13 +267,17 @@ export const noUnusedVars: LintRule = {
                 line: info.line,
                 column: info.column,
               });
-            } else if (info.firstDefineLine !== undefined &&
+            } else if (info.source === 'from-parent' &&
+                       info.firstDefineLine !== undefined &&
                        (info.firstReadLine === undefined || info.firstDefineLine < info.firstReadLine)) {
-              // Overwritten before being read — parent-provided value is ignored
+              // Overwritten before being read — parent-provided value is ignored.
+              // Only checked for @from-parent: the parent's value definitively exists
+              // at program start, so overwriting it is likely a mistake. For @from-child,
+              // writing before the *program: call is a common pattern (setting defaults).
               context.report({
                 message: `'${name}' is declared in ${directive} but its value is overwritten before being read`,
-                line: info.line,
-                column: info.column,
+                line: info.firstDefineLine,
+                column: info.firstDefineColumn ?? 0,
               });
             }
           } else {
