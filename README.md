@@ -192,10 +192,10 @@ Here are the available directives and what they do:
   Do not mark listed variables as undefined (because they are defined in a child program); warns if a listed variable is never used
 
 - **`@from-parent: var1, var2, ...`**<br>
-  Do not mark listed variables as undefined (because they are defined in a parent program); warns if a listed variable is never used
+  Do not mark listed variables as undefined (because they are defined in a parent program); warns if a listed variable is never used or if its value is overwritten before being read
 
 - **`@from-url: var1, var2, ...`**<br>
-  Do not mark listed variables as undefined (because they are defined in URL query string parameters); warns if a listed variable is never used
+  Do not mark listed variables as undefined (because they are defined in URL query string parameters); warns if a listed variable is never used or if its value is overwritten before being read
 
 - **`@to-child: var1, var2, ...`**<br>
   Do not mark listed variables as unused (because they will be used in a child program)
