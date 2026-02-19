@@ -49,3 +49,11 @@ cd vscode-extension && pnpm run package
 **Semver guidelines:** Patch = bug fixes. Minor = new features/rules/directives. Major = breaking changes.
 
 The `.vsix` file is gitignored (not committed) — it is built locally via this command. Build artifacts (`dist/` and `*.vsix`) should never be committed to the repo.
+
+### 3. Create a GitHub Release
+
+After committing and pushing, create a GitHub release with the `.vsix` attached:
+
+```bash
+gh release create vX.Y.Z vscode-extension/*.vsix --generate-notes
+```
