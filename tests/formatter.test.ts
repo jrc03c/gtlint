@@ -235,6 +235,15 @@ Second line
 
       expect(result).toBe(source);
     });
+
+    it('should respect spaceAroundArrow: false option', () => {
+      const source = '>> x = {"key"->"value"}\n';
+      const result = format(source, { spaceAroundArrow: false, spaceAroundOperators: false });
+
+      // With both arrow and operator spacing off, the arrow should not be spaced
+      expect(result).toContain('->');
+      expect(result).not.toContain(' -> ');
+    });
   });
 
   describe('Keyword whitespace normalization', () => {

@@ -673,6 +673,145 @@ the value of x is {x}.
     });
   });
 
+  describe('Rule severity configurability', () => {
+    it('no-undefined-vars can be turned off', () => {
+      const source = '>> y = undefinedVar + 1';
+      const result = lint(source, { lint: { 'no-undefined-vars': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'no-undefined-vars');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('valid-keyword can be turned off', () => {
+      const source = '*invalidkeyword: test';
+      const result = lint(source, { lint: { 'valid-keyword': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'valid-keyword');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('valid-sub-keyword can be turned off', () => {
+      const source = `*button: Click
+\t*save: value`;
+      const result = lint(source, { lint: { 'valid-sub-keyword': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'valid-sub-keyword');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('no-invalid-goto can be turned off', () => {
+      const source = '*goto: nonExistent';
+      const result = lint(source, { lint: { 'no-invalid-goto': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'no-invalid-goto');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('indent-style can be turned off', () => {
+      const source = '*if: 1\n    Spaces';
+      const result = lint(source, { lint: { 'indent-style': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'indent-style');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('no-unclosed-string can be turned off', () => {
+      const source = '>> x = "unclosed';
+      const result = lint(source, { lint: { 'no-unclosed-string': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'no-unclosed-string');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('no-unclosed-bracket can be turned off', () => {
+      const source = '>> x = [1, 2';
+      const result = lint(source, { lint: { 'no-unclosed-bracket': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'no-unclosed-bracket');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('no-single-quotes can be turned off', () => {
+      const source = ">> x = 'hello'";
+      const result = lint(source, { lint: { 'no-single-quotes': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'no-single-quotes');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('no-unreachable-code can be turned off', () => {
+      const source = '*goto: end\nUnreachable\n*label: end';
+      const result = lint(source, { lint: { 'no-unreachable-code': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'no-unreachable-code');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('required-subkeywords can be turned off', () => {
+      const source = `*chart: My Chart
+\t*data: [[1, 2]]`;
+      const result = lint(source, { lint: { 'required-subkeywords': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'required-subkeywords');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('valid-subkeyword-value can be turned off', () => {
+      const source = `*chart: My Chart
+\t*type: pie
+\t*data: [[1, 2]]`;
+      const result = lint(source, { lint: { 'valid-subkeyword-value': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'valid-subkeyword-value');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('no-inline-argument can be turned off', () => {
+      const source = `*page: something
+\tHello world`;
+      const result = lint(source, { lint: { 'no-inline-argument': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'no-inline-argument');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('goto-needs-reset-in-events can be turned off', () => {
+      const source = `*events
+\tmyEvent
+\t\t*goto: someLabel`;
+      const result = lint(source, { lint: { 'goto-needs-reset-in-events': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'goto-needs-reset-in-events');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('purchase-subkeyword-constraints can be turned off', () => {
+      const source = `*purchase
+\t*success
+\t\t>> x = 1`;
+      const result = lint(source, { lint: { 'purchase-subkeyword-constraints': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'purchase-subkeyword-constraints');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('correct-indentation can be turned off', () => {
+      const source = '*if: 1\n\t\tOver-indented';
+      const result = lint(source, { lint: { 'correct-indentation': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'correct-indentation');
+      expect(msgs).toHaveLength(0);
+    });
+
+    it('no-empty-blocks can be turned off', () => {
+      const source = '*if: 1\nSome text';
+      const result = lint(source, { lint: { 'no-empty-blocks': 'off' } });
+
+      const msgs = result.messages.filter(m => m.ruleId === 'no-empty-blocks');
+      expect(msgs).toHaveLength(0);
+    });
+  });
+
   describe('*html block handling', () => {
     it('should suppress rules in *html body', () => {
       const source = `*html

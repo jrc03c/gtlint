@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { spawnSync } from 'child_process';
-import { readFileSync, writeFileSync, copyFileSync, mkdtempSync, rmSync } from 'fs';
+import { readFileSync, writeFileSync, copyFileSync, mkdtempSync, mkdirSync, rmSync } from 'fs';
 import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { tmpdir } from 'os';
@@ -138,6 +138,30 @@ describe('CLI', () => {
       const r = runCLI(['lint', '--config', configPath, join(FIXTURES, 'has-warnings.gt')]);
       expect(r.exitCode).toBe(0);
       expect(r.stdout.trim()).toBe('');
+    });
+
+    it('ignore config excludes matching files', () => {
+      const tmpDir = mkdtempSync(join(tmpdir(), 'gtlint-ignore-'));
+      try {
+        // Create config with ignore pattern
+        const configPath = join(tmpDir, 'gtlint.config.mjs');
+        writeFileSync(configPath, `export default { ignore: ['**/ignored/**'] };`);
+
+        // Create a file with errors in the ignored subdirectory
+        const ignoredDir = join(tmpDir, 'ignored');
+        mkdirSync(ignoredDir, { recursive: true });
+        writeFileSync(join(ignoredDir, 'bad.gt'), '*invalidkeyword: test\n');
+
+        // Create a clean file at the top level
+        writeFileSync(join(tmpDir, 'clean.gt'), '*button: Click me\n');
+
+        const r = runCLI(['lint', '--config', configPath, tmpDir]);
+        expect(r.exitCode).toBe(0);
+        // The ignored file should not produce errors
+        expect(r.stdout).not.toContain('invalidkeyword');
+      } finally {
+        rmSync(tmpDir, { recursive: true });
+      }
     });
   });
 
