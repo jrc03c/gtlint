@@ -119,7 +119,7 @@ export default {
     trimTrailingWhitespace: true,
   },
 
-  // lint settings
+  // linter settings
   lint: {
     correctIndentation: "error",
     indentStyle: "error",
