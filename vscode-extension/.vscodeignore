@@ -2,7 +2,7 @@
 .vscode-test/**
 src/**
 node_modules/**
-!node_modules/gt-lint/dist/**
+!node_modules/@jrc03c/gtlint/dist/**
 tsconfig.json
 **/*.ts
 **/*.map

@@ -24,7 +24,7 @@ importers:
 
   vscode-extension:
     dependencies:
-      gt-lint:
+      '@jrc03c/gtlint':
         specifier: workspace:*
         version: link:..
     devDependencies:

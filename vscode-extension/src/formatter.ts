@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Formatter } from 'gt-lint';
+import { Formatter } from '@jrc03c/gtlint';
 import { getConfigForDocument } from './configuration';
 
 export class GTLintFormatterProvider implements vscode.DocumentFormattingEditProvider {

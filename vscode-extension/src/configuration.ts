@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import type { LinterConfig, FormatterConfig } from 'gt-lint';
+import type { LinterConfig, FormatterConfig } from '@jrc03c/gtlint';
 import {
   DEFAULT_LINTER_CONFIG,
   DEFAULT_FORMATTER_CONFIG,
-} from 'gt-lint';
+} from '@jrc03c/gtlint';
 
 /**
  * Convert camelCase to kebab-case (e.g., noUnusedVars → no-unused-vars).

@@ -27,11 +27,11 @@
   ],
   "license": "MIT",
   "main": "dist/index.js",
-  "name": "@jrc03c/gt-lint",
+  "name": "@jrc03c/gtlint",
   "packageManager": "pnpm@10.28.2",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jrc03c/gt-lint"
+    "url": "https://github.com/jrc03c/gtlint"
   },
   "scripts": {
     "build": "tsc && pnpm run build:vscode && pnpm run package:vscode",

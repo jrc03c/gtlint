@@ -28,7 +28,7 @@ This tool was written almost exclusively by [Claude Code](https://claude.com/pro
 
 (1) Download the `.vsix` file from here:
 
-[https://github.com/jrc03c/gt-lint/releases/latest/download/gt-lint.vsix](https://github.com/jrc03c/gt-lint/releases/latest/download/gt-lint.vsix)
+[https://github.com/jrc03c/gtlint/releases/latest/download/gtlint.vsix](https://github.com/jrc03c/gtlint/releases/latest/download/gtlint.vsix)
 
 (2) In VSCode, open the command palette and search for "vsix":
 
@@ -36,7 +36,7 @@ This tool was written almost exclusively by [Claude Code](https://claude.com/pro
 
 Select "Extensions: Install from VSIX...".
 
-(3) Select the `gt-lint.vsix` file that you downloaded in the first step.
+(3) Select the `gtlint.vsix` file that you downloaded in the first step.
 
 ## Usage
 
@@ -53,13 +53,13 @@ See the [Configuration](#configuration) section below for more info about how to
 In a specific project:
 
 ```bash
-npm install --save-dev @jrc03c/gt-lint
+npm install --save-dev @jrc03c/gtlint
 ```
 
 Or globally:
 
 ```bash
-npm install -g @jrc03c/gt-lint
+npm install -g @jrc03c/gtlint
 ```
 
 ## Usage
@@ -228,7 +228,7 @@ The test suite includes integration tests that exercise real GuidedTrack program
 
 # Feedback
 
-If you run into bugs or have feature requests, please [open an issue](https://github.com/jrc03c/gt-lint/issues).
+If you run into bugs or have feature requests, please [open an issue](https://github.com/jrc03c/gtlint/issues).
 
 # License
 

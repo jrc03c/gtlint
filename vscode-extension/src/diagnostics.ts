@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { Linter } from 'gt-lint';
-import type { LintMessage, LinterConfig } from 'gt-lint';
+import { Linter } from '@jrc03c/gtlint';
+import type { LintMessage, LinterConfig } from '@jrc03c/gtlint';
 import { getConfigForDocument } from './configuration';
 
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('gtlint');

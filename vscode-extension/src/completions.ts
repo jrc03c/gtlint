@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { rules } from 'gt-lint';
+import { rules } from '@jrc03c/gtlint';
 
 /** All directive templates the user can type after `-- @`. */
 const DIRECTIVES: { label: string; detail: string; snippet: string }[] = [

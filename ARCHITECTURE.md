@@ -81,5 +81,5 @@ config.ts         (types)
 cli.ts            (linter, formatter, config)
 src/index.ts      (re-exports public API from all modules)
 
-vscode-extension/ (imports gt-lint as library dependency)
+vscode-extension/ (imports gtlint as library dependency)
 ```
