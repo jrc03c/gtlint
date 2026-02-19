@@ -55,5 +55,5 @@ The `.vsix` file is gitignored (not committed) — it is built locally via this 
 After committing and pushing, create a GitHub release with the `.vsix` attached:
 
 ```bash
-gh release create vX.Y.Z vscode-extension/*.vsix --generate-notes
+gh release create vX.Y.Z vscode-extension/dist/*.vsix --generate-notes
 ```
