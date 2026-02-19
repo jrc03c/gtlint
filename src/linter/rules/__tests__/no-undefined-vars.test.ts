@@ -3,7 +3,7 @@ import { Linter } from '../../linter.js';
 
 describe('no-undefined-vars', () => {
   const linter = new Linter({
-    rules: {
+    lint: {
       'no-undefined-vars': 'error',
       'no-unused-vars': 'off',
       'no-unreachable-code': 'off',

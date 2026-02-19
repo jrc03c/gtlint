@@ -29,14 +29,14 @@ GTLint can be configured via:
 | `gtlint.lintOnTypeDelay` | number | `300` | Delay in milliseconds before linting after typing |
 | `gtlint.lintOnSave` | boolean | `true` | Lint files when saved |
 | `gtlint.formatOnSave` | boolean | `false` | Format files when saved |
-| `gtlint.rules` | object | `{}` | Override lint rules |
+| `gtlint.lint` | object | `{}` | Override lint rules |
 | `gtlint.format` | object | `{}` | Override format settings |
 
 ### Example gtlint.config.js
 
 ```javascript
 module.exports = {
-  rules: {
+  lint: {
     'no-unused-vars': 'warn',
     'no-undefined-vars': 'error',
   },

@@ -40,7 +40,7 @@ export interface FormatterConfig {
 }
 
 export interface LinterConfig {
-  rules: Record<string, 'off' | 'warn' | 'error'>;
+  lint: Record<string, 'off' | 'warn' | 'error'>;
   format: FormatterConfig;
   ignore: string[];
 }
@@ -57,7 +57,7 @@ export const DEFAULT_FORMATTER_CONFIG: FormatterConfig = {
 };
 
 export const DEFAULT_LINTER_CONFIG: LinterConfig = {
-  rules: {
+  lint: {
     'no-undefined-vars': 'error',
     'no-unused-vars': 'warn',
     'valid-keyword': 'error',

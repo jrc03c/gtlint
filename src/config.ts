@@ -30,7 +30,7 @@ function normalizeRuleKeys(
 }
 
 export interface GTLintConfig {
-  rules?: LinterConfig['rules'];
+  lint?: LinterConfig['lint'];
   format?: Partial<FormatterConfig>;
   ignore?: string[];
 }
@@ -93,9 +93,9 @@ export function mergeConfig(userConfig: GTLintConfig): {
 } {
   const linterConfig: LinterConfig = {
     ...DEFAULT_LINTER_CONFIG,
-    rules: {
-      ...DEFAULT_LINTER_CONFIG.rules,
-      ...(userConfig.rules ? normalizeRuleKeys(userConfig.rules) : {}),
+    lint: {
+      ...DEFAULT_LINTER_CONFIG.lint,
+      ...(userConfig.lint ? normalizeRuleKeys(userConfig.lint) : {}),
     },
     format: {
       ...DEFAULT_LINTER_CONFIG.format,

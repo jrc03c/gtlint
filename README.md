@@ -119,8 +119,8 @@ export default {
     trimTrailingWhitespace: true,
   },
 
-  // linter settings
-  rules: {
+  // lint settings
+  lint: {
     correctIndentation: "error",
     indentStyle: "error",
     noDuplicateLabels: "error",
@@ -136,7 +136,7 @@ export default {
 }
 ```
 
-Linter rules can have these values:
+Lint rules can have these values:
 
 - `"off"` or `0` - Disable the rule
 - `"warn"` or `1` - Show as warning (doesn't fail linting)

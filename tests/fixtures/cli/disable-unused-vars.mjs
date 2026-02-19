@@ -1,5 +1,5 @@
 export default {
-  rules: {
+  lint: {
     'no-unused-vars': 'off',
   },
 };

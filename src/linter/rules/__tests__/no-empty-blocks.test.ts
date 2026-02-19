@@ -3,7 +3,7 @@ import { Linter } from '../../linter.js';
 
 describe('no-empty-blocks', () => {
   const linter = new Linter({
-    rules: {
+    lint: {
       'no-empty-blocks': 'error',
       'no-undefined-vars': 'off',
       'no-unused-vars': 'off',

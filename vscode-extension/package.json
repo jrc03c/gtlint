@@ -2,7 +2,7 @@
   "name": "gtlint-vscode",
   "displayName": "GTLint - GuidedTrack Linter",
   "description": "Linting, formatting, and code actions for GuidedTrack (.gt) files",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "publisher": "gtlint",
   "engines": {
     "vscode": "^1.85.0"
@@ -79,7 +79,7 @@
           "default": false,
           "description": "Format files when saved (requires editor.formatOnSave to be true)"
         },
-        "gtlint.rules": {
+        "gtlint.lint": {
           "type": "object",
           "default": {},
           "description": "Override lint rules (e.g., { \"no-unused-vars\": \"off\" })"

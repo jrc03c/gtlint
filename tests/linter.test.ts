@@ -433,7 +433,7 @@ the value of x is {x}.
     it('should be configurable to off', () => {
       const source = `*label: x
 *label: x`;
-      const result = lint(source, { rules: { 'no-duplicate-labels': 'off' } });
+      const result = lint(source, { lint: { 'no-duplicate-labels': 'off' } });
 
       const dupErrors = result.messages.filter(m => m.ruleId === 'no-duplicate-labels');
       expect(dupErrors).toHaveLength(0);
@@ -482,7 +482,7 @@ the value of x is {x}.
 
     it('should be configurable to off', () => {
       const source = `*label: unused`;
-      const result = lint(source, { rules: { 'no-unused-labels': 'off' } });
+      const result = lint(source, { lint: { 'no-unused-labels': 'off' } });
 
       const msgs = result.messages.filter(m => m.ruleId === 'no-unused-labels');
       expect(msgs).toHaveLength(0);
@@ -559,7 +559,7 @@ the value of x is {x}.
     it('should respect rule severity configuration', () => {
       const source = '>> unusedVar = 5';
       const result = lint(source, {
-        rules: {
+        lint: {
           'no-unused-vars': 'off',
         },
       });
@@ -571,7 +571,7 @@ the value of x is {x}.
     it('should allow changing rule severity', () => {
       const source = '>> unusedVar = 5';
       const result = lint(source, {
-        rules: {
+        lint: {
           'no-unused-vars': 'error',
         },
       });

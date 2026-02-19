@@ -2,10 +2,10 @@
 // Copy this to gtlint.config.js and customize as needed
 
 export default {
-  // Lint rules configuration
+  // Lint rule configuration
   // Values: 'error', 'warn', 'off'
   // Rule names use camelCase in config files (kebab-case is also accepted)
-  rules: {
+  lint: {
     noUndefinedVars: 'error',
     noUnusedVars: 'warn',
     validKeyword: 'error',

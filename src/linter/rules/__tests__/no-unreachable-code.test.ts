@@ -3,7 +3,7 @@ import { Linter } from '../../linter.js';
 
 describe('no-unreachable-code', () => {
   const linter = new Linter({
-    rules: {
+    lint: {
       'no-unreachable-code': 'warn',
       'no-undefined-vars': 'off',
       'no-unused-vars': 'off',

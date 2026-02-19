@@ -4,7 +4,7 @@ import { Linter } from '../../linter.js';
 // Helper to create a linter with only specific rules enabled
 function createLinter(rules: Record<string, 'error' | 'warn' | 'off'>) {
   return new Linter({
-    rules: {
+    lint: {
       'no-undefined-vars': 'off',
       'no-unused-vars': 'off',
       'valid-keyword': 'off',

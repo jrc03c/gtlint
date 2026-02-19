@@ -134,9 +134,9 @@ export class Linter {
     this.config = {
       ...DEFAULT_LINTER_CONFIG,
       ...config,
-      rules: {
-        ...DEFAULT_LINTER_CONFIG.rules,
-        ...config.rules,
+      lint: {
+        ...DEFAULT_LINTER_CONFIG.lint,
+        ...config.lint,
       },
       format: {
         ...DEFAULT_LINTER_CONFIG.format,
@@ -159,7 +159,7 @@ export class Linter {
     const ast = parse(tokens);
 
     // Run rules
-    for (const [ruleName, severity] of Object.entries(this.config.rules)) {
+    for (const [ruleName, severity] of Object.entries(this.config.lint)) {
       if (severity === 'off') continue;
 
       const rule = rules[ruleName];

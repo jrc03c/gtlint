@@ -30,14 +30,14 @@ export interface GTLintSettings {
   lintOnTypeDelay: number;
   lintOnSave: boolean;
   formatOnSave: boolean;
-  rules: Record<string, 'off' | 'warn' | 'error'>;
+  lint: Record<string, 'off' | 'warn' | 'error'>;
   format: Partial<FormatterConfig>;
 }
 
 const CONFIG_FILENAMES = ['gtlint.config.js', 'gtlint.config.mjs'];
 
 // Cache for loaded config files, keyed by absolute config path
-const configCache = new Map<string, { rules?: Record<string, 'off' | 'warn' | 'error'>; format?: Partial<FormatterConfig> } | null>();
+const configCache = new Map<string, { lint?: Record<string, 'off' | 'warn' | 'error'>; format?: Partial<FormatterConfig> } | null>();
 let configWatcher: vscode.FileSystemWatcher | undefined;
 
 /**
@@ -82,7 +82,7 @@ export function getVSCodeSettings(): GTLintSettings {
     lintOnTypeDelay: config.get<number>('lintOnTypeDelay', 300),
     lintOnSave: config.get<boolean>('lintOnSave', true),
     formatOnSave: config.get<boolean>('formatOnSave', false),
-    rules: config.get<Record<string, 'off' | 'warn' | 'error'>>('rules', {}),
+    lint: config.get<Record<string, 'off' | 'warn' | 'error'>>('lint', {}),
     format: config.get<Partial<FormatterConfig>>('format', {}),
   };
 }
@@ -114,7 +114,7 @@ function findConfigFile(startDir: string): string | null {
  */
 async function loadConfigFile(
   configPath: string
-): Promise<{ rules?: Record<string, 'off' | 'warn' | 'error'>; format?: Partial<FormatterConfig> } | null> {
+): Promise<{ lint?: Record<string, 'off' | 'warn' | 'error'>; format?: Partial<FormatterConfig> } | null> {
   if (configCache.has(configPath)) {
     return configCache.get(configPath)!;
   }
@@ -146,7 +146,7 @@ export async function getConfigForDocument(document: vscode.TextDocument): Promi
   const vscodeSettings = getVSCodeSettings();
 
   // Start with defaults
-  let rules = { ...DEFAULT_LINTER_CONFIG.rules };
+  let rules = { ...DEFAULT_LINTER_CONFIG.lint };
   let format = { ...DEFAULT_FORMATTER_CONFIG };
 
   // Only load config files in trusted workspaces (they execute arbitrary JS)
@@ -157,8 +157,8 @@ export async function getConfigForDocument(document: vscode.TextDocument): Promi
   if (configPath) {
     const fileConfig = await loadConfigFile(configPath);
     if (fileConfig) {
-      if (fileConfig.rules) {
-        rules = { ...rules, ...normalizeRuleKeys(fileConfig.rules) };
+      if (fileConfig.lint) {
+        rules = { ...rules, ...normalizeRuleKeys(fileConfig.lint) };
       }
       if (fileConfig.format) {
         format = { ...format, ...fileConfig.format };
@@ -167,11 +167,11 @@ export async function getConfigForDocument(document: vscode.TextDocument): Promi
   }
 
   // Apply VSCode settings (override config file)
-  rules = { ...rules, ...normalizeRuleKeys(vscodeSettings.rules) };
+  rules = { ...rules, ...normalizeRuleKeys(vscodeSettings.lint) };
   format = { ...format, ...vscodeSettings.format };
 
   const linterConfig: LinterConfig = {
-    rules,
+    lint: rules,
     format,
     ignore: DEFAULT_LINTER_CONFIG.ignore,
   };
