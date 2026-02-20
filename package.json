@@ -40,6 +40,7 @@
     "lint": "node bin/gtlint.js lint",
     "package:vscode": "cd vscode-extension && pnpm run package",
     "pub": "npm publish --access=public",
+    "release": "gh release create v$(node -p \"require('./package.json').version\") vscode-extension/dist/*.vsix --generate-notes",
     "test": "vitest run",
     "test:watch": "vitest"
   },

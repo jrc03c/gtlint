@@ -25,6 +25,6 @@ jobs:
       - run: pnpm run build
 
       - name: Upload VSIX to release
-        run: gh release upload "${{ github.event.release.tag_name }}" vscode-extension/dist/gtlint.vsix
+        run: gh release upload "${{ github.event.release.tag_name }}" vscode-extension/dist/gtlint.vsix --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
