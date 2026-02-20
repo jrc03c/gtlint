@@ -32,8 +32,17 @@ export const correctIndentation: LintRule = {
         const source = context.getSourceCode();
         const lines = source.split('\n');
 
-        // At the program level, don't check over-indentation (parser may flatten).
-        // Only recurse into keyword/answer-option children.
+        // At the program level, don't check over-indentation for most statement
+        // types — the parser may flatten certain constructs (e.g., answer options
+        // after `*question:`, sub-keywords separated by comments) to the program
+        // level, making top-level indentation checks unreliable for those.
+        //
+        // However, we DO check ExpressionStatements (>> lines) because they can
+        // never legitimately be indented at the top level. The parser doesn't
+        // flatten expression statements from keyword bodies.
+        //
+        // We also do a source-level check for lines indented directly under >>
+        // lines, since >> never allows an indented body regardless of context.
         for (const stmt of node.body) {
           if (stmt.type === 'KeywordStatement') {
             const actualIndent = getIndentLevel(lines, stmt.loc.start.line);
@@ -41,6 +50,15 @@ export const correctIndentation: LintRule = {
           } else if (stmt.type === 'AnswerOption') {
             const actualIndent = getIndentLevel(lines, stmt.loc.start.line);
             walkAnswerOption(stmt, actualIndent, lines, context);
+          } else if (stmt.type === 'ExpressionStatement') {
+            const actualIndent = getIndentLevel(lines, stmt.loc.start.line);
+            if (actualIndent > 0) {
+              context.report({
+                message: `Unexpected indentation (expected 0 tabs but found ${actualIndent})`,
+                line: stmt.loc.start.line,
+                column: 1,
+              });
+            }
           }
         }
       },

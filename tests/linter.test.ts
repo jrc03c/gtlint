@@ -671,6 +671,16 @@ the value of x is {x}.
       const errors = result.messages.filter(m => m.ruleId === 'correct-indentation');
       expect(errors).toHaveLength(0);
     });
+
+    it('should report error for expression statement indented at the top level', () => {
+      const source = `>> x = 234\n\t>> y = 567`;
+      const result = lint(source);
+
+      const errors = result.messages.filter(m => m.ruleId === 'correct-indentation');
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toBe('Unexpected indentation (expected 0 tabs but found 1)');
+      expect(errors[0].line).toBe(2);
+    });
   });
 
   describe('Rule severity configurability', () => {
