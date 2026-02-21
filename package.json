@@ -39,6 +39,7 @@
     "format": "node bin/gtlint.js format",
     "lint": "node bin/gtlint.js lint",
     "package:vscode": "cd vscode-extension && pnpm run package",
+    "bump": "npm version --no-git-tag-version ${VERSION:-patch} && cd vscode-extension && npm version --no-git-tag-version $(node -p \"require('../package.json').version\")",
     "pub": "npm publish --access=public",
     "release": "gh release create v$(node -p \"require('./package.json').version\") vscode-extension/dist/*.vsix --generate-notes",
     "test": "vitest run",
@@ -46,5 +47,5 @@
   },
   "type": "module",
   "types": "dist/index.d.ts",
-  "version": "0.12.3"
+  "version": "0.13.0"
 }
