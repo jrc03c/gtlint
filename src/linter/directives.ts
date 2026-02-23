@@ -30,15 +30,21 @@
  * - `-- @to-child: var1, var2` - Variables sent to child program (suppresses no-unused-vars)
  */
 
+export interface VarLocation {
+  line: number;
+  column: number;
+  endColumn: number;
+}
+
 export interface DirectiveState {
   /** Map of line number to set of disabled lint rule names (empty set = all rules disabled) */
   lintDisabledLines: Map<number, Set<string> | 'all'>;
   /** Set of line numbers where formatting is disabled */
   formatDisabledLines: Set<number>;
-  /** Variables received from parent program (name → directive line number) */
-  fromParentVars: Map<string, number>;
-  /** Variables received from child program (name → directive line number) */
-  fromChildVars: Map<string, number>;
+  /** Variables received from parent program (name → location in source) */
+  fromParentVars: Map<string, VarLocation>;
+  /** Variables received from child program (name → location in source) */
+  fromChildVars: Map<string, VarLocation>;
   /** Variables sent to parent program */
   toParentVars: Set<string>;
   /** Variables sent to child program */
@@ -223,18 +229,25 @@ export function parseDirectives(source: string): DirectiveState {
       const prefix = commentContent.startsWith('@from-parent:') ? '@from-parent:' : '@from-url:';
       const varsStr = commentContent.slice(prefix.length).trim();
       const vars = parseVarList(varsStr);
+      let searchFrom = line.indexOf(prefix) + prefix.length;
       for (const v of vars) {
-        state.fromParentVars.set(v, lineNum);
+        const varIndex = line.indexOf(v, searchFrom);
+        state.fromParentVars.set(v, { line: lineNum, column: varIndex, endColumn: varIndex + v.length });
+        searchFrom = varIndex + v.length;
       }
       continue;
     }
 
     // Parse @from-child
     if (commentContent.startsWith('@from-child:')) {
-      const varsStr = commentContent.slice('@from-child:'.length).trim();
+      const prefix = '@from-child:';
+      const varsStr = commentContent.slice(prefix.length).trim();
       const vars = parseVarList(varsStr);
+      let searchFrom = line.indexOf(prefix) + prefix.length;
       for (const v of vars) {
-        state.fromChildVars.set(v, lineNum);
+        const varIndex = line.indexOf(v, searchFrom);
+        state.fromChildVars.set(v, { line: lineNum, column: varIndex, endColumn: varIndex + v.length });
+        searchFrom = varIndex + v.length;
       }
       continue;
     }

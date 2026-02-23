@@ -261,6 +261,11 @@ describe('Linter', () => {
       );
       expect(unusedY).toBeDefined();
       expect(unusedY?.message).toContain('@from-parent');
+      // Warning should underline the variable name, not the start of the line
+      //   -- @from-parent: x, y
+      //   0123456789...         ^20 (column of "y")
+      expect(unusedY?.column).toBe(20);
+      expect(unusedY?.endColumn).toBe(21);
     });
 
     it('should not report warning for used @from-parent variable', () => {

@@ -5,6 +5,8 @@ interface VarInfo {
   name: string;
   line: number;
   column: number;
+  /** End column of the variable name (exclusive; only set for directive vars) */
+  endColumn?: number;
   usages: number;
   source?: 'from-parent' | 'from-child';
   /** Earliest line where this variable is read (only tracked for directive vars) */
@@ -232,14 +234,14 @@ export const noUnusedVars: LintRule = {
         // (before the AST walk so they're tracked for usage counting)
         const fromParentVars = context.getFromParentVars();
         const fromChildVars = context.getFromChildVars();
-        for (const [name, line] of fromParentVars) {
+        for (const [name, loc] of fromParentVars) {
           if (!definedVars.has(name)) {
-            definedVars.set(name, { name, line, column: 0, usages: 0, source: 'from-parent' });
+            definedVars.set(name, { name, line: loc.line, column: loc.column, endColumn: loc.endColumn, usages: 0, source: 'from-parent' });
           }
         }
-        for (const [name, line] of fromChildVars) {
+        for (const [name, loc] of fromChildVars) {
           if (!definedVars.has(name)) {
-            definedVars.set(name, { name, line, column: 0, usages: 0, source: 'from-child' });
+            definedVars.set(name, { name, line: loc.line, column: loc.column, endColumn: loc.endColumn, usages: 0, source: 'from-child' });
           }
         }
 
@@ -266,6 +268,8 @@ export const noUnusedVars: LintRule = {
                 message: `'${name}' is declared in ${directive} but never used`,
                 line: info.line,
                 column: info.column,
+                endLine: info.line,
+                endColumn: info.endColumn,
               });
             } else if (info.source === 'from-parent' &&
                        info.firstDefineLine !== undefined &&
