@@ -2,13 +2,17 @@
 
 **GTLint** is a linter, formatter, and syntax highlighter for the [GuidedTrack](https://guidedtrack.com) language, inspired by ESLint and Prettier. It can be used at the command line or installed as a VSCode extension.
 
+- [Overview](#overview)
 - [Disclaimer](#disclaimer)
 - [VSCode extension](#vscode-extension)
   - [Installation](#installation)
   - [Usage](#usage)
-- [Command Line](#command-line)
+- [Command line](#command-line)
   - [Installation](#installation-1)
   - [Usage](#usage-1)
+- [Behavior](#behavior)
+  - [Linter](#lint-rules)
+  - [Formatter](#formatter)
 - [Configuration](#configuration) (i.e., project-wide settings)
 - [Directives](#directives) (i.e., inline settings)
 - [Tests](#tests)
@@ -17,6 +21,40 @@
 ![VSCode extension](https://github.com/user-attachments/assets/71fc166f-1980-4e2d-a84f-41188f6e0dbe)
 
 ![CLI tool](https://github.com/user-attachments/assets/06734d44-794c-475c-b5e2-c389a5f5a34c)
+
+# Overview
+
+GTLint's **linter** flags these things:
+
+- unrecognized keywords
+- invalid sub-keywords
+- invalid keyword arguments
+- missing required sub-keywords
+- empty blocks (e.g., `*if: 0 < 1` without a body)
+- undefined variables
+- unused variables
+- nonexistent labels
+- duplicate labels
+- unused labels
+- unreachable code
+- unclosed strings
+- unclosed brackets
+- single quotes instead of double quotes around string literals
+- spaces instead of tabs for indentation
+- incorrect indentation levels
+
+GTLint's **formatter** does these things:
+
+- trims trailing whitespace (per-line)
+- collapses consecutive empty lines
+- adds spaces around operators (e.g., `+`, `=`, `>`, etc.)
+- adds spaces around arrows (`->`) in associations
+- adds spaces after commas in collections and associations
+- normalizes spacing immediately inside braces, brackets, and parens
+- normalizes `>>` to be followed by a single space
+- collapses runs of whitespace in expressions
+
+Virtually all of these behaviors can be modified by using a [configuration](#configuration) file and/or inline [directives](#directives).
 
 # Disclaimer
 
@@ -116,22 +154,33 @@ export default {
     spaceAfterComma: true,
     spaceAroundArrow: true,
     spaceAroundOperators: true,
+    spaceInsideBraces: 0,
+    spaceInsideBrackets: 0,
+    spaceInsideParens: 0,
     trimTrailingWhitespace: true,
   },
 
   // linter settings
   lint: {
     correctIndentation: "error",
+    gotoNeedsResetInEvents: "warn",
     indentStyle: "error",
     noDuplicateLabels: "error",
+    noEmptyBlocks: "error",
+    noInlineArgument: "error",
     noInvalidGoto: "error",
-    noSingleQuotes: "warn",
+    noSingleQuotes: "error",
     noUnclosedBracket: "error",
     noUnclosedString: "error",
     noUndefinedVars: "error",
+    noUnreachableCode: "warn",
+    noUnusedLabels: "warn",
     noUnusedVars: "warn",
+    purchaseSubkeywordConstraints: "error",
+    requiredSubkeywords: "error",
     validKeyword: "error",
     validSubKeyword: "error",
+    validSubkeywordValue: "error",
   },
 }
 ```
