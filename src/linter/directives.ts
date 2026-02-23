@@ -232,7 +232,7 @@ export function parseDirectives(source: string): DirectiveState {
       let searchFrom = line.indexOf(prefix) + prefix.length;
       for (const v of vars) {
         const varIndex = line.indexOf(v, searchFrom);
-        state.fromParentVars.set(v, { line: lineNum, column: varIndex, endColumn: varIndex + v.length });
+        state.fromParentVars.set(v, { line: lineNum, column: varIndex + 1, endColumn: varIndex + v.length + 1 });
         searchFrom = varIndex + v.length;
       }
       continue;
@@ -246,7 +246,7 @@ export function parseDirectives(source: string): DirectiveState {
       let searchFrom = line.indexOf(prefix) + prefix.length;
       for (const v of vars) {
         const varIndex = line.indexOf(v, searchFrom);
-        state.fromChildVars.set(v, { line: lineNum, column: varIndex, endColumn: varIndex + v.length });
+        state.fromChildVars.set(v, { line: lineNum, column: varIndex + 1, endColumn: varIndex + v.length + 1 });
         searchFrom = varIndex + v.length;
       }
       continue;
