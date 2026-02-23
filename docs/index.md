@@ -3,7 +3,7 @@ layout: home
 
 hero:
   name: GTLint
-  text: Linter &amp; Formatter for GuidedTrack
+  text: Linter & Formatter for GuidedTrack
   tagline: Catch errors and format code in GuidedTrack programs
   actions:
     - theme: brand
