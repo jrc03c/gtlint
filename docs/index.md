@@ -18,6 +18,8 @@ features:
     details: Catches undefined variables, invalid keywords, unreachable code, and more.
   - title: Formatter
     details: Normalizes spacing, trims whitespace, and formats operators automatically.
+  - title: Syntax Highlighting
+    details: Color-coded display of GuidedTrack keywords, strings, comments, and expressions in VSCode.
   - title: VSCode Extension
-    details: Lint while you type and format on save, right in your editor.
+    details: Lint while you type, format on save, and get syntax highlighting, right in your editor.
 ---

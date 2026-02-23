@@ -187,9 +187,9 @@ export default {
 
 Lint rules can have these values:
 
-- `"off"` or `0` - Disable the rule
-- `"warn"` or `1` - Show as warning (doesn't fail linting)
-- `"error"` or `2` - Show as error (fails linting)
+- `"off"` - Disable the rule
+- `"warn"` - Show as warning (doesn't fail linting)
+- `"error"` - Show as error (fails linting)
 
 # Directives
 

@@ -77,9 +77,9 @@ Each lint rule can be set to one of three severity levels:
 
 | Value | Meaning |
 |---|---|
-| `"off"` or `0` | Disable the rule entirely |
-| `"warn"` or `1` | Report as a warning (does not cause `gtlint lint` to exit with an error code) |
-| `"error"` or `2` | Report as an error (causes `gtlint lint` to exit with a non-zero code) |
+| `"off"` | Disable the rule entirely |
+| `"warn"` | Report as a warning (does not cause `gtlint lint` to exit with an error code) |
+| `"error"` | Report as an error (causes `gtlint lint` to exit with a non-zero code) |
 
 **Example** -- disable a rule and downgrade another to a warning:
 
@@ -133,6 +133,10 @@ export default {
   ],
 }
 ```
+
+::: warning
+Setting `ignore` **replaces** the defaults rather than merging with them. If you add custom patterns, include `'**/node_modules/**'` and `'**/dist/**'` in your list to keep the default exclusions.
+:::
 
 ## Rule Name Conventions
 

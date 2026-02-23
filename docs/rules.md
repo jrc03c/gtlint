@@ -6,11 +6,11 @@ GTLint's linter checks GuidedTrack programs for errors and potential issues. It 
 
 Each rule has a severity that controls how it is reported:
 
-| Severity | Config value | Numeric value | Behavior |
-|----------|-------------|---------------|----------|
-| Error | `"error"` | `2` | Reported as an error. Causes a non-zero exit code in the CLI. |
-| Warning | `"warn"` | `1` | Reported as a warning. Does not fail linting. |
-| Off | `"off"` | `0` | Rule is completely disabled. |
+| Severity | Config value | Behavior |
+|----------|-------------|----------|
+| Error | `"error"` | Reported as an error. Causes a non-zero exit code in the CLI. |
+| Warning | `"warn"` | Reported as a warning. Does not fail linting. |
+| Off | `"off"` | Rule is completely disabled. |
 
 You can change severity levels in a [configuration file](/configuration) or suppress rules inline with [directives](/directives).
 

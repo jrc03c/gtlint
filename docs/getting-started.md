@@ -1,6 +1,10 @@
 # Getting Started
 
-GTLint is a linter and formatter for the [GuidedTrack](https://guidedtrack.com) language. It is available as a **VSCode extension** (recommended for most users) and as a **command-line tool**.
+GTLint is a linter, formatter, and syntax highlighter for the [GuidedTrack](https://guidedtrack.com) language. It is available as a **VSCode extension** (recommended for most users) and as a **command-line tool**.
+
+![VSCode extension](https://github.com/user-attachments/assets/71fc166f-1980-4e2d-a84f-41188f6e0dbe)
+
+![CLI tool](https://github.com/user-attachments/assets/06734d44-794c-475c-b5e2-c389a5f5a34c)
 
 ## VSCode Extension
 
@@ -10,7 +14,9 @@ GTLint is a linter and formatter for the [GuidedTrack](https://guidedtrack.com) 
 
    [Download gtlint.vsix](https://github.com/jrc03c/gtlint/releases/latest/download/gtlint.vsix)
 
-2. In VSCode, open the command palette (`Ctrl+Shift+P` on Windows/Linux, `Cmd+Shift+P` on macOS) and search for **"vsix"**.
+2. In VSCode, open the command palette (`Ctrl+Shift+P` on Windows/Linux, `Cmd+Shift+P` on macOS) and search for **"vsix"**:
+
+   ![VSCode command palette showing "Extensions: Install from VSIX..."](https://github.com/user-attachments/assets/03128194-04c5-4991-9acd-e9efb3e38ec9)
 
 3. Select **"Extensions: Install from VSIX..."**.
 
@@ -22,6 +28,7 @@ Once installed, the extension works automatically:
 
 - **Linting** runs while you write code in `.gt` files. Errors and warnings appear as soon as they are detected.
 - **Formatting** runs when you save a `.gt` file, automatically cleaning up spacing and whitespace.
+- **Syntax highlighting** provides color-coded display of GuidedTrack keywords, strings, comments, and expressions.
 
 No additional setup is needed. To customize which rules are enabled or how the formatter behaves, see [Configuration](/configuration).
 
@@ -70,18 +77,46 @@ npx gtlint lint path/to/some-dir
 **Format files:**
 
 ```bash
-# Format a specific file
+# Print formatted output to stdout
 npx gtlint format path/to/some-file.gt
 
-# Format all .gt files in a directory (recursive)
-npx gtlint format path/to/some-dir
+# Format files and write changes back in place
+npx gtlint format --write path/to/some-dir
 ```
 
-**General syntax:**
+::: warning
+Without `--write`, the `format` command prints the formatted output to stdout and does **not** modify any files. Use `--write` to format files in place.
+:::
 
-```
-npx gtlint lint [options] [files]
-npx gtlint format [options] [files]
-```
+### CLI Options
+
+**Lint options:**
+
+| Option | Description |
+|---|---|
+| `--quiet` | Only report errors, not warnings |
+| `--format <type>` | Output format: `stylish` (default), `json`, or `compact` |
+
+**Format options:**
+
+| Option | Description |
+|---|---|
+| `--write` | Write formatted output back to files (without this, output goes to stdout) |
+
+**Common options:**
+
+| Option | Description |
+|---|---|
+| `--config <path>` | Path to a config file |
+| `--help`, `-h` | Show help |
+| `--version`, `-v` | Show version number |
 
 To customize rule severity levels and formatter settings, see [Configuration](/configuration).
+
+## Disclaimer
+
+GTLint was written almost exclusively by [Claude Code](https://claude.com/product/claude-code). [Josh Castle](https://github.com/jrc03c) directed Claude Code and made a few small changes to project documentation and sample GuidedTrack files; but virtually everything else was written by Claude Code.
+
+## Feedback
+
+If you run into bugs or have feature requests, please [open an issue](https://github.com/jrc03c/gtlint/issues) on GitHub.
