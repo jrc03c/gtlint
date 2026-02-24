@@ -4,18 +4,20 @@
 
 - [Overview](#overview)
 - [Disclaimer](#disclaimer)
-- [VSCode extension](#vscode-extension)
+- [VSCode Extension](#vscode-extension)
   - [Installation](#installation)
   - [Usage](#usage)
-- [Command line](#command-line)
+  - [Settings](#settings)
+- [Command Line](#command-line)
   - [Installation](#installation-1)
   - [Usage](#usage-1)
-- [Behavior](#behavior)
-  - [Linter](#lint-rules)
-  - [Formatter](#formatter)
-- [Configuration](#configuration) (i.e., project-wide settings)
-- [Directives](#directives) (i.e., inline settings)
+  - [Options](#options)
+- [Configuration](#configuration)
+- [Lint Rules](#lint-rules)
+- [Formatter](#formatter)
+- [Directives](#directives)
 - [Tests](#tests)
+- [Feedback](#feedback)
 - [License](#license)
 
 ![VSCode extension](https://github.com/user-attachments/assets/71fc166f-1980-4e2d-a84f-41188f6e0dbe)
@@ -28,12 +30,14 @@ GTLint's **linter** flags these things:
 
 - unrecognized keywords
 - invalid sub-keywords
-- invalid keyword arguments
+- invalid sub-keyword values
+- invalid keyword arguments (inline arguments on keywords that don't accept them)
 - missing required sub-keywords
+- invalid sub-keyword combinations under `*purchase`
 - empty blocks (e.g., `*if: 0 < 1` without a body)
 - undefined variables
 - unused variables
-- nonexistent labels
+- nonexistent labels (in `*goto`)
 - duplicate labels
 - unused labels
 - unreachable code
@@ -42,6 +46,7 @@ GTLint's **linter** flags these things:
 - single quotes instead of double quotes around string literals
 - spaces instead of tabs for indentation
 - incorrect indentation levels
+- `*goto` inside `*events` without `*reset`
 
 GTLint's **formatter** does these things:
 
@@ -53,6 +58,7 @@ GTLint's **formatter** does these things:
 - normalizes spacing immediately inside braces, brackets, and parens
 - normalizes `>>` to be followed by a single space
 - collapses runs of whitespace in expressions
+- inserts a final newline at the end of the file
 
 Virtually all of these behaviors can be modified by using a [configuration](#configuration) file and/or inline [directives](#directives).
 
@@ -60,7 +66,7 @@ Virtually all of these behaviors can be modified by using a [configuration](#con
 
 This tool was written almost exclusively by [Claude Code](https://claude.com/product/claude-code). [Josh Castle](https://github.com/jrc03c) directed Claude Code and made a few small changes to `CLAUDE.md`, `README.md`, and the GuidedTrack files in the `samples` directory; but virtually everything else was written by Claude Code.
 
-# VSCode extension
+# VSCode Extension
 
 ## Installation
 
@@ -78,15 +84,42 @@ Select "Extensions: Install from VSIX...".
 
 ## Usage
 
-The linter works while you write code in `.gt` files and will show errors as soon as it detects them. The formatter will format code in `.gt` files on save.
+The linter works while you write code in `.gt` files and will show errors as soon as it detects them. The formatter will format code in `.gt` files on save (if enabled). The extension also provides **autocomplete for directives** — type `-- @` in a comment to see suggestions for all available directives and rule names.
 
-See the [Configuration](#configuration) section below for more info about how to control the extension's behavior.
+Two commands are available via the command palette:
+
+- **GTLint: Lint File** — Lint the current `.gt` file
+- **GTLint: Format File** — Format the current `.gt` file
+
+See the [Settings](#settings) section below for more info about how to control the extension's behavior, and the [Configuration](#configuration) section for project-wide settings via config files.
+
+## Settings
+
+The VSCode extension exposes these settings (accessible via `Preferences: Open Settings` or `settings.json`):
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `gtlint.enable` | `boolean` | `true` | Enable/disable GTLint entirely |
+| `gtlint.lintOnType` | `boolean` | `true` | Lint files as you type |
+| `gtlint.lintOnTypeDelay` | `number` | `300` | Delay in milliseconds before linting after typing |
+| `gtlint.lintOnSave` | `boolean` | `true` | Lint files when saved |
+| `gtlint.formatOnSave` | `boolean` | `false` | Format files when saved (also requires `editor.formatOnSave` to be `true`) |
+| `gtlint.lint` | `object` | `{}` | Override lint rule severities (e.g., `{ "no-unused-vars": "off" }`) |
+| `gtlint.format` | `object` | `{}` | Override formatter settings (e.g., `{ "spaceAroundOperators": false }`) |
+
+**Configuration precedence** (highest to lowest):
+
+1. VSCode workspace/user settings (`gtlint.*`)
+2. Project config file (`gtlint.config.js` or `gtlint.config.mjs`)
+3. Built-in defaults
+
+> **NOTE:** Config files are only loaded in [trusted workspaces](https://code.visualstudio.com/docs/editor/workspace-trust) since they execute arbitrary JavaScript.
 
 # Command Line
 
 ## Installation
 
-> **NOTE:** Requires [Node](https://nodejs.org/en).
+> **NOTE:** Requires [Node.js](https://nodejs.org/en) v18 or later.
 
 In a specific project:
 
@@ -133,18 +166,52 @@ npx gtlint lint path/to/some-dir
 **Format:**
 
 ```bash
-# format a specific file
+# print formatted output to stdout (does not modify files)
 npx gtlint format path/to/some-file.gt
 
-# format all *.gt files in a directory (recursive)
-npx gtlint format path/to/some-dir
+# format a specific file in-place
+npx gtlint format --write path/to/some-file.gt
+
+# format all *.gt files in a directory in-place (recursive)
+npx gtlint format --write path/to/some-dir
 ```
 
-See the [Configuration](#configuration) section below for more info about how to control the command line tool's behavior.
+## Options
+
+**Lint options:**
+
+| Option | Description |
+|---|---|
+| `--quiet` | Only report errors (suppress warnings) |
+| `--format <type>` | Output format: `stylish` (default), `json`, or `compact` |
+
+**Format options:**
+
+| Option | Description |
+|---|---|
+| `--write` | Write formatted output back to files (without this flag, formatted output is printed to stdout) |
+
+**Common options:**
+
+| Option | Description |
+|---|---|
+| `--config <path>` | Path to a config file (default: searches up from CWD) |
+| `--help`, `-h` | Show help message |
+| `--version`, `-v` | Show version number |
+
+**Exit codes:**
+
+- `0` — Success (no lint errors)
+- `1` — Lint errors were found
 
 # Configuration
 
-The linter's and formatter's default behaviors can be controlled by settings in a `gtlint.config.js` file at the root of a repository. Here's a sample configuration file containing all of the default values:
+The linter's and formatter's default behaviors can be controlled by settings in a config file at the root of a repository. GTLint looks for these filenames, searching upward from the current directory:
+
+- `gtlint.config.js`
+- `gtlint.config.mjs`
+
+Here's a sample configuration file containing all of the default values:
 
 ```js
 export default {
@@ -182,6 +249,12 @@ export default {
     validSubKeyword: "error",
     validSubkeywordValue: "error",
   },
+
+  // files/directories to ignore (glob patterns)
+  ignore: [
+    "**/node_modules/**",
+    "**/dist/**",
+  ],
 }
 ```
 
@@ -189,7 +262,56 @@ Lint rules can have these values:
 
 - `"off"` - Disable the rule
 - `"warn"` - Show as warning (doesn't fail linting)
-- `"error"` - Show as error (fails linting)
+- `"error"` - Show as error (fails linting with exit code 1)
+
+# Lint Rules
+
+| Rule | Default | Description |
+|---|---|---|
+| `correctIndentation` | `error` | Validate indentation levels |
+| `gotoNeedsResetInEvents` | `warn` | Ensure `*goto` inside `*events` has `*reset` |
+| `indentStyle` | `error` | Enforce tabs for indentation (not spaces) |
+| `noDuplicateLabels` | `error` | Disallow duplicate `*label` definitions |
+| `noEmptyBlocks` | `error` | Disallow empty keyword blocks |
+| `noInlineArgument` | `error` | Ensure keywords that should not have inline arguments do not have them |
+| `noInvalidGoto` | `error` | Ensure `*goto` targets exist as `*label` definitions |
+| `noSingleQuotes` | `error` | Disallow single quotes for strings (use double quotes) |
+| `noUnclosedBracket` | `error` | Detect unclosed brackets and braces |
+| `noUnclosedString` | `error` | Detect unclosed string literals |
+| `noUndefinedVars` | `error` | Disallow use of undefined variables |
+| `noUnreachableCode` | `warn` | Disallow unreachable code after control flow statements |
+| `noUnusedLabels` | `warn` | Detect labels that are never referenced by a `*goto` |
+| `noUnusedVars` | `warn` | Warn about variables that are never used |
+| `purchaseSubkeywordConstraints` | `error` | Ensure `*purchase` has correct sub-keyword combinations |
+| `requiredSubkeywords` | `error` | Ensure keywords have all required sub-keywords |
+| `validKeyword` | `error` | Ensure keywords are valid GuidedTrack keywords |
+| `validSubKeyword` | `error` | Ensure sub-keywords are valid under their parent keyword |
+| `validSubkeywordValue` | `error` | Ensure sub-keyword values are valid |
+
+> **NOTE:** Config files use camelCase rule names (e.g., `noUnusedVars`). Inline directives use kebab-case (e.g., `no-unused-vars`). Both forms are accepted in config files.
+
+# Formatter
+
+The formatter normalizes whitespace and spacing in `.gt` files. Its behavior is controlled by the `format` section of the config file. Here are the available options:
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `insertFinalNewline` | `boolean` | `true` | Insert a newline at the end of the file |
+| `spaceAfterComma` | `boolean` | `true` | Add a space after commas in collections and associations |
+| `spaceAroundArrow` | `boolean` | `true` | Add spaces around `->` in associations |
+| `spaceAroundOperators` | `boolean` | `true` | Add spaces around operators (`+`, `-`, `=`, `<`, `>`, etc.) |
+| `spaceInsideBraces` | `number` | `0` | Number of spaces inside curly braces (`{ }`) |
+| `spaceInsideBrackets` | `number` | `0` | Number of spaces inside square brackets (`[ ]`) |
+| `spaceInsideParens` | `number` | `0` | Number of spaces inside parentheses (`( )`) |
+| `trimTrailingWhitespace` | `boolean` | `true` | Trim trailing whitespace from each line |
+
+The formatter also performs these always-on behaviors (not configurable):
+
+- Collapses consecutive empty lines (keeps at most one)
+- Normalizes `>>` to be followed by a single space
+- Collapses runs of whitespace in expressions
+
+> **NOTE:** On text lines (lines that are not keyword or expression lines), spacing inside braces is not modified since braces are used for variable interpolation (e.g., `Your name is {name}`).
 
 # Directives
 
