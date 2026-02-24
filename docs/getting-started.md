@@ -27,16 +27,46 @@ GTLint is a linter, formatter, and syntax highlighter for the [GuidedTrack](http
 Once installed, the extension works automatically:
 
 - **Linting** runs while you write code in `.gt` files. Errors and warnings appear as soon as they are detected.
-- **Formatting** runs when you save a `.gt` file, automatically cleaning up spacing and whitespace.
+- **Formatting** is available via the command palette or can be set to run on save (see [Settings](#vscode-settings) below).
 - **Syntax highlighting** provides color-coded display of GuidedTrack keywords, strings, comments, and expressions.
+- **Directive autocomplete** — type `-- @` in a comment to see suggestions for all available directives and rule names.
+
+Two commands are available via the command palette (`Ctrl+Shift+P` / `Cmd+Shift+P`):
+
+- **GTLint: Lint File** — Lint the current `.gt` file
+- **GTLint: Format File** — Format the current `.gt` file
 
 No additional setup is needed. To customize which rules are enabled or how the formatter behaves, see [Configuration](/configuration).
+
+### Settings {#vscode-settings}
+
+The VSCode extension exposes these settings (accessible via `Preferences: Open Settings` or `settings.json`):
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `gtlint.enable` | `boolean` | `true` | Enable/disable GTLint entirely |
+| `gtlint.lintOnType` | `boolean` | `true` | Lint files as you type |
+| `gtlint.lintOnTypeDelay` | `number` | `300` | Delay in milliseconds before linting after typing |
+| `gtlint.lintOnSave` | `boolean` | `true` | Lint files when saved |
+| `gtlint.formatOnSave` | `boolean` | `false` | Format files when saved (also requires `editor.formatOnSave` to be `true`) |
+| `gtlint.lint` | `object` | `{}` | Override lint rule severities (e.g., `{ "no-unused-vars": "off" }`) |
+| `gtlint.format` | `object` | `{}` | Override formatter settings (e.g., `{ "spaceAroundOperators": false }`) |
+
+**Configuration precedence** (highest to lowest):
+
+1. VSCode workspace/user settings (`gtlint.*`)
+2. Project config file (`gtlint.config.js` or `gtlint.config.mjs`)
+3. Built-in defaults
+
+::: warning
+Config files are only loaded in [trusted workspaces](https://code.visualstudio.com/docs/editor/workspace-trust) since they execute arbitrary JavaScript.
+:::
 
 ## Command-Line Tool
 
 ### Prerequisites
 
-The CLI requires [Node.js](https://nodejs.org/).
+The CLI requires [Node.js](https://nodejs.org/) v18 or later.
 
 ### Installation
 
@@ -107,9 +137,14 @@ Without `--write`, the `format` command prints the formatted output to stdout an
 
 | Option | Description |
 |---|---|
-| `--config <path>` | Path to a config file |
+| `--config <path>` | Path to a config file (default: searches up from CWD) |
 | `--help`, `-h` | Show help |
 | `--version`, `-v` | Show version number |
+
+**Exit codes:**
+
+- `0` — Success (no lint errors)
+- `1` — Lint errors were found
 
 To customize rule severity levels and formatter settings, see [Configuration](/configuration).
 

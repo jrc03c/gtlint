@@ -2,7 +2,7 @@
 
 GTLint includes an automatic code formatter for GuidedTrack. It normalizes spacing, trims whitespace, and cleans up expressions so your code is consistent and readable.
 
-- In the **VSCode extension**, formatting runs automatically when you save a `.gt` file.
+- In the **VSCode extension**, formatting can be triggered via the command palette (**GTLint: Format File**) or configured to run on save (requires enabling `editor.formatOnSave` in VSCode settings).
 - With the **CLI**, run `npx gtlint format <file-or-directory>` to format files.
 
 Most formatting behaviors are configurable. See [Configuration](/configuration) for the full config file reference, and [Directives](/directives) for how to disable formatting inline.

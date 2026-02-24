@@ -1,6 +1,6 @@
 # Configuration
 
-GTLint's linter and formatter can be configured using a `gtlint.config.js` file at the root of your repository. If no config file is found, GTLint uses sensible defaults.
+GTLint's linter and formatter can be configured using a config file, VSCode extension settings, or both. If no configuration is provided, GTLint uses sensible defaults.
 
 ## Config File
 
@@ -142,6 +142,34 @@ Setting `ignore` **replaces** the defaults rather than merging with them. If you
 
 ::: tip camelCase vs. kebab-case
 Config files use **camelCase** rule names (e.g., `noUnusedVars`). Inline directives use **kebab-case** (e.g., `no-unused-vars`). Both formats are accepted in config files -- GTLint normalizes them automatically.
+:::
+
+## VSCode Extension Settings
+
+When using the VSCode extension, you can also configure GTLint through VSCode's settings (`Preferences: Open Settings` or `settings.json`). These settings control extension behavior and can override config file values.
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `gtlint.enable` | `boolean` | `true` | Enable/disable GTLint entirely |
+| `gtlint.lintOnType` | `boolean` | `true` | Lint files as you type |
+| `gtlint.lintOnTypeDelay` | `number` | `300` | Delay in milliseconds before linting after typing |
+| `gtlint.lintOnSave` | `boolean` | `true` | Lint files when saved |
+| `gtlint.formatOnSave` | `boolean` | `false` | Format files when saved (also requires `editor.formatOnSave` to be `true`) |
+| `gtlint.lint` | `object` | `{}` | Override lint rule severities (e.g., `{ "no-unused-vars": "off" }`) |
+| `gtlint.format` | `object` | `{}` | Override formatter settings (e.g., `{ "spaceAroundOperators": false }`) |
+
+### Configuration Precedence
+
+When using the VSCode extension, settings are merged in this order (highest priority first):
+
+1. **VSCode workspace/user settings** (`gtlint.*`)
+2. **Project config file** (`gtlint.config.js` or `gtlint.config.mjs`)
+3. **Built-in defaults**
+
+For the CLI, only the config file and built-in defaults apply (no VSCode settings layer).
+
+::: warning
+Config files are only loaded in [trusted workspaces](https://code.visualstudio.com/docs/editor/workspace-trust) since they execute arbitrary JavaScript.
 :::
 
 For inline directives that configure rules within your GuidedTrack source files, see the [Directives](/directives) page.
