@@ -72,9 +72,9 @@ async function lintDocument(document: vscode.TextDocument): Promise<void> {
     return;
   }
 
-  const { linter: linterConfig, settings } = await getConfigForDocument(document);
+  const { linter: linterConfig, settings, ignored } = await getConfigForDocument(document);
 
-  if (!settings.enable) {
+  if (!settings.enable || ignored) {
     diagnosticCollection.delete(document.uri);
     return;
   }

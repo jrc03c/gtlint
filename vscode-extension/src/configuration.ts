@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { minimatch } from 'minimatch';
 import type { LinterConfig, FormatterConfig } from '@jrc03c/gtlint';
 import {
   DEFAULT_LINTER_CONFIG,
@@ -37,7 +38,7 @@ export interface GTLintSettings {
 const CONFIG_FILENAMES = ['gtlint.config.js', 'gtlint.config.mjs'];
 
 // Cache for loaded config files, keyed by absolute config path
-const configCache = new Map<string, { lint?: Record<string, 'off' | 'warn' | 'error'>; format?: Partial<FormatterConfig> } | null>();
+const configCache = new Map<string, { lint?: Record<string, 'off' | 'warn' | 'error'>; format?: Partial<FormatterConfig>; ignore?: string[] } | null>();
 let configWatcher: vscode.FileSystemWatcher | undefined;
 
 /**
@@ -114,7 +115,7 @@ function findConfigFile(startDir: string): string | null {
  */
 async function loadConfigFile(
   configPath: string
-): Promise<{ lint?: Record<string, 'off' | 'warn' | 'error'>; format?: Partial<FormatterConfig> } | null> {
+): Promise<{ lint?: Record<string, 'off' | 'warn' | 'error'>; format?: Partial<FormatterConfig>; ignore?: string[] } | null> {
   if (configCache.has(configPath)) {
     return configCache.get(configPath)!;
   }
@@ -142,12 +143,15 @@ export async function getConfigForDocument(document: vscode.TextDocument): Promi
   linter: LinterConfig;
   formatter: FormatterConfig;
   settings: GTLintSettings;
+  ignored: boolean;
 }> {
   const vscodeSettings = getVSCodeSettings();
 
   // Start with defaults
   let rules = { ...DEFAULT_LINTER_CONFIG.lint };
   let format = { ...DEFAULT_FORMATTER_CONFIG };
+  let ignore = DEFAULT_LINTER_CONFIG.ignore;
+  let configDir: string | null = null;
 
   // Only load config files in trusted workspaces (they execute arbitrary JS)
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
@@ -155,6 +159,7 @@ export async function getConfigForDocument(document: vscode.TextDocument): Promi
   const configPath = vscode.workspace.isTrusted ? findConfigFile(searchDir) : null;
 
   if (configPath) {
+    configDir = path.dirname(configPath);
     const fileConfig = await loadConfigFile(configPath);
     if (fileConfig) {
       if (fileConfig.lint) {
@@ -162,6 +167,9 @@ export async function getConfigForDocument(document: vscode.TextDocument): Promi
       }
       if (fileConfig.format) {
         format = { ...format, ...fileConfig.format };
+      }
+      if (fileConfig.ignore) {
+        ignore = fileConfig.ignore;
       }
     }
   }
@@ -173,12 +181,30 @@ export async function getConfigForDocument(document: vscode.TextDocument): Promi
   const linterConfig: LinterConfig = {
     lint: rules,
     format,
-    ignore: DEFAULT_LINTER_CONFIG.ignore,
+    ignore,
   };
+
+  // Check if the document matches any ignore pattern
+  const ignored = isFileIgnored(document.uri.fsPath, ignore, configDir || searchDir);
 
   return {
     linter: linterConfig,
     formatter: format,
     settings: vscodeSettings,
+    ignored,
   };
+}
+
+/**
+ * Check whether a file path matches any of the ignore glob patterns.
+ * Patterns are matched against the file's path relative to the config
+ * directory (or workspace root if no config file was found).
+ */
+function isFileIgnored(filePath: string, ignorePatterns: string[], baseDir: string): boolean {
+  const relativePath = path.relative(baseDir, filePath);
+  // Skip if the file is outside the base directory
+  if (relativePath.startsWith('..')) return false;
+  // Normalize to forward slashes for consistent glob matching
+  const normalizedPath = relativePath.split(path.sep).join('/');
+  return ignorePatterns.some(pattern => minimatch(normalizedPath, pattern));
 }

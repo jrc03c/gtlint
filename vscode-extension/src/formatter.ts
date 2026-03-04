@@ -8,9 +8,9 @@ export class GTLintFormatterProvider implements vscode.DocumentFormattingEditPro
     _options: vscode.FormattingOptions,
     _token: vscode.CancellationToken
   ): Promise<vscode.TextEdit[]> {
-    const { formatter: formatterConfig, settings } = await getConfigForDocument(document);
+    const { formatter: formatterConfig, settings, ignored } = await getConfigForDocument(document);
 
-    if (!settings.enable) {
+    if (!settings.enable || ignored) {
       return [];
     }
 
