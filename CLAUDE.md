@@ -31,14 +31,18 @@ A linter and formatter for the [GuidedTrack](https://guidedtrack.com) language (
 
 **After completing any feature, bug fix, or significant change, always perform these steps:**
 
-### 1. Update Documentation
+### 1. Check CLI / VS Code Extension Parity
+
+The CLI (`src/cli.ts`, `src/config.ts`) and VS Code extension (`vscode-extension/src/`) have **parallel implementations** for config loading, file handling, and linting/formatting. When changing behavior in one, check whether the other needs a matching update.
+
+### 2. Update Documentation
 
 - `/CLAUDE.md` — Update if project-level conventions or instructions changed
 - `/ARCHITECTURE.md` — Update if modules, entry points, or data flow changed
 - `/LANGUAGE_SPEC.md` — Update if language behavior or directives changed
 - `/README.md` — Update user-facing documentation (usage, rules, configuration, etc.)
 
-### 2. Bump Version and Rebuild
+### 3. Bump Version and Rebuild
 
 Update the version in both `/package.json` and `/vscode-extension/package.json`, then rebuild:
 
@@ -50,7 +54,7 @@ cd vscode-extension && pnpm run package
 
 The `.vsix` file is gitignored (not committed) — it is built locally via this command. Build artifacts (`dist/` and `*.vsix`) should never be committed to the repo.
 
-### 3. Create a GitHub Release
+### 4. Create a GitHub Release
 
 After committing and pushing, create a GitHub release with the `.vsix` attached:
 
