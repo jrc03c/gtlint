@@ -90,21 +90,23 @@ function parseArgs(args: string[]): { command: string; files: string[]; options:
 function findFiles(patterns: string[], ignore: string[]): string[] {
   const files: string[] = [];
 
+  // Resolve relative ignore patterns to absolute so they match absolute glob results.
+  // Patterns starting with **/ already match any prefix, so leave them as-is.
+  const resolvedIgnore = ignore.map(p =>
+    p.startsWith('/') || p.startsWith('**/') ? p : resolve(p)
+  );
+
   for (const pattern of patterns) {
     const resolved = resolve(pattern);
 
-    if (existsSync(resolved) && statSync(resolved).isFile()) {
-      if (extname(resolved) === '.gt') {
-        files.push(resolved);
-      }
-    } else if (existsSync(resolved) && statSync(resolved).isDirectory()) {
+    if (existsSync(resolved) && statSync(resolved).isDirectory()) {
       // Find all .gt files in directory
       const globPattern = `${resolved}/**/*.gt`;
-      const found = globSync(globPattern, { ignore });
+      const found = globSync(globPattern, { ignore: resolvedIgnore });
       files.push(...found);
     } else {
-      // Treat as glob pattern
-      const found = globSync(pattern, { ignore });
+      // Single file or glob pattern — use globSync so ignore patterns apply
+      const found = globSync(resolved, { ignore: resolvedIgnore });
       files.push(...found.filter(f => extname(f) === '.gt'));
     }
   }

@@ -163,6 +163,29 @@ describe('CLI', () => {
         rmSync(tmpDir, { recursive: true });
       }
     });
+
+    it('ignore config works with relative file paths', () => {
+      const tmpDir = mkdtempSync(join(tmpdir(), 'gtlint-ignore-rel-'));
+      try {
+        // Create a file with errors in a subdirectory
+        const subDir = join(tmpDir, 'sub');
+        mkdirSync(subDir, { recursive: true });
+        writeFileSync(join(subDir, 'bad.gt'), '*invalidkeyword: test\n');
+
+        // Create a clean file at the top level
+        writeFileSync(join(tmpDir, 'clean.gt'), '*button: Click me\n');
+
+        // Ignore the specific file using a relative path
+        const configPath = join(tmpDir, 'gtlint.config.mjs');
+        writeFileSync(configPath, `export default { ignore: ['sub/bad.gt'] };`);
+
+        const r = runCLI(['lint', '--config', configPath, tmpDir], { cwd: tmpDir });
+        expect(r.exitCode).toBe(0);
+        expect(r.stdout).not.toContain('invalidkeyword');
+      } finally {
+        rmSync(tmpDir, { recursive: true });
+      }
+    });
   });
 
   describe('Format command', () => {

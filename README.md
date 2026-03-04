@@ -148,6 +148,14 @@ The linter's and formatter's default behaviors can be controlled by settings in 
 
 ```js
 export default {
+  // files to ignore (glob patterns, relative to project root)
+  ignore: [
+    "**/node_modules/**", // ignored by default
+    "**/dist/**",         // ignored by default
+    "path/to/some-file.gt",
+    "**/scratch/**",
+  ],
+
   // formatter settings
   format: {
     insertFinalNewline: true,
@@ -184,6 +192,8 @@ export default {
   },
 }
 ```
+
+When `ignore` is not specified, `**/node_modules/**` and `**/dist/**` are ignored by default. Specifying `ignore` replaces these defaults, so include them explicitly if you still want them ignored. Ignore patterns apply to both `lint` and `format` commands.
 
 Lint rules can have these values:
 
