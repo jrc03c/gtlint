@@ -58,10 +58,11 @@ Both the CLI and VSCode extension consume the linter and formatter through the p
 - `formatter.ts` — `DocumentFormattingEditProvider` wrapping the core formatter
 - `codeActions.ts` — quick-fix code actions from `Fix` objects
 - `completions.ts` — directive and rule name completions in `--` comment lines
-- `configuration.ts` — reads `gtlint.*` VSCode settings, merges with defaults
+- `config-utils.ts` — pure utility functions: `camelToKebab`, `normalizeRuleKeys`, `isFileIgnored`, `findConfigFile`
+- `configuration.ts` — reads `gtlint.*` VSCode settings, merges with defaults (delegates to `config-utils.ts`)
 
 ### `tests/`
-- Unit tests: `lexer.test.ts`, `parser.test.ts`, `linter.test.ts`, `formatter.test.ts`, `directives.test.ts`
+- Unit tests: `lexer.test.ts`, `parser.test.ts`, `linter.test.ts`, `formatter.test.ts`, `directives.test.ts`, `vscode-config-utils.test.ts`
 - Integration: `gt-lib-fixtures.test.ts` (162 `.gt` files from `gt-lib` submodule — crash tests, false-positive detection, known failures tracked with `it.fails`)
 - Audit: `keyword-audit.test.ts` (compares our keyword spec against `gt-lib`'s canonical list)
 - Framework: Vitest
