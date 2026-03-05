@@ -1,29 +1,16 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as fs from 'fs';
-import { minimatch } from 'minimatch';
 import type { LinterConfig, FormatterConfig } from '@jrc03c/gtlint';
 import {
   DEFAULT_LINTER_CONFIG,
   DEFAULT_FORMATTER_CONFIG,
 } from '@jrc03c/gtlint';
-
-/**
- * Convert camelCase to kebab-case (e.g., noUnusedVars → no-unused-vars).
- */
-function camelToKebab(str: string): string {
-  return str.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
-}
-
-function normalizeRuleKeys(
-  rules: Record<string, string>
-): Record<string, string> {
-  const normalized: Record<string, string> = {};
-  for (const [key, value] of Object.entries(rules)) {
-    normalized[camelToKebab(key)] = value;
-  }
-  return normalized;
-}
+import {
+  CONFIG_FILENAMES,
+  normalizeRuleKeys,
+  isFileIgnored,
+  findConfigFile,
+} from './config-utils';
 
 export interface GTLintSettings {
   enable: boolean;
@@ -34,8 +21,6 @@ export interface GTLintSettings {
   lint: Record<string, 'off' | 'warn' | 'error'>;
   format: Partial<FormatterConfig>;
 }
-
-const CONFIG_FILENAMES = ['gtlint.config.js', 'gtlint.config.mjs'];
 
 // Cache for loaded config files, keyed by absolute config path
 const configCache = new Map<string, { lint?: Record<string, 'off' | 'warn' | 'error'>; format?: Partial<FormatterConfig>; ignore?: string[] } | null>();
@@ -86,28 +71,6 @@ export function getVSCodeSettings(): GTLintSettings {
     lint: config.get<Record<string, 'off' | 'warn' | 'error'>>('lint', {}),
     format: config.get<Partial<FormatterConfig>>('format', {}),
   };
-}
-
-/**
- * Find config file by searching up from a directory
- */
-function findConfigFile(startDir: string): string | null {
-  let currentDir = path.resolve(startDir);
-
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    for (const filename of CONFIG_FILENAMES) {
-      const configPath = path.join(currentDir, filename);
-      if (fs.existsSync(configPath)) {
-        return configPath;
-      }
-    }
-    const parentDir = path.dirname(currentDir);
-    if (parentDir === currentDir) break;
-    currentDir = parentDir;
-  }
-
-  return null;
 }
 
 /**
@@ -195,16 +158,3 @@ export async function getConfigForDocument(document: vscode.TextDocument): Promi
   };
 }
 
-/**
- * Check whether a file path matches any of the ignore glob patterns.
- * Patterns are matched against the file's path relative to the config
- * directory (or workspace root if no config file was found).
- */
-function isFileIgnored(filePath: string, ignorePatterns: string[], baseDir: string): boolean {
-  const relativePath = path.relative(baseDir, filePath);
-  // Skip if the file is outside the base directory
-  if (relativePath.startsWith('..')) return false;
-  // Normalize to forward slashes for consistent glob matching
-  const normalizedPath = relativePath.split(path.sep).join('/');
-  return ignorePatterns.some(pattern => minimatch(normalizedPath, pattern));
-}
