@@ -11,6 +11,16 @@
       "problemMatcher": [],
       "label": "pnpm: build",
       "detail": "pnpm run build"
+    },
+    {
+      "type": "shell",
+      "command": "pnpm run build",
+      "options": {
+        "cwd": "${workspaceFolder}/vscode-extension"
+      },
+      "problemMatcher": [],
+      "label": "build-extension",
+      "detail": "Build the VS Code extension"
     }
   ]
 }
