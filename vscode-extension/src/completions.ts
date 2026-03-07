@@ -135,39 +135,33 @@ export class GTLintCompletionProvider implements vscode.CompletionItemProvider {
     const parent = findParentKeyword(lines, position.line);
 
     if (parent && KEYWORD_SPECS[parent]?.subKeywords) {
-      // Priority group: sub-keywords of the parent
+      // Priority group: sub-keywords of the parent (Property icon to distinguish)
       const subKeywords = KEYWORD_SPECS[parent].subKeywords!;
-      let subIndex = 0;
       for (const [name, spec] of Object.entries(subKeywords)) {
-        const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Keyword);
+        const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Property);
         let detail = spec.description ?? '';
         if (spec.enumValues) {
           detail += (detail ? ' ' : '') + `(${spec.enumValues.join(', ')})`;
         }
         item.detail = detail;
-        item.sortText = String(subIndex).padStart(3, '0');
+        item.sortText = '0' + name;
         items.push(item);
-        subIndex++;
       }
 
       // Secondary group: all top-level keywords
-      let topIndex = 0;
       for (const [name, spec] of Object.entries(KEYWORD_SPECS)) {
         const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Keyword);
         item.detail = spec.description;
-        item.sortText = '1' + String(topIndex).padStart(2, '0');
+        item.sortText = '1' + name;
         items.push(item);
-        topIndex++;
       }
     } else {
-      // No parent context: show all top-level keywords
-      let topIndex = 0;
+      // No parent context: show all top-level keywords alphabetically
       for (const [name, spec] of Object.entries(KEYWORD_SPECS)) {
         const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Keyword);
         item.detail = spec.description;
-        item.sortText = '0' + String(topIndex).padStart(2, '0');
+        item.sortText = name;
         items.push(item);
-        topIndex++;
       }
     }
 
