@@ -44,6 +44,8 @@ function getLinePrefix(document: vscode.TextDocument, position: vscode.Position)
   return document.lineAt(position.line).text.slice(0, position.character);
 }
 
+const cachedMethodData = buildMethodCompletionData();
+
 export class GTLintCompletionProvider implements vscode.CompletionItemProvider {
   provideCompletionItems(
     document: vscode.TextDocument,
@@ -173,7 +175,7 @@ export class GTLintCompletionProvider implements vscode.CompletionItemProvider {
   }
 
   private provideMethodCompletions(): vscode.CompletionItem[] {
-    const methods = buildMethodCompletionData();
+    const methods = cachedMethodData;
 
     return methods.map((method, index) => {
       const kind = method.hasParams
