@@ -110,6 +110,13 @@ export function isInsideHtmlBlock(lines: string[], currentLine: number): boolean
       // Not *html — move to next ancestor level
       targetIndent--;
       if (targetIndent < 0) return false;
+    } else if (indent < targetIndent) {
+      // Indent gap — check if this line is *html, then adjust target
+      if (trimmed === '*html' || trimmed.startsWith('*html:') || trimmed.startsWith('*html ')) {
+        return true;
+      }
+      targetIndent = indent - 1;
+      if (targetIndent < 0) return false;
     }
   }
 

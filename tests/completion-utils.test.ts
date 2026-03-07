@@ -159,6 +159,15 @@ describe('completion-utils', () => {
       expect(isInsideHtmlBlock(lines, 2)).toBe(true);
     });
 
+    it('should return true when ancestor indent levels have gaps', () => {
+      const lines = [
+        '*html',
+        '\t\t<div>Hello</div>',
+      ];
+      // Line 1 is at indent 2, but *html is at indent 0 (skipping indent 1)
+      expect(isInsideHtmlBlock(lines, 1)).toBe(true);
+    });
+
     it('should return false for *html at same indent level', () => {
       const lines = [
         '*html',
