@@ -26,13 +26,13 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  // Register completion provider for directives
+  // Register completion provider for directives, keywords, and methods
   const completionProvider = new GTLintCompletionProvider();
   context.subscriptions.push(
     vscode.languages.registerCompletionItemProvider(
       { language: 'guidedtrack' },
       completionProvider,
-      '@', ',', ' '
+      '@', ',', ' ', '*', '.'
     )
   );
 
