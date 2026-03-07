@@ -80,6 +80,13 @@ Select "Extensions: Install from VSIX...".
 
 The linter works while you write code in `.gt` files and will show errors as soon as it detects them. The formatter will format code in `.gt` files on save.
 
+### Auto-complete
+
+The extension provides context-aware auto-complete:
+
+- **Keywords** — Type `*` at the start of a line to see available keywords. When indented under a parent keyword (e.g., `*question`), the sub-keywords for that parent are shown first (e.g., `*type`, `*save`, `*shuffle`), followed by all top-level keywords.
+- **Methods** — Type `.` after a variable name to see all built-in GuidedTrack methods (e.g., `.size`, `.uppercase`, `.add()`). Methods are shown with their applicable type(s) and snippets with tab stops for parameters.
+
 See the [Configuration](#configuration) section below for more info about how to control the extension's behavior.
 
 # Command Line

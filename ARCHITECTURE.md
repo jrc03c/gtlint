@@ -57,7 +57,8 @@ Both the CLI and VSCode extension consume the linter and formatter through the p
 - `diagnostics.ts` — converts `LintMessage[]` to VSCode diagnostics, debounced on-type linting
 - `formatter.ts` — `DocumentFormattingEditProvider` wrapping the core formatter
 - `codeActions.ts` — quick-fix code actions from `Fix` objects
-- `completions.ts` — directive and rule name completions in `--` comment lines
+- `completions.ts` — directive, rule name, keyword, and method completions
+- `completion-utils.ts` — pure helper functions for completion context detection (parent keyword lookup, indent level, HTML block detection, method specs)
 - `config-utils.ts` — pure utility functions: `camelToKebab`, `normalizeRuleKeys`, `isFileIgnored`, `findConfigFile`
 - `configuration.ts` — reads `gtlint.*` VSCode settings, merges with defaults (delegates to `config-utils.ts`)
 
