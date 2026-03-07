@@ -179,7 +179,7 @@ export class GTLintCompletionProvider implements vscode.CompletionItemProvider {
       item.detail = method.types.join(' / ');
       item.documentation = method.description;
       item.insertText = new vscode.SnippetString(method.snippet);
-      item.sortText = String(index).padStart(3, '0');
+      item.sortText = method.name;
       return item;
     });
   }
