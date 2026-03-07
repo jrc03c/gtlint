@@ -3,6 +3,10 @@
 // Lexer exports
 export { tokenize, Token, TokenType, KEYWORDS, SUB_KEYWORDS } from './lexer/index.js';
 
+// Language exports
+export { KEYWORD_SPECS, getKeywordSpec, getValidSubKeywords } from './language/index.js';
+export type { KeywordSpec, SubKeywordSpec } from './language/index.js';
+
 // Parser exports
 export { parse } from './parser/index.js';
 export type {
