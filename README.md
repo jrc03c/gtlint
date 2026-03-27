@@ -39,6 +39,7 @@ GTLint's **linter** flags these things:
 - unreachable code
 - unclosed strings
 - unclosed brackets
+- stray colons in expressions (e.g., `*if: 0 < 1:`)
 - single quotes instead of double quotes around string literals
 - spaces instead of tabs for indentation
 - incorrect indentation levels
@@ -185,6 +186,7 @@ export default {
     noInlineArgument: "error",
     noInvalidGoto: "error",
     noSingleQuotes: "error",
+    noStrayColon: "error",
     noUnclosedBracket: "error",
     noUnclosedString: "error",
     noUndefinedVars: "error",

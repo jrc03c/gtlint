@@ -560,6 +560,65 @@ the value of x is {x}.
     });
   });
 
+  describe('no-stray-colon rule', () => {
+    it('should report error for trailing colon in *if expression', () => {
+      const source = '*if: 0 < 1:';
+      const result = lint(source);
+
+      const strayColon = result.messages.find(m => m.ruleId === 'no-stray-colon');
+      expect(strayColon).toBeDefined();
+      expect(strayColon!.message).toBe('Stray colon in expression');
+    });
+
+    it('should report error for trailing colon in *while expression', () => {
+      const source = '*while: x > 0:';
+      const result = lint(source);
+
+      const strayColon = result.messages.find(m => m.ruleId === 'no-stray-colon');
+      expect(strayColon).toBeDefined();
+    });
+
+    it('should report error for stray colon in >> expression', () => {
+      const source = '>> x = 5:';
+      const result = lint(source);
+
+      const strayColon = result.messages.find(m => m.ruleId === 'no-stray-colon');
+      expect(strayColon).toBeDefined();
+    });
+
+    it('should not flag double colon (::)', () => {
+      const source = '>> x = calendar::now';
+      const result = lint(source);
+
+      const strayColon = result.messages.find(m => m.ruleId === 'no-stray-colon');
+      expect(strayColon).toBeUndefined();
+    });
+
+    it('should not flag colons inside strings', () => {
+      const source = '>> x = "hello: world"';
+      const result = lint(source);
+
+      const strayColon = result.messages.find(m => m.ruleId === 'no-stray-colon');
+      expect(strayColon).toBeUndefined();
+    });
+
+    it('should not flag colons in plain text', () => {
+      const source = 'Hello: welcome to the program';
+      const result = lint(source);
+
+      const strayColon = result.messages.find(m => m.ruleId === 'no-stray-colon');
+      expect(strayColon).toBeUndefined();
+    });
+
+    it('should not flag the keyword colon itself', () => {
+      const source = '*if: x > 5';
+      const result = lint(source);
+
+      const strayColon = result.messages.find(m => m.ruleId === 'no-stray-colon');
+      expect(strayColon).toBeUndefined();
+    });
+  });
+
   describe('Linter configuration', () => {
     it('should respect rule severity configuration', () => {
       const source = '>> unusedVar = 5';
