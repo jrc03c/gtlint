@@ -60,15 +60,15 @@ Sub-keywords are indented under parent keywords and also start with `*`:
 	*save: age
 ```
 
-**Common Sub-Keywords** (45+ total):
+**Common Sub-Keywords** (47+ total):
 ```
-after, answers, before, blank, body, cancel, caption, classes, click,
-confirm, countdown, data, date, default, description, error, every,
-everytime, frequency, hide, icon, identifier, management, max, method,
-min, multiple, name, other, path, placeholder, required, reset, save,
-searchable, send, shuffle, start, startup, status, subject, success,
-tags, throwaway, time, tip, to, trendline, type, until, what, when,
-with, xaxis, yaxis
+after, answers, back, before, blank, body, cancel, caption, classes,
+click, confirm, countdown, data, date, default, description, error,
+every, everytime, frequency, hide, icon, identifier, management, max,
+menu, method, min, multiple, name, other, path, placeholder, required,
+reset, save, searchable, send, shuffle, start, startup, status,
+subject, success, tags, throwaway, time, tip, to, trendline, type,
+until, what, when, with, xaxis, yaxis
 ```
 
 **Note**: Sub-keywords vary by parent keyword. See `/gt.pdf` for complete list.

@@ -152,10 +152,8 @@ const INTENTIONALLY_EXCLUDED = new Set([
 // Known gt-lib keywords missing from BOTH our KEYWORDS and SUB_KEYWORDS sets.
 // These are documented discrepancies — not bugs, just not yet added to our lexer.
 const KNOWN_MISSING_FROM_LEXER = new Set([
-  'back',       // *settings back (in KEYWORD_SPECS but not SUB_KEYWORDS)
   'color',      // *chart data color
   'history',    // *purchase history
-  'menu',       // *settings menu (in KEYWORD_SPECS but not SUB_KEYWORDS)
   'opacity',    // *chart data opacity
   'picture',    // *question answer picture
   'position',   // *chart axis position
@@ -241,7 +239,7 @@ describe('Keyword Audit — gt-lib vs. gtlint', () => {
 
   describe('Discrepancy summary', () => {
     it('documents all known discrepancies (update counts when discrepancies change)', () => {
-      expect([...KNOWN_MISSING_FROM_LEXER].sort()).toHaveLength(11);
+      expect([...KNOWN_MISSING_FROM_LEXER].sort()).toHaveLength(9);
       expect([...OUR_EXTRA_KEYWORDS].sort()).toHaveLength(2);
       expect([...INTENTIONALLY_EXCLUDED].sort()).toHaveLength(4);
     });

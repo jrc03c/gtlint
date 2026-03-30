@@ -124,6 +124,7 @@ export const KEYWORDS = new Set([
 export const SUB_KEYWORDS = new Set([
   'after',
   'answers',
+  'back',
   'before',
   'blank',
   'body',
@@ -146,6 +147,7 @@ export const SUB_KEYWORDS = new Set([
   'identifier',
   'management',
   'max',
+  'menu',
   'method',
   'min',
   'multiple',

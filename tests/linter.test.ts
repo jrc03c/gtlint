@@ -60,6 +60,16 @@ describe('Linter', () => {
       const invalidSubKeywordError = result.messages.find(m => m.ruleId === 'valid-sub-keyword');
       expect(invalidSubKeywordError).toBeUndefined();
     });
+
+    it('should not report error for *back and *menu under *settings', () => {
+      const source = `*settings:
+\t*back: yes
+\t*menu: no`;
+      const result = lint(source);
+
+      const errors = result.messages.filter(m => m.ruleId === 'valid-sub-keyword');
+      expect(errors).toHaveLength(0);
+    });
   });
 
   describe('no-undefined-vars rule', () => {
