@@ -9,6 +9,7 @@ const KEYWORD_SUB_KEYWORDS: Record<string, Set<string>> = {
   component: new Set(['classes', 'click', 'with', 'header']),
   database: new Set(['what', 'success', 'error']),
   email: new Set(['subject', 'body', 'to', 'when', 'every', 'until', 'identifier', 'cancel']),
+  events: new Set(['startup']),
   experiment: new Set(['group']),
   goto: new Set(['reset']),
   image: new Set(['caption', 'description']),
