@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.2
+
+### Bug Fixes
+
+- Allow `*startup` as a valid sub-keyword of `*events` instead of incorrectly reporting that `*events` does not support sub-keywords
+
 ## 0.15.1
 
 ### Bug Fixes

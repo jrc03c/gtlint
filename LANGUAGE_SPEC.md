@@ -341,6 +341,8 @@ Runtime types accessible via `.type`:
 **Events and triggers**:
 ```guidedtrack
 *events
+	*startup
+		>> score = 0
 	myEvent
 		>> x = x + 1
 
