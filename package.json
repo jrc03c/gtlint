@@ -42,6 +42,7 @@
     "bump": "npm version --no-git-tag-version ${VERSION:-patch} && cd vscode-extension && npm version --no-git-tag-version $(node -p \"require('../package.json').version\")",
     "pub": "npm publish --access=public",
     "release": "gh release create v$(node -p \"require('./package.json').version\") vscode-extension/dist/*.vsix --generate-notes",
+    "pretest": "tsc",
     "test": "vitest run",
     "test:watch": "vitest"
   },
