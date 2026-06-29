@@ -216,7 +216,7 @@ export class Parser {
   }
 
   // Sub-keyword value types whose arguments should be parsed as expressions
-  private static readonly EXPRESSION_VALUE_TYPES = new Set(['expression', 'collection', 'association']);
+  private static readonly EXPRESSION_VALUE_TYPES = new Set(['expression', 'collection', 'association', 'duration', 'datetime', 'number']);
 
   private parseSubKeyword(parentKeyword: string): SubKeyword {
     const keywordToken = this.advance();

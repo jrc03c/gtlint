@@ -378,6 +378,30 @@ the value of x is {x}.
       );
       expect(warning).toBeUndefined();
     });
+
+    it('should count a variable used as a *countdown (duration) sub-keyword argument', () => {
+      const source = `>> timeout = 30.seconds
+*question: What's your name?
+\t*countdown: timeout`;
+      const result = lint(source);
+
+      const warning = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'timeout'")
+      );
+      expect(warning).toBeUndefined();
+    });
+
+    it('should count a variable used as a *when (datetime) sub-keyword argument', () => {
+      const source = `>> sendAt = "2026-01-01".decode("JSON")
+*email: Reminder
+\t*when: sendAt`;
+      const result = lint(source);
+
+      const warning = result.messages.find(m =>
+        m.ruleId === 'no-unused-vars' && m.message.includes("'sendAt'")
+      );
+      expect(warning).toBeUndefined();
+    });
   });
 
   describe('no-invalid-goto rule', () => {

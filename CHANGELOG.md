@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.3
+
+### Bug Fixes
+
+- Count variables passed as arguments to `duration`, `datetime`, and `number` sub-keywords (e.g. a variable used in `*countdown`) as usages, so `no-unused-vars` no longer falsely flags them
+
 ## 0.15.2
 
 ### Bug Fixes
