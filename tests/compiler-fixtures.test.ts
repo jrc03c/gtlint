@@ -1,9 +1,10 @@
 /**
- * gt-lib Fixture Integration Tests
+ * GuidedTrack Compiler Fixture Integration Tests
  *
- * Exercises all 162 .gt fixture files from the gt-lib submodule through our
- * lexer, parser, and linter. This catches crashes and false positives against
- * real GuidedTrack programs.
+ * Exercises all .gt fixture files from the guidedtrack-web compiler submodule
+ * (the canonical GuidedTrack reference implementation, formerly the standalone
+ * gt-lib gem) through our lexer, parser, and linter. This catches crashes and
+ * false positives against real GuidedTrack programs.
  *
  * If the submodule is not initialized, all tests are skipped gracefully.
  */
@@ -23,7 +24,7 @@ import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const FIXTURE_DIR = join(__dirname, '..', 'submodules', 'gt-lib', 'test', 'fixtures');
+const FIXTURE_DIR = join(__dirname, '..', 'submodules', 'guidedtrack-web', 'compiler', 'test', 'fixtures');
 
 const submodulePresent = existsSync(FIXTURE_DIR);
 
@@ -45,7 +46,7 @@ const allFixtures = loadFixtures();
 // Fixture categorization
 // ---------------------------------------------------------------------------
 
-// Fixtures that are intentional error cases in gt-lib (names suggest invalid input).
+// Fixtures that are intentional error cases in the compiler corpus (names suggest invalid input).
 // These are excluded from the "should produce no linter errors" test.
 const ERROR_CASE_FIXTURES = new Set([
   'bad_indentation',
@@ -97,8 +98,6 @@ const KNOWN_LINTER_ISSUES: Record<string, string> = {
   'video_with_captions':          'valid-keyword + valid-sub-keyword: video captions',
   // valid-sub-keyword false positives
   'classes':                      'valid-sub-keyword: *classes not recognized in context',
-  'events':                       'valid-sub-keyword: event names treated as sub-keywords',
-  'events_startup_goto_with_reset': 'valid-sub-keyword: event sub-keyword issue',
   'list_styled':                  'valid-sub-keyword: list style not recognized',
   'points_alone':                 'valid-sub-keyword: points context issue',
   'settings':                     'valid-keyword + valid-sub-keyword: settings keywords',
@@ -106,10 +105,12 @@ const KNOWN_LINTER_ISSUES: Record<string, string> = {
   'component':                    'no-undefined-vars + valid-sub-keyword: component vars',
   'component_with_data':          'no-undefined-vars: *with: var from runtime context',
   'email':                        'no-undefined-vars: email template vars',
+  'email_with_identifier_when':   'no-undefined-vars: *when datetime var from runtime context',
   'for':                          'no-undefined-vars: undefined collection var in snippet',
   'multiple_service_calls':       'no-undefined-vars: service response vars',
   'page_while_with_program':      'no-undefined-vars: program-scoped vars',
   'purchase_subscription':        'no-undefined-vars: purchase callback vars',
+  'question_with_identifier_countdown': 'no-undefined-vars: *countdown duration var from runtime context',
   'service':                      'no-undefined-vars: service response vars',
   // no-invalid-goto false positives
   'goto_named_node':              'no-invalid-goto + valid-sub-keyword: named node goto',
@@ -117,7 +118,6 @@ const KNOWN_LINTER_ISSUES: Record<string, string> = {
   // other
   'email_with_cancel':            'required-subkeywords: cancel-only email is valid',
   'navigation_with_hide':         'no-inline-argument: navigation hide argument',
-  'purchase_history':             'purchase-subkeyword-constraints + valid-keyword: history keyword',
 };
 
 const validFixtures = allFixtures.filter(
@@ -132,7 +132,7 @@ const knownIssueFixtures = allFixtures.filter(
 // Tests
 // ---------------------------------------------------------------------------
 
-describe.skipIf(!submodulePresent)('gt-lib fixture integration tests', () => {
+describe.skipIf(!submodulePresent)('GuidedTrack compiler fixture integration tests', () => {
   describe('Lexer — tokenization', () => {
     it.each(allFixtures)('should tokenize $name without throwing', ({ source }) => {
       expect(() => tokenize(source)).not.toThrow();

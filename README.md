@@ -292,7 +292,7 @@ Here are the available directives and what they do:
 pnpm test
 ```
 
-The test suite includes integration tests that exercise real GuidedTrack programs from a git submodule (`submodules/gt-lib`). This submodule points to a private repository and is optional. If it's not initialized, those tests are skipped automatically. All other tests will run normally.
+The test suite includes integration tests that exercise real GuidedTrack programs from a git submodule (`submodules/guidedtrack-web`, the canonical GuidedTrack compiler — formerly the standalone `gt-lib` gem). This submodule points to a private repository and is optional. If it's not initialized, those tests are skipped automatically. All other tests will run normally.
 
 # Feedback
 

@@ -1,10 +1,16 @@
 # Changelog
 
+## 0.15.4
+
+### Internal
+
+- Retarget the integration-test and keyword-audit submodule from the archived standalone `gt-lib` gem (last updated 2023) to `guidedtrack-web/compiler`, the canonical and actively-maintained GuidedTrack reference implementation. The fixture corpus grows from 162 to 167 programs, and the keyword audit now reconciles against the live `keyword_definitions.rb` (adds `placeholder`/`searchable`, drops the removed `history`). No user-facing behavior changes. Renamed `gt-lib-fixtures.test.ts` to `compiler-fixtures.test.ts` and added a `vitest.config.ts` that excludes the submodule from test discovery.
+
 ## 0.15.3
 
 ### Bug Fixes
 
-- Count variables passed as arguments to `duration`, `datetime`, and `number` sub-keywords (e.g. a variable used in `*countdown`) as usages, so `no-unused-vars` no longer falsely flags them
+- Parse `duration`, `datetime`, and `number` sub-keyword arguments as expressions instead of literal text. A variable used in such a sub-keyword (e.g. `*countdown: timeout`) is now recognized as a real reference: `no-unused-vars` no longer falsely flags it as unused, and `no-undefined-vars` correctly tracks it
 
 ## 0.15.2
 

@@ -13,7 +13,7 @@ A linter and formatter for the [GuidedTrack](https://guidedtrack.com) language (
 
 ## Submodules — Read-Only
 
-`/submodules/` contains external Git submodules (e.g., `gt-lib`). **Never modify** files under `/submodules/`. Submodule data is used for integration tests and keyword auditing.
+`/submodules/` contains external Git submodules (e.g., `guidedtrack-web`, the canonical GuidedTrack compiler — formerly the now-archived standalone `gt-lib` gem). **Never modify** files under `/submodules/`. Submodule data is used for integration tests and keyword auditing: `.gt` fixtures live at `submodules/guidedtrack-web/compiler/test/fixtures/` and the canonical keyword list at `submodules/guidedtrack-web/compiler/lib/keyword_definitions.rb`.
 
 ## Non-Obvious Language Quirks
 

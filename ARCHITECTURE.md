@@ -64,8 +64,8 @@ Both the CLI and VSCode extension consume the linter and formatter through the p
 
 ### `tests/`
 - Unit tests: `lexer.test.ts`, `parser.test.ts`, `linter.test.ts`, `formatter.test.ts`, `directives.test.ts`, `vscode-config-utils.test.ts`
-- Integration: `gt-lib-fixtures.test.ts` (162 `.gt` files from `gt-lib` submodule — crash tests, false-positive detection, known failures tracked with `it.fails`)
-- Audit: `keyword-audit.test.ts` (compares our keyword spec against `gt-lib`'s canonical list)
+- Integration: `compiler-fixtures.test.ts` (167 `.gt` files from the `guidedtrack-web` compiler submodule — crash tests, false-positive detection, known failures tracked with `it.fails`)
+- Audit: `keyword-audit.test.ts` (compares our keyword spec against the `guidedtrack-web` compiler's canonical `keyword_definitions.rb`)
 - Framework: Vitest
 
 ## Module Dependencies
