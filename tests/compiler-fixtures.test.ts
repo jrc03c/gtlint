@@ -97,7 +97,6 @@ const KNOWN_LINTER_ISSUES: Record<string, string> = {
   'video_simple':                 'valid-keyword: video parse issue',
   'video_with_captions':          'valid-keyword + valid-sub-keyword: video captions',
   // valid-sub-keyword false positives
-  'classes':                      'valid-sub-keyword: *classes not recognized in context',
   'list_styled':                  'valid-sub-keyword: list style not recognized',
   'points_alone':                 'valid-sub-keyword: points context issue',
   'settings':                     'valid-keyword + valid-sub-keyword: settings keywords',

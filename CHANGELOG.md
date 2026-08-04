@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.5
+
+### Bug Fixes
+
+- Allow `*classes` under every content-node keyword. The compiler grants `Classes` to all 38 such keywords through `ContentNode#optional_attributes` (only `*login` and `*points` opt out, and `*events` isn't a content node), but the linter recognized it under just `*component` and `*question`. `*classes` under `*header`, `*button`, `*image`, control-flow blocks, and the rest no longer reports a false error
+
 ## 0.15.4
 
 ### Internal

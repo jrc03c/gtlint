@@ -73,6 +73,8 @@ until, what, when, with, xaxis, yaxis
 
 **Note**: Sub-keywords vary by parent keyword. See `/gt.pdf` for complete list.
 
+**Note**: `*classes` is valid under nearly every keyword, not just a select few — the compiler grants it to every content node via `ContentNode#optional_attributes`. The exceptions are `*login` and `*points` (which replace the inherited attribute list) and `*events` (not a content node). The same inheritance applies to `*name`, `*tags`, and `*back`, which GTLint does not yet recognize universally.
+
 ### Expressions
 
 Variable assignments and computations start with `>>`:

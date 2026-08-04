@@ -1,12 +1,14 @@
 import type { LintRule, RuleContext } from '../linter.js';
 import type { Program, KeywordStatement, SubKeyword } from '../../parser/ast.js';
 import { SUB_KEYWORDS } from '../../lexer/tokens.js';
+import { CLASSES_KEYWORDS } from '../../language/keyword-spec.js';
 
-// Map of parent keywords to their valid sub-keywords
+// Map of parent keywords to their valid sub-keywords, beyond the universal
+// ones applied below
 const KEYWORD_SUB_KEYWORDS: Record<string, Set<string>> = {
   audio: new Set(['start', 'hide']),
   chart: new Set(['type', 'data', 'xaxis', 'yaxis', 'trendline', 'min', 'max']),
-  component: new Set(['classes', 'click', 'with', 'header']),
+  component: new Set(['click', 'with', 'header']),
   database: new Set(['what', 'success', 'error']),
   email: new Set(['subject', 'body', 'to', 'when', 'every', 'until', 'identifier', 'cancel']),
   events: new Set(['startup']),
@@ -20,7 +22,6 @@ const KEYWORD_SUB_KEYWORDS: Record<string, Set<string>> = {
     'type', 'shuffle', 'save', 'tip', 'confirm', 'searchable', 'throwaway',
     'countdown', 'tags', 'answers', 'blank', 'multiple', 'default', 'before',
     'after', 'min', 'max', 'time', 'date', 'placeholder', 'other', 'icon', 'image',
-    'classes'
   ]),
   randomize: new Set(['everytime', 'name', 'group']),
   service: new Set(['path', 'method', 'send', 'success', 'error']),
@@ -28,6 +29,11 @@ const KEYWORD_SUB_KEYWORDS: Record<string, Set<string>> = {
   switch: new Set(['reset']),
   trigger: new Set(['send']),
 };
+
+for (const keyword of CLASSES_KEYWORDS) {
+  const subs = KEYWORD_SUB_KEYWORDS[keyword] ?? (KEYWORD_SUB_KEYWORDS[keyword] = new Set());
+  subs.add('classes');
+}
 
 export const validSubKeyword: LintRule = {
   name: 'valid-sub-keyword',

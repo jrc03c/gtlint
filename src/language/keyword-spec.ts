@@ -218,11 +218,6 @@ export const KEYWORD_SPECS: Record<string, KeywordSpec> = {
     argument: { required: false, type: 'none' },
     body: { allowed: true, required: true },
     subKeywords: {
-      classes: {
-        required: false,
-        valueType: 'text',
-        description: 'CSS class names to apply',
-      },
       click: {
         required: false,
         valueType: 'none',
@@ -433,11 +428,6 @@ export const KEYWORD_SPECS: Record<string, KeywordSpec> = {
         required: false,
         valueType: 'url',
         description: 'Image for answer option',
-      },
-      classes: {
-        required: false,
-        valueType: 'text',
-        description: 'CSS class names to apply',
       },
     },
   },
@@ -852,6 +842,37 @@ export const KEYWORD_SPECS: Record<string, KeywordSpec> = {
     body: { allowed: false, required: false },
   },
 };
+
+// =============================================================================
+// Universal Sub-Keywords
+// =============================================================================
+
+/**
+ * Keywords whose compiler nodes descend from `ContentNode`, which grants
+ * `Classes` through `optional_attributes`. Three keywords are deliberately
+ * absent: `*login` and `*points` replace the inherited attribute list outright
+ * (`login.rb`, `points.rb`), and `*events` is a plain `Node`.
+ */
+export const CLASSES_KEYWORDS = [
+  'audio', 'button', 'chart', 'clear', 'component', 'database', 'email',
+  'experiment', 'for', 'goto', 'group', 'header', 'html', 'if', 'image',
+  'label', 'list', 'maintain', 'navigation', 'page', 'program', 'progress',
+  'purchase', 'question', 'quit', 'randomize', 'repeat', 'return', 'service',
+  'set', 'settings', 'share', 'summary', 'switch', 'trigger', 'video', 'wait',
+  'while',
+];
+
+for (const keyword of CLASSES_KEYWORDS) {
+  const spec = KEYWORD_SPECS[keyword];
+  if (!spec) continue;
+
+  spec.subKeywords ??= {};
+  spec.subKeywords.classes = {
+    required: false,
+    valueType: 'text',
+    description: 'CSS class names to apply',
+  };
+}
 
 // =============================================================================
 // Helper Functions

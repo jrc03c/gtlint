@@ -70,6 +70,55 @@ describe('Linter', () => {
       const errors = result.messages.filter(m => m.ruleId === 'valid-sub-keyword');
       expect(errors).toHaveLength(0);
     });
+
+    // Every content node in the compiler inherits `Classes` from
+    // ContentNode#optional_attributes; only *login and *points drop it.
+    describe('*classes', () => {
+      const allowed = [
+        'audio: http://example.com/a.mp3',
+        'button: Click',
+        'chart: Sizes',
+        'clear:',
+        'goto: somewhere',
+        'header: Hello, world!',
+        'html:',
+        'image: http://example.com/a.png',
+        'label: here',
+        'list:',
+        'maintain:',
+        'navigation:',
+        'progress: 50',
+        'question: What?',
+        'quit:',
+        'set: x = 1',
+        'settings:',
+        'share:',
+        'summary: tag',
+        'switch: other',
+        'video: http://example.com/a.mp4',
+        'wait: 1 second',
+      ];
+
+      for (const head of allowed) {
+        it(`should not report error for *classes under *${head.split(':')[0]}`, () => {
+          const source = `*${head}\n\t*classes: flashy`;
+          const result = lint(source);
+
+          const errors = result.messages.filter(m => m.ruleId === 'valid-sub-keyword');
+          expect(errors).toHaveLength(0);
+        });
+      }
+
+      for (const parent of ['login', 'points']) {
+        it(`should report error for *classes under *${parent}`, () => {
+          const source = `*${parent}: 1\n\t*classes: flashy`;
+          const result = lint(source);
+
+          const errors = result.messages.filter(m => m.ruleId === 'valid-sub-keyword');
+          expect(errors).toHaveLength(1);
+        });
+      }
+    });
   });
 
   describe('no-undefined-vars rule', () => {
