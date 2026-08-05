@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.15.6
+
+### Bug Fixes
+
+- Normalize the space after a keyword colon. The formatter already ensured exactly one space after `>>` and after expression keywords like `*if:`, but text keywords (`*header:`, `*question:`, `*button:`, and all sub-keywords) only collapsed whitespace that was already present — so `*header:Hello!` was left untouched. It now formats to `*header: Hello!`
+- Stop emitting a trailing space after a valueless keyword. `*if:` on its own line formatted to `*if: ` because trailing-whitespace trimming runs before keyword formatting; keywords with no value now keep a bare colon
+
 ## 0.15.5
 
 ### Bug Fixes

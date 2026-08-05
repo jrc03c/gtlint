@@ -46,6 +46,43 @@ describe('Formatter', () => {
     });
   });
 
+  describe('Space after keyword colon', () => {
+    it('should add a space after a text keyword colon when missing', () => {
+      const source = '*header:Hello!\n';
+      const result = format(source);
+
+      expect(result).toBe('*header: Hello!\n');
+    });
+
+    it('should collapse multiple spaces after a text keyword colon', () => {
+      const source = '*header:   Hello!\n';
+      const result = format(source);
+
+      expect(result).toBe('*header: Hello!\n');
+    });
+
+    it('should add a space after an expression keyword colon when missing', () => {
+      const source = '*if:x > 7\n\t*header: Hi\n';
+      const result = format(source);
+
+      expect(result).toBe('*if: x > 7\n\t*header: Hi\n');
+    });
+
+    it('should not add a space after a keyword with no value', () => {
+      const source = '*continue:\n*if:\n*header:\n';
+      const result = format(source);
+
+      expect(result).toBe('*continue:\n*if:\n*header:\n');
+    });
+
+    it('should add a space after a sub-keyword colon when missing', () => {
+      const source = '*question: Name?\n\t*save:name\n';
+      const result = format(source);
+
+      expect(result).toBe('*question: Name?\n\t*save: name\n');
+    });
+  });
+
   describe('Operator spacing', () => {
     it('should enforce single space after >>', () => {
       const source = '>>x = 5\n';
