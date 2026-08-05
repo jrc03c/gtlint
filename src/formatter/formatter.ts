@@ -341,6 +341,24 @@ export class Formatter {
     return false;
   }
 
+  /**
+   * Check whether a name is a real keyword or sub-keyword. Used to avoid
+   * reformatting answer options that happen to contain a colon (e.g. `*Yes:no`).
+   */
+  private isKnownKeyword(keywordName: string): boolean {
+    if (KEYWORD_SPECS[keywordName]) {
+      return true;
+    }
+
+    for (const parentSpec of Object.values(KEYWORD_SPECS)) {
+      if (parentSpec.subKeywords?.[keywordName]) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   private formatKeywordLine(content: string): string {
     // Match keyword pattern: *keyword: expression/text
     const colonIndex = content.indexOf(':');
@@ -362,6 +380,11 @@ export class Formatter {
     // Extract keyword name (remove * and :)
     const keywordName = keywordPart.slice(1, -1).trim();
 
+    // A keyword with no value keeps its bare colon (e.g. "*continue:")
+    if (expressionPart.trim() === '') {
+      return keywordPart;
+    }
+
     // Check if this keyword requires expression formatting
     if (expressionKeywords.includes(keywordName)) {
       // Normalize whitespace in the expression part
@@ -372,8 +395,13 @@ export class Formatter {
       if (this.config.spaceAroundOperators && this.hasExpressionValue(keywordName)) {
         expressionPart = this.formatOperatorsOutsideStrings(expressionPart);
       }
+    } else if (this.isKnownKeyword(keywordName)) {
+      // For text-based keywords (like *question:, *header:), ensure exactly one
+      // space after the colon — adding one if absent, collapsing extras if not
+      expressionPart = ' ' + expressionPart.replace(/^\s+/, '');
     } else {
-      // For text-based keywords (like *question:, *header:), just trim leading space
+      // Not a real keyword (e.g. an answer option containing a colon); only
+      // collapse whitespace that's already there, never insert any
       expressionPart = expressionPart.replace(/^\s+/, ' ');
     }
 

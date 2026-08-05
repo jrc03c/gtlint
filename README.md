@@ -53,6 +53,7 @@ GTLint's **formatter** does these things:
 - adds spaces after commas in collections and associations
 - normalizes spacing immediately inside braces, brackets, and parens
 - normalizes `>>` to be followed by a single space
+- normalizes keyword colons to be followed by a single space (e.g., `*header:Hi` → `*header: Hi`); keywords with no value keep a bare colon
 - collapses runs of whitespace in expressions
 
 Virtually all of these behaviors can be modified by using a [configuration](#configuration) file and/or inline [directives](#directives).
