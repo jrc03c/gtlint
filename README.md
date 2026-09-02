@@ -148,7 +148,12 @@ npx gtlint format path/to/some-file.gt
 
 # format all *.gt files in a directory (recursive)
 npx gtlint format path/to/some-dir
+
+# convert every file's line endings to LF (or "crlf") while formatting
+npx gtlint format --write --line-endings lf path/to/some-dir
 ```
+
+**Line endings:** GTLint reads CRLF (`\r\n`), LF (`\n`), and CR (`\r`) files, and by default writes back whichever ending a file already used. Use `--line-endings lf` or `--line-endings crlf` (or the `lineEndings` setting below) to convert instead. This matters if you pull `.gt` source down from guidedtrack.com and push it back up — the default leaves the endings exactly as you received them.
 
 See the [Configuration](#configuration) section below for more info about how to control the command line tool's behavior.
 
@@ -169,6 +174,7 @@ export default {
   // formatter settings
   format: {
     insertFinalNewline: true,
+    lineEndings: "preserve", // or "lf" or "crlf"
     spaceAfterComma: true,
     spaceAroundArrow: true,
     spaceAroundOperators: true,

@@ -30,6 +30,8 @@
  * - `-- @to-child: var1, var2` - Variables sent to child program (suppresses no-unused-vars)
  */
 
+import { normalizeLineEndings } from '../line-endings.js';
+
 export interface VarLocation {
   line: number;
   column: number;
@@ -52,7 +54,9 @@ export interface DirectiveState {
 }
 
 export function parseDirectives(source: string): DirectiveState {
-  const lines = source.split('\n');
+  // Normalize first: a CRLF file would otherwise leave a `\r` on every line,
+  // and the `$`-anchored comment regex below would match nothing at all.
+  const lines = normalizeLineEndings(source).split('\n');
   const state: DirectiveState = {
     lintDisabledLines: new Map(),
     formatDisabledLines: new Set(),

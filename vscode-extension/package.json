@@ -2,7 +2,7 @@
   "name": "gtlint-vscode",
   "displayName": "GTLint - GuidedTrack Linter",
   "description": "Linting, formatting, and code actions for GuidedTrack (.gt) files",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "publisher": "gtlint",
   "engines": {
     "vscode": "^1.85.0"
@@ -123,6 +123,12 @@
             "insertFinalNewline": {
               "type": "boolean",
               "default": true
+            },
+            "lineEndings": {
+              "type": "string",
+              "enum": ["preserve", "lf", "crlf"],
+              "default": "preserve",
+              "description": "Line endings to write: preserve the file's existing endings, or force LF or CRLF"
             }
           }
         }

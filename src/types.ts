@@ -1,3 +1,5 @@
+import type { LineEndingMode } from './line-endings.js';
+
 export interface SourceLocation {
   start: Position;
   end: Position;
@@ -37,6 +39,8 @@ export interface FormatterConfig {
   spaceInsideParens: number;
   trimTrailingWhitespace: boolean;
   insertFinalNewline: boolean;
+  /** Which line endings to write: keep the file's own, or force LF/CRLF. */
+  lineEndings: LineEndingMode;
 }
 
 export interface LinterConfig {
@@ -54,6 +58,7 @@ export const DEFAULT_FORMATTER_CONFIG: FormatterConfig = {
   spaceInsideParens: 0,
   trimTrailingWhitespace: true,
   insertFinalNewline: true,
+  lineEndings: 'preserve',
 };
 
 export const DEFAULT_LINTER_CONFIG: LinterConfig = {

@@ -7,6 +7,7 @@ import { globSync } from 'glob';
 import { Linter } from './linter/index.js';
 import { Formatter } from './formatter/index.js';
 import { loadConfig } from './config.js';
+import { LINE_ENDING_MODES, type LineEndingMode } from './line-endings.js';
 import type { LintResult } from './types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -17,6 +18,7 @@ interface CLIOptions {
   write?: boolean;
   quiet?: boolean;
   format?: 'stylish' | 'json' | 'compact';
+  lineEndings?: LineEndingMode;
   help?: boolean;
   version?: boolean;
 }
@@ -35,6 +37,7 @@ Lint Options:
 
 Format Options:
   --write              Format and write back to files
+  --line-endings <t>   Line endings to write: preserve (default), lf, crlf
 
 Common Options:
   --config <path>      Path to config file
@@ -47,6 +50,8 @@ Examples:
   gtlint lint program.gt           Lint a specific file
   gtlint format .                  Print formatted output to stdout
   gtlint format --write .          Format all files in place
+  gtlint format --write --line-endings lf .
+                                   Format and normalize every file to LF
 `);
 }
 
@@ -73,6 +78,8 @@ function parseArgs(args: string[]): { command: string; files: string[]; options:
       options.quiet = true;
     } else if (arg === '--format' && args[i + 1]) {
       options.format = args[++i] as 'stylish' | 'json' | 'compact';
+    } else if (arg === '--line-endings' && args[i + 1]) {
+      options.lineEndings = args[++i] as LineEndingMode;
     } else if (arg === '--help' || arg === '-h') {
       options.help = true;
     } else if (arg === '--version' || arg === '-v') {
@@ -221,6 +228,16 @@ async function runFormat(files: string[], options: CLIOptions): Promise<number> 
   const cwd = process.cwd();
   const configPath = options.config || cwd;
   const { formatter: formatterConfig, ignore } = await loadConfig(configPath);
+
+  if (options.lineEndings !== undefined) {
+    if (!LINE_ENDING_MODES.includes(options.lineEndings)) {
+      console.error(
+        `Invalid --line-endings value: '${options.lineEndings}'. Expected one of: ${LINE_ENDING_MODES.join(', ')}`
+      );
+      return 1;
+    }
+    formatterConfig.lineEndings = options.lineEndings;
+  }
 
   const targetFiles = files.length > 0 ? files : ['.'];
   const filePaths = findFiles(targetFiles, ignore);

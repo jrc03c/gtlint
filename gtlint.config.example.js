@@ -24,6 +24,10 @@ export default {
     spaceAroundArrow: true,
     trimTrailingWhitespace: true,
     insertFinalNewline: true,
+
+    // Line endings to write: 'preserve' (keep whatever the file uses),
+    // 'lf', or 'crlf'
+    lineEndings: 'preserve',
   },
 
   // Files/directories to ignore

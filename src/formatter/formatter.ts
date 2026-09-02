@@ -3,6 +3,7 @@ import { DEFAULT_FORMATTER_CONFIG } from '../types.js';
 import { tokenize, Token, TokenType } from '../lexer/index.js';
 import { parseDirectives, isFormatDisabled } from '../linter/directives.js';
 import { KEYWORD_SPECS } from '../language/keyword-spec.js';
+import { normalizeLineEndings, applyLineEnding, resolveLineEnding } from '../line-endings.js';
 
 export class Formatter {
   private config: FormatterConfig;
@@ -15,7 +16,10 @@ export class Formatter {
   }
 
   format(source: string): string {
-    const lines = source.split('\n');
+    // Decide what to write back before normalizing, then work in plain LF so
+    // every line-oriented rule below sees a line with no trailing `\r`.
+    const lineEnding = resolveLineEnding(this.config.lineEndings, source);
+    const lines = normalizeLineEndings(source).split('\n');
     const formattedLines: string[] = [];
     let consecutiveBlankLines = 0;
 
@@ -69,7 +73,7 @@ export class Formatter {
       result += '\n';
     }
 
-    return result;
+    return applyLineEnding(result, lineEnding);
   }
 
   private formatLine(line: string): string {

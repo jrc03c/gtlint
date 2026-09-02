@@ -32,6 +32,7 @@ Both the CLI and VSCode extension consume the linter and formatter through the p
 ### `src/formatter/` — Code formatter
 - Entry point: `format(source): string` or `new Formatter(config).format(source)`
 - Works line-by-line: trims trailing whitespace, normalizes blank lines, formats operators/spacing
+- Preserves the source file's line endings by default; `lineEndings: 'lf' | 'crlf'` converts instead
 - Respects `@gtformat-disable` / `@gt-disable` directive regions
 - Configurable spacing inside braces, brackets, parens (each independent, default 0)
 
@@ -41,6 +42,12 @@ Both the CLI and VSCode extension consume the linter and formatter through the p
 - `markup.ts` is the single source of truth for text markup and links: `findMarkupMatches` (a port of the interpreter's `TextScanner`), `findLinks`, `renderMarkupToHtml`, and the regex sources the TextMate grammar is built from
 - Used by lint rules (`valid-keyword`, `valid-sub-keyword`, `required-subkeywords`, `valid-link`, etc.) for validation
 - No runtime dependencies — pure data and pure functions
+
+### `src/line-endings.ts` — Line ending normalization
+- `detectLineEnding(source)`, `normalizeLineEndings(source)`, `applyLineEnding(source, ending)`, `resolveLineEnding(mode, source)`
+- Everything downstream (lexer, parser, directives, rules, formatter) assumes lines end with a bare `\n`. A CRLF file fed in raw leaves a `\r` on every line, which breaks any `$`-anchored regex — in JavaScript `.` does not match `\r` and `$` anchors past it
+- The contract: **normalize on the way in, re-apply on the way out.** `Linter.lint` and `parseDirectives` normalize and never convert back (they emit findings, not text); `Formatter.format` detects the source's ending first, works in LF, then restores it per the `lineEndings` config
+- No runtime dependencies
 
 ### `src/config.ts` — Configuration loader
 - `loadConfig(pathOrDir)` finds and loads `gtlint.config.js` / `gtlint.config.mjs`
@@ -65,7 +72,7 @@ Both the CLI and VSCode extension consume the linter and formatter through the p
 - `configuration.ts` — reads `gtlint.*` VSCode settings, merges with defaults (delegates to `config-utils.ts`)
 
 ### `tests/`
-- Unit tests: `lexer.test.ts`, `parser.test.ts`, `linter.test.ts`, `formatter.test.ts`, `directives.test.ts`, `markup.test.ts`, `vscode-config-utils.test.ts`
+- Unit tests: `lexer.test.ts`, `parser.test.ts`, `linter.test.ts`, `formatter.test.ts`, `directives.test.ts`, `markup.test.ts`, `line-endings.test.ts`, `vscode-config-utils.test.ts`
 - Conformance: `markup.test.ts` runs the interpreter's own `html_formatted_text_spec.coffee` cases against `renderMarkupToHtml`, checks the generated regexes agree with the scanner, and fails if the TextMate grammar drifts from either
 - Integration: `compiler-fixtures.test.ts` (167 `.gt` files from the `guidedtrack-web` compiler submodule — crash tests, false-positive detection, known failures tracked with `it.fails`)
 - Audit: `keyword-audit.test.ts` (compares our keyword spec against the `guidedtrack-web` compiler's canonical `keyword_definitions.rb`)
@@ -75,15 +82,16 @@ Both the CLI and VSCode extension consume the linter and formatter through the p
 
 ```
 types.ts          (no deps — shared types)
+line-endings.ts   (no deps — pure functions)
 language/         (no deps — pure data)
 lexer/            (no deps)
 parser/           (lexer)
-linter/           (parser, lexer, language, types)
+linter/           (parser, lexer, language, line-endings, types)
   └── rules/      (language, types)
   └── directives  (types)
-formatter/        (lexer, directives, types)
+formatter/        (lexer, directives, line-endings, types)
 config.ts         (types)
-cli.ts            (linter, formatter, config)
+cli.ts            (linter, formatter, config, line-endings)
 src/index.ts      (re-exports public API from all modules)
 
 vscode-extension/ (imports gtlint as library dependency)

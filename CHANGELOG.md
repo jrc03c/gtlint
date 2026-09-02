@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.17.0
+
+### Bug Fixes
+
+- Fix handling of files that use CRLF (`\r\n`) line endings, which GuidedTrack source pulled from guidedtrack.com uses. Most of the codebase split source on `'\n'`, leaving a stray `\r` on the end of every line. Because JavaScript's `.` does not match `\r` and `$` anchors past it, any `$`-anchored regex silently failed. Three consequences, all now fixed:
+  - **Every `--` directive was ignored.** `@gtlint-disable`, `@gtformat-disable`, `@from-parent`, `@from-child`, `@to-parent`, and `@to-child` all parsed as nothing in a CRLF file, producing false `no-undefined-vars` and `no-unused-vars` reports and making rule suppression a no-op
+  - **The formatter reformatted code inside `@gtformat-disable` regions**, since it asks the directive parser which lines are protected and got an empty answer
+  - **Trailing whitespace was never trimmed**, because `[ \t]+$` cannot match when the final character is `\r`
+- Lone-CR (classic Mac) line endings are now handled as well
+
+### Features
+
+- Add the `lineEndings` formatter setting and the `--line-endings` CLI flag, accepting `preserve` (default), `lf`, or `crlf`. The default preserves whatever endings a file already uses, so formatting a CRLF file no longer rewrites every line; pass `lf` or `crlf` to convert deliberately
+- Export `detectLineEnding`, `normalizeLineEndings`, `applyLineEnding`, and `resolveLineEnding` from the public API
+
 ## 0.16.0
 
 ### Bug Fixes

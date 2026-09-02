@@ -64,6 +64,16 @@ export { rules, getRule, getAllRules } from './linter/index.js';
 // Formatter exports
 export { Formatter, format } from './formatter/index.js';
 
+// Line ending helpers
+export {
+  detectLineEnding,
+  normalizeLineEndings,
+  applyLineEnding,
+  resolveLineEnding,
+  LINE_ENDING_MODES,
+} from './line-endings.js';
+export type { LineEnding, LineEndingMode } from './line-endings.js';
+
 // Types exports
 export type {
   LintMessage,

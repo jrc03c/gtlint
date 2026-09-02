@@ -259,4 +259,88 @@ describe('CLI', () => {
       expect(r.exitCode).toBe(0);
     });
   });
+
+  describe('Line endings', () => {
+    function withTempFile(contents: string, fn: (file: string, dir: string) => void) {
+      const dir = mkdtempSync(join(tmpdir(), 'gtlint-eol-'));
+      const file = join(dir, 'program.gt');
+      writeFileSync(file, contents, 'utf-8');
+      try {
+        fn(file, dir);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    }
+
+    const CRLF_SOURCE = '-- @from-parent: given\r\n*set: total = given + 1\r\n';
+
+    it('preserves CRLF endings by default', () => {
+      withTempFile(CRLF_SOURCE, (file) => {
+        const r = runCLI(['format', file]);
+        expect(r.exitCode).toBe(0);
+        expect(r.stdout).toContain('\r\n');
+      });
+    });
+
+    it('preserves CRLF endings when writing in place', () => {
+      withTempFile(CRLF_SOURCE, (file) => {
+        expect(runCLI(['format', '--write', file]).exitCode).toBe(0);
+        expect(readFileSync(file, 'utf-8')).toContain('\r\n');
+      });
+    });
+
+    it('does not report directive-suppressed variables in a CRLF file', () => {
+      withTempFile('-- @from-parent: given\r\nHello {given}\r\n', (file) => {
+        const r = runCLI(['lint', file]);
+        expect(r.stdout).not.toContain('no-undefined-vars');
+        expect(r.exitCode).toBe(0);
+      });
+    });
+
+    it('still reports genuinely undefined variables in a CRLF file', () => {
+      withTempFile('Hello {given}\r\n', (file) => {
+        const r = runCLI(['lint', file]);
+        expect(r.stdout).toContain('no-undefined-vars');
+        expect(r.exitCode).toBe(1);
+      });
+    });
+
+    it('--line-endings lf normalizes a CRLF file', () => {
+      withTempFile(CRLF_SOURCE, (file) => {
+        expect(runCLI(['format', '--write', '--line-endings', 'lf', file]).exitCode).toBe(0);
+        const out = readFileSync(file, 'utf-8');
+        expect(out).not.toContain('\r');
+        expect(out).toContain('\n');
+      });
+    });
+
+    it('--line-endings crlf converts an LF file', () => {
+      withTempFile('*set: total = 1\n', (file) => {
+        expect(runCLI(['format', '--write', '--line-endings', 'crlf', file]).exitCode).toBe(0);
+        expect(readFileSync(file, 'utf-8')).toBe('*set: total = 1\r\n');
+      });
+    });
+
+    it('rejects an invalid --line-endings value', () => {
+      withTempFile(CRLF_SOURCE, (file) => {
+        const r = runCLI(['format', '--line-endings', 'crfl', file]);
+        expect(r.exitCode).toBe(1);
+        expect(r.stderr).toContain('Invalid --line-endings value');
+      });
+    });
+
+    it('formatting a CRLF file twice is stable', () => {
+      withTempFile('-- @from-parent: given\r\n*set: total   =   given\r\nHello   \r\n', (file) => {
+        runCLI(['format', '--write', file]);
+        const once = readFileSync(file, 'utf-8');
+        runCLI(['format', '--write', file]);
+        expect(readFileSync(file, 'utf-8')).toBe(once);
+      });
+    });
+
+    it('--help documents --line-endings', () => {
+      expect(runCLI(['--help']).stdout).toContain('--line-endings');
+    });
+  });
+
 });

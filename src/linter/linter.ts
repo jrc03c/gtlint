@@ -5,6 +5,7 @@ import { tokenize } from '../lexer/index.js';
 import { parse } from '../parser/index.js';
 import { rules } from './rules/index.js';
 import { parseDirectives, isRuleDisabled, type DirectiveState } from './directives.js';
+import { normalizeLineEndings } from '../line-endings.js';
 
 interface LineRange {
   start: number;
@@ -147,6 +148,10 @@ export class Linter {
 
   lint(source: string, filePath: string = '<unknown>'): LintResult {
     this.messages = [];
+    // Every rule below works on lines split from this string; a stray `\r`
+    // from a CRLF file would break `$`-anchored matching. Normalizing only
+    // touches line terminators, so reported lines and columns are unaffected.
+    source = normalizeLineEndings(source);
     this.source = source;
 
     // Parse directives (disable comments, @from-parent, @from-child, @to-parent, @to-child)
