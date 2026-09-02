@@ -875,6 +875,55 @@ for (const keyword of CLASSES_KEYWORDS) {
 }
 
 // =============================================================================
+// Prose Arguments
+// =============================================================================
+
+/**
+ * Keywords whose inline argument GuidedTrack renders as formatted prose — the
+ * only places where an argument gets `*bold*` / `/italic/` / `_underline_`
+ * markup and `[text|url]` links.
+ *
+ * This is an allowlist rather than a denylist, and it is deliberately short.
+ * The interpreter only formats text that reaches `markup_to_dom` or
+ * `markup_to_html`; everything else is set with jQuery's `.text()`, which shows
+ * the markup characters to the participant literally. Grepping the interpreter
+ * for those two calls gives exactly this set:
+ *
+ *   - `*question:` — `nodes/question_node.js.coffee`
+ *   - `*maintain:` — `nodes/maintain_node.js.coffee`
+ *
+ * `*button:` and `*header:`, for instance, both use `.text()`, so a `/slash/`
+ * in a button label is just a slash.
+ *
+ * Plain text lines, answer options, and `*list` items are also formatted, but
+ * those are bare text rather than keyword arguments and are handled separately.
+ *
+ * An allowlist is the safe default here: treating an argument as prose when it
+ * is not means URLs, dates, and division get mangled into markup, which is the
+ * bug class this list exists to prevent.
+ */
+export const PROSE_ARGUMENT_KEYWORDS: ReadonlySet<string> = new Set(['question', 'maintain']);
+
+/**
+ * Sub-keywords whose value GuidedTrack renders as formatted prose.
+ *
+ * Only `*caption:` qualifies (`nodes/multimedia_nodes.js.coffee`). Note that
+ * `*tip:`, `*placeholder:`, `*before:`, `*after:`, and `*description:` all look
+ * like prose but are set with `.text()`, so they are not on this list.
+ */
+export const PROSE_SUB_KEYWORDS: ReadonlySet<string> = new Set(['caption']);
+
+/** Whether a keyword's inline argument is rendered as formatted prose. */
+export function keywordArgumentIsProse(keyword: string): boolean {
+  return PROSE_ARGUMENT_KEYWORDS.has(keyword.toLowerCase());
+}
+
+/** Whether a sub-keyword's value is rendered as formatted prose. */
+export function subKeywordValueIsProse(subKeyword: string): boolean {
+  return PROSE_SUB_KEYWORDS.has(subKeyword.toLowerCase());
+}
+
+// =============================================================================
 // Helper Functions
 // =============================================================================
 

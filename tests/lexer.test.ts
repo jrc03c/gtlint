@@ -202,6 +202,51 @@ describe('Lexer', () => {
     });
   });
 
+  describe('Text that looks like markup', () => {
+    const textValues = (code: string) =>
+      tokenize(code)
+        .filter((t) => t.type === TokenType.TEXT)
+        .map((t) => t.value);
+
+    it('should keep a URL in a keyword argument in one piece', () => {
+      expect(textValues('*button: [Go|https://example.com/a/b]')).toEqual([
+        '[Go|https://example.com/a/b]',
+      ]);
+    });
+
+    it('should keep a URL in plain text in one piece', () => {
+      expect(textValues('[Click here|https://example.com/foo] to learn more!')).toEqual([
+        '[Click here|https://example.com/foo] to learn more!',
+      ]);
+    });
+
+    it('should not split a division expression at the slashes', () => {
+      expect(textValues('*set: x = 10 / 2 / 5')).toEqual(['x = 10 / 2 / 5']);
+      expect(textValues('*if: a / b / c > 1')).toEqual(['a / b / c > 1']);
+    });
+
+    it('should not split a date at the slashes', () => {
+      expect(textValues('*button: Due 1/2/2026')).toEqual(['Due 1/2/2026']);
+    });
+
+    it('should scan a line of bold text as text rather than a keyword', () => {
+      const tokens = tokenize('*This is bold* and this is regular.');
+      expect(tokens[0].type).toBe(TokenType.TEXT);
+      expect(tokens[0].value).toBe('*This is bold* and this is regular.');
+    });
+
+    it('should scan a line starting with italics as one run of text', () => {
+      expect(textValues('/italic/ start')).toEqual(['/italic/ start']);
+    });
+
+    it('should still tokenize a keyword whose argument contains an asterisk', () => {
+      const tokens = tokenize('*button: 2 * 3 * 4');
+      expect(tokens[0].type).toBe(TokenType.KEYWORD);
+      expect(tokens[0].value).toBe('*button:');
+      expect(textValues('*button: 2 * 3 * 4')).toEqual(['2 * 3 * 4']);
+    });
+  });
+
   describe('Error handling', () => {
     it('should handle unclosed strings gracefully', () => {
       const tokens = tokenize('>> x = "unclosed');

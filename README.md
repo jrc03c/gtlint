@@ -40,6 +40,7 @@ GTLint's **linter** flags these things:
 - unclosed strings
 - unclosed brackets
 - stray colons in expressions (e.g., `*if: 0 < 1:`)
+- links that GuidedTrack renders as literal text (e.g., `[here|www.example.com]`, which needs an `http://` or `https://` URL, or a link in a `*button:` label, which is never formatted)
 - single quotes instead of double quotes around string literals
 - spaces instead of tabs for indentation
 - incorrect indentation levels
@@ -197,6 +198,7 @@ export default {
     purchaseSubkeywordConstraints: "error",
     requiredSubkeywords: "error",
     validKeyword: "error",
+    validLink: "warn",
     validSubKeyword: "error",
     validSubkeywordValue: "error",
   },

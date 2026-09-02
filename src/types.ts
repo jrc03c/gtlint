@@ -78,6 +78,7 @@ export const DEFAULT_LINTER_CONFIG: LinterConfig = {
     'no-unused-labels': 'warn',
     'no-empty-blocks': 'error',
     'no-stray-colon': 'error',
+    'valid-link': 'warn',
   },
   format: DEFAULT_FORMATTER_CONFIG,
   ignore: ['**/node_modules/**', '**/dist/**'],

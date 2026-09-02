@@ -19,6 +19,7 @@ import { noDuplicateLabels } from './no-duplicate-labels.js';
 import { noUnusedLabels } from './no-unused-labels.js';
 import { noEmptyBlocks } from './no-empty-blocks.js';
 import { noStrayColon } from './no-stray-colon.js';
+import { validLink } from './valid-link.js';
 
 export const rules: Record<string, LintRule> = {
   'no-undefined-vars': noUndefinedVars,
@@ -41,6 +42,7 @@ export const rules: Record<string, LintRule> = {
   'no-unused-labels': noUnusedLabels,
   'no-empty-blocks': noEmptyBlocks,
   'no-stray-colon': noStrayColon,
+  'valid-link': validLink,
 };
 
 export function getRule(name: string): LintRule | undefined {

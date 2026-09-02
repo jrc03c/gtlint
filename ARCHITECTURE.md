@@ -15,7 +15,7 @@ Both the CLI and VSCode extension consume the linter and formatter through the p
 - Entry point: `tokenize(source): Token[]`
 - Scans source character-by-character, emits INDENT/DEDENT tokens for indentation-based blocks
 - Keywords/sub-keywords defined as Sets in `tokens.ts`
-- Context-aware: disables `*bold*`/`/italic/` formatting in URL/path keyword contexts
+- Emits one TEXT token per run of text. Text markup (`*bold*`, `/italic/`, `_underline_`) is **not** tokenized — it is a rendering concern handled by `src/language/markup.ts`. The one place the lexer cares about a marker is telling `*This is bold*` apart from a `*keyword:` at the start of a line.
 
 ### `src/parser/` — AST builder
 - Entry point: `parse(tokens): Program`
@@ -37,8 +37,10 @@ Both the CLI and VSCode extension consume the linter and formatter through the p
 
 ### `src/language/` — Keyword specification
 - `keyword-spec.ts` defines `KEYWORD_SPECS`: argument requirements, body rules, valid sub-keywords, required sub-keywords, mutual exclusions, conditional requirements
-- Used by lint rules (`valid-keyword`, `valid-sub-keyword`, `required-subkeywords`, etc.) for validation
-- No runtime dependencies — pure data
+- `keyword-spec.ts` also defines `PROSE_ARGUMENT_KEYWORDS` / `PROSE_SUB_KEYWORDS` — the allowlist of arguments GuidedTrack renders as formatted text
+- `markup.ts` is the single source of truth for text markup and links: `findMarkupMatches` (a port of the interpreter's `TextScanner`), `findLinks`, `renderMarkupToHtml`, and the regex sources the TextMate grammar is built from
+- Used by lint rules (`valid-keyword`, `valid-sub-keyword`, `required-subkeywords`, `valid-link`, etc.) for validation
+- No runtime dependencies — pure data and pure functions
 
 ### `src/config.ts` — Configuration loader
 - `loadConfig(pathOrDir)` finds and loads `gtlint.config.js` / `gtlint.config.mjs`
@@ -63,7 +65,8 @@ Both the CLI and VSCode extension consume the linter and formatter through the p
 - `configuration.ts` — reads `gtlint.*` VSCode settings, merges with defaults (delegates to `config-utils.ts`)
 
 ### `tests/`
-- Unit tests: `lexer.test.ts`, `parser.test.ts`, `linter.test.ts`, `formatter.test.ts`, `directives.test.ts`, `vscode-config-utils.test.ts`
+- Unit tests: `lexer.test.ts`, `parser.test.ts`, `linter.test.ts`, `formatter.test.ts`, `directives.test.ts`, `markup.test.ts`, `vscode-config-utils.test.ts`
+- Conformance: `markup.test.ts` runs the interpreter's own `html_formatted_text_spec.coffee` cases against `renderMarkupToHtml`, checks the generated regexes agree with the scanner, and fails if the TextMate grammar drifts from either
 - Integration: `compiler-fixtures.test.ts` (167 `.gt` files from the `guidedtrack-web` compiler submodule — crash tests, false-positive detection, known failures tracked with `it.fails`)
 - Audit: `keyword-audit.test.ts` (compares our keyword spec against the `guidedtrack-web` compiler's canonical `keyword_definitions.rb`)
 - Framework: Vitest

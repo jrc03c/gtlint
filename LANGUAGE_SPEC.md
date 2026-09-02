@@ -18,10 +18,12 @@ GuidedTrack is a domain-specific language for creating interactive web applicati
 
 ### Comments
 
-Single-line comments start with `--`:
+Comments are **whole lines only**. The compiler strips lines matching `^(\t| )*--.*$`, so a `--` partway through a line is ordinary text rather than a comment:
 
 ```guidedtrack
 -- This is a comment
+
+Wait -- what? This whole line is displayed, dashes and all.
 ```
 
 ### Whitespace & Indentation
@@ -144,7 +146,7 @@ Hello, {name}! You are {age} years old.
 
 ### Text Formatting
 
-Visible text can be formatted with **bold** and *italic* markers:
+Visible text can be formatted with **bold**, *italic*, and underline markers:
 
 **Bold text**: `*text*`
 ```guidedtrack
@@ -158,23 +160,81 @@ Visible text can be formatted with **bold** and *italic* markers:
 How /old/ are you?
 ```
 
-**Context-aware formatting**: Formatting is only applied in visible text contexts. Keywords that accept URLs, paths, or technical values do NOT apply formatting:
-
+**Underlined text**: `_text_`
 ```guidedtrack
--- Formatting ALLOWED (visible text):
-*question: How /old/ are you? *Please* answer honestly!
-*button: Click /here/ to *continue*!
-*header: /Welcome/ to our *awesome* program!
-
--- Formatting NOT ALLOWED (URLs/paths/technical):
-*image: https://example.com/photo.jpg
-*audio: https://example.com/audio.mp3
-*video: https://youtube.com/watch?v=abc123
-*path: /api/v1/users/{id}/profile
-*goto: someLabel
+Please read this _carefully_ before continuing.
 ```
 
-Keywords with no formatting: `audio`, `video`, `image`, `path`, `goto`, `program`, `trigger`, `identifier`, `save`, `method`, `what`, `when`, `until`, `every`, `experiment`, `name`, `to`, `subject`, `type`, `data`, `xaxis`, `yaxis`, `icon`, `status`
+#### When a marker counts as markup
+
+A marker is only markup in the specific positions GuidedTrack looks for. The rules come from the interpreter's `TextScanner`:
+
+1. An **opening** marker must be at the start of the text or immediately after a space.
+2. A marker immediately **followed by a space** cancels the match.
+3. A **closing** marker must not be preceded by a space.
+4. Double quotes are **transparent** — they neither open nor close markup, and they do not count as spaces.
+
+These rules are what keep ordinary punctuation from turning into markup:
+
+```guidedtrack
+-- Markup:
+This is /italic/ and this is *bold*.
+*"Quoted and bold"* works too.
+
+-- NOT markup, because no marker follows a space:
+Visit https://example.com/foo for details.
+Your appointment is on 1/2/2026.
+The file is at C:/Users/me/notes.txt.
+
+-- NOT markup, because the marker is followed by a space:
+The answer is 10 / 2 / 5.
+Multiply 2 * 3 * 4.
+```
+
+#### Which text gets formatted
+
+Markup is applied only where GuidedTrack renders text as HTML. Everywhere else the marker characters are shown to the participant literally.
+
+**Formatted**: plain text lines, answer options, `*list` items, `*question:`, `*maintain:`, and `*caption:`.
+
+**Not formatted** (everything else, including several that look like prose): `*button:`, `*header:`, `*tip:`, `*before:`, `*after:`, `*placeholder:`, `*description:`.
+
+```guidedtrack
+-- The markers here are rendered as formatting:
+*question: How /old/ are you? *Please* answer honestly!
+*maintain: Your score is *{score}*.
+
+-- The markers here are shown to the participant as literal characters:
+*button: Click /here/ to *continue*!
+*header: /Welcome/ to our *awesome* program!
+```
+
+### Links
+
+**Explicit links**: `[text|url]`
+```guidedtrack
+Read [our privacy policy|https://example.com/privacy] before continuing.
+```
+
+**Bare URLs** are linked automatically when surrounded by whitespace:
+```guidedtrack
+Visit https://example.com to learn more.
+```
+
+The URL in an explicit link must begin with `http://` or `https://` and have a dotted host. GuidedTrack does not recognize anything else as a link, and shows the whole thing — brackets included — as literal text:
+
+```guidedtrack
+-- Works:
+[here|https://example.com/page]
+
+-- Rendered literally as "[here|www.example.com]":
+[here|www.example.com]
+[here|/relative/path]
+```
+
+Links are subject to the same context rule as markup: they are only turned into links in the formatted contexts listed above. A link in a `*button:` label is shown as literal text.
+
+The URL half of a link is never treated as markup, so slashes in it are just slashes.
 
 ### Identifiers
 

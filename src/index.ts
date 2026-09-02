@@ -4,8 +4,31 @@
 export { tokenize, Token, TokenType, KEYWORDS, SUB_KEYWORDS } from './lexer/index.js';
 
 // Language exports
-export { KEYWORD_SPECS, getKeywordSpec, getValidSubKeywords } from './language/index.js';
+export {
+  KEYWORD_SPECS,
+  getKeywordSpec,
+  getValidSubKeywords,
+  PROSE_ARGUMENT_KEYWORDS,
+  PROSE_SUB_KEYWORDS,
+  keywordArgumentIsProse,
+  subKeywordValueIsProse,
+} from './language/index.js';
 export type { KeywordSpec, SubKeywordSpec } from './language/index.js';
+
+// Text markup and links (`*bold*`, `/italic/`, `_underline_`, `[text|url]`)
+export {
+  MARKUP_TAGS,
+  MARKUP_CHARACTERS,
+  findMarkupMatches,
+  findAllMarkupMatches,
+  findLinks,
+  isLinkifiedUrl,
+  renderMarkupToHtml,
+  markupPatternFor,
+  EXPLICIT_LINK_PATTERN,
+  IMPLICIT_URL_PATTERN,
+} from './language/index.js';
+export type { MarkupMatch, LinkMatch } from './language/index.js';
 
 // Parser exports
 export { parse } from './parser/index.js';

@@ -151,8 +151,8 @@ export class Parser {
     if (this.check(TokenType.TEXT) || this.check(TokenType.INTERPOLATION_START)) {
       // For expression keywords, re-tokenize and parse as expression
       if (expressionKeywords.includes(keyword)) {
-        const textToken = this.advance();
-        argument = this.parseTextAsExpression(textToken.value, textToken, keyword);
+        const { text, token } = this.consumeExpressionText();
+        argument = this.parseTextAsExpression(text, token, keyword);
       } else {
         argument = this.parseTextContent();
       }
@@ -232,8 +232,8 @@ export class Parser {
     // Parse argument
     let argument: Expression | TextContent | null = null;
     if (isExpressionValue && (this.check(TokenType.TEXT) || this.check(TokenType.IDENTIFIER))) {
-      const textToken = this.advance();
-      argument = this.parseTextAsExpression(textToken.value, textToken);
+      const { text, token } = this.consumeExpressionText();
+      argument = this.parseTextAsExpression(text, token);
     } else if (this.check(TokenType.TEXT) || this.check(TokenType.INTERPOLATION_START) || this.check(TokenType.IDENTIFIER)) {
       argument = this.parseTextContent();
     }
@@ -731,6 +731,27 @@ export class Parser {
     }
 
     return loopVars;
+  }
+
+  /**
+   * Consume every consecutive TEXT/IDENTIFIER token making up a keyword
+   * argument and join them back into one string.
+   *
+   * The lexer normally hands back a single token per argument, but it is not
+   * required to, and taking only the first one silently truncated the
+   * expression when it did split — `*if: a / b / c > 1` became `*if: a`, which
+   * quietly changed the condition instead of reporting a problem. Joining here
+   * means a split can never lose part of an expression.
+   */
+  private consumeExpressionText(): { text: string; token: Token } {
+    const firstToken = this.advance();
+    let text = firstToken.value;
+
+    while (this.check(TokenType.TEXT) || this.check(TokenType.IDENTIFIER)) {
+      text += this.advance().value;
+    }
+
+    return { text, token: firstToken };
   }
 
   /**

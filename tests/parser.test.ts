@@ -291,6 +291,26 @@ describe('Parser', () => {
       expect(question.keyword).toBe('question');
     });
 
+    it('should keep the whole condition when it contains slashes', () => {
+      const tokens = tokenize('*if: a / b / c > 1\n\tYes');
+      const ast = parse(tokens);
+      const statement = ast.body[0] as any;
+
+      // The condition used to be truncated to `a`, silently changing it.
+      expect(statement.type).toBe('KeywordStatement');
+      expect(statement.argument.type).toBe('BinaryExpression');
+      expect(statement.argument.operator).toBe('>');
+      expect(statement.body).toHaveLength(1);
+    });
+
+    it('should keep the body of a conditional whose argument contains a URL', () => {
+      const tokens = tokenize('*if: url = "https://example.com/a"\n\tYes');
+      const ast = parse(tokens);
+      const statement = ast.body[0] as any;
+
+      expect(statement.body).toHaveLength(1);
+    });
+
     it('should parse conditional with else', () => {
       const code = `*if: x > 0
 \tPositive

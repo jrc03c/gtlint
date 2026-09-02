@@ -19,6 +19,11 @@ A linter and formatter for the [GuidedTrack](https://guidedtrack.com) language (
 
 - GuidedTrack has **no `*else:` keyword** — use multiple `*if:` statements instead
 - **No `true`/`false` literals** — use 1/0, `*set:`, or `"true".decode("JSON")`
+- **Text markup is a rendering concern, not a lexing one.** `*bold*`, `/italic/`, and `_underline_` are recognized only by `src/language/markup.ts` (a port of the interpreter's `TextScanner`) and by the TextMate grammar, whose regexes are generated from that module and checked by `tests/markup.test.ts`. The lexer deliberately does **not** split text on markers — doing so used to chop URLs, dates, and division expressions into fragments, and silently truncated `*if:` conditions.
+- **A marker is only markup after whitespace.** An opening `*`/`/`/`_` must follow a space or start the text, must not be followed by a space, and a closing marker must not follow a space. Double quotes are transparent. This is why `https://x.com/a/b`, `1/2/2026`, and `10 / 2 / 5` contain no markup.
+- **Only a few arguments are formatted.** GuidedTrack applies markup and links where the interpreter calls `markup_to_dom`/`markup_to_html`: plain text lines, answer options, `*list` items, `*question:`, `*maintain:`, and `*caption:`. Everything else — including `*button:`, `*header:`, and `*tip:` — is set with `.text()` and shows the markers literally. `PROSE_ARGUMENT_KEYWORDS` / `PROSE_SUB_KEYWORDS` in `keyword-spec.ts` hold this allowlist; it is an allowlist rather than a denylist so an unrecognized keyword never gets its URLs mangled.
+- **Links need a scheme.** `[text|url]` only becomes a link when the URL starts with `http://` or `https://` and has a dotted host; otherwise GuidedTrack shows the brackets verbatim. The `valid-link` rule flags both that and links written in unformatted contexts.
+- **Comments are whole lines only.** The compiler strips `^(\t| )*--.*$`, so a `--` partway through a line is ordinary text.
 - **Config file convention**: Rule names in config files use camelCase (e.g., `noUnusedVars`); internally and in inline directives they use kebab-case (e.g., `no-unused-vars`). `src/config.ts` normalizes at the config-loading boundary. Both are accepted.
 
 ## Guidelines

@@ -9,6 +9,7 @@ export default {
     noUndefinedVars: 'error',
     noUnusedVars: 'warn',
     validKeyword: 'error',
+    validLink: 'warn',
     validSubKeyword: 'error',
     noInvalidGoto: 'error',
     indentStyle: 'error',

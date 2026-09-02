@@ -3,42 +3,79 @@
   "name": "GuidedTrack",
   "scopeName": "source.guidedtrack",
   "patterns": [
-    { "include": "#comments" },
-    { "include": "#expression-keywords" },
-    { "include": "#html-block" },
-    { "include": "#keywords-no-formatting" },
-    { "include": "#keywords" },
-    { "include": "#sub-keywords-no-formatting" },
-    { "include": "#sub-keywords" },
-    { "include": "#expression-line" },
-    { "include": "#label-definition" },
-    { "include": "#strings" },
-    { "include": "#bold-text" },
-    { "include": "#italic-text" },
-    { "include": "#answer-options" },
-    { "include": "#text-interpolation" }
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#html-block"
+    },
+    {
+      "include": "#expression-keywords"
+    },
+    {
+      "include": "#label-definition"
+    },
+    {
+      "include": "#prose-keywords"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#prose-sub-keywords"
+    },
+    {
+      "include": "#sub-keywords"
+    },
+    {
+      "include": "#expression-line"
+    },
+    {
+      "include": "#answer-options"
+    },
+    {
+      "include": "#prose"
+    }
   ],
   "repository": {
     "comments": {
       "name": "comment.line.double-dash.guidedtrack",
-      "match": "--.*$"
+      "match": "^(\\t| )*--.*$"
     },
     "expression-keywords": {
       "patterns": [
         {
-          "match": "^(\\t*)(\\*)(if|while|for|repeat|goto|return):\\s*(.*)$",
+          "match": "^(\\t*)(\\*)(if|while|for|repeat|goto|return|set):\\s*(.*)$",
           "captures": {
-            "1": { "name": "punctuation.whitespace.guidedtrack" },
-            "2": { "name": "punctuation.definition.keyword.guidedtrack" },
-            "3": { "name": "keyword.control.guidedtrack" },
+            "1": {
+              "name": "punctuation.whitespace.guidedtrack"
+            },
+            "2": {
+              "name": "punctuation.definition.keyword.guidedtrack"
+            },
+            "3": {
+              "name": "keyword.control.guidedtrack"
+            },
             "4": {
               "patterns": [
-                { "include": "#comments" },
-                { "include": "#strings" },
-                { "include": "#numbers" },
-                { "include": "#operators" },
-                { "include": "#built-in-functions" },
-                { "include": "#identifiers" }
+                {
+                  "include": "#comments"
+                },
+                {
+                  "include": "#strings"
+                },
+                {
+                  "include": "#numbers"
+                },
+                {
+                  "include": "#operators"
+                },
+                {
+                  "include": "#built-in-functions"
+                },
+                {
+                  "include": "#identifiers"
+                }
               ]
             }
           }
@@ -49,95 +86,252 @@
       "begin": "^(\\t*)(\\*)(html)\\s*$",
       "end": "^(?!$)(?!\\1\\t)",
       "beginCaptures": {
-        "2": { "name": "punctuation.definition.keyword.guidedtrack" },
-        "3": { "name": "keyword.control.guidedtrack" }
+        "2": {
+          "name": "punctuation.definition.keyword.guidedtrack"
+        },
+        "3": {
+          "name": "keyword.control.guidedtrack"
+        }
       },
       "contentName": "meta.embedded.block.html",
       "patterns": [
-        { "include": "text.html.basic" }
-      ]
-    },
-    "keywords-no-formatting": {
-      "patterns": [
         {
-          "match": "^(\\t*)(\\*)(audio|video|image|goto|program|trigger):\\s*(.*)$",
-          "captures": {
-            "1": { "name": "punctuation.whitespace.guidedtrack" },
-            "2": { "name": "punctuation.definition.keyword.guidedtrack" },
-            "3": { "name": "keyword.control.guidedtrack" },
-            "4": {
-              "patterns": [
-                { "include": "#text-interpolation" }
-              ]
-            }
-          }
+          "include": "text.html.basic"
         }
       ]
     },
-    "keywords": {
-      "match": "^(\\t*)(\\*)(audio|button|chart|clear|component|database|email|events|experiment|for|goto|group|header|html|if|image|label|list|login|maintain|navigation|page|points|program|progress|purchase|question|quit|randomize|repeat|return|service|set|settings|share|summary|switch|trigger|video|wait|while)\\b",
+    "label-definition": {
+      "match": "^(\\t*)(\\*label):\\s*(.+)$",
       "captures": {
-        "1": { "name": "punctuation.whitespace.guidedtrack" },
-        "2": { "name": "punctuation.definition.keyword.guidedtrack" },
-        "3": { "name": "keyword.control.guidedtrack" }
+        "1": {
+          "name": "punctuation.whitespace.guidedtrack"
+        },
+        "2": {
+          "name": "keyword.control.label.guidedtrack"
+        },
+        "3": {
+          "name": "entity.name.label.guidedtrack"
+        }
       }
     },
-    "sub-keywords-no-formatting": {
-      "patterns": [
-        {
-          "match": "^(\\t+)(\\*)(path|save|method|what|when|until|every|identifier|name|to|subject|type|data|xaxis|yaxis|icon|status):\\s*(.*)$",
-          "captures": {
-            "1": { "name": "punctuation.whitespace.guidedtrack" },
-            "2": { "name": "punctuation.definition.keyword.guidedtrack" },
-            "3": { "name": "keyword.other.sub-keyword.guidedtrack" },
-            "4": {
-              "patterns": [
-                { "include": "#text-interpolation" }
-              ]
+    "prose-keywords": {
+      "match": "^(\\t*)(\\*)(question|maintain)(:)?[ \\t]*(.*)$",
+      "captures": {
+        "1": {
+          "name": "punctuation.whitespace.guidedtrack"
+        },
+        "2": {
+          "name": "punctuation.definition.keyword.guidedtrack"
+        },
+        "3": {
+          "name": "keyword.control.guidedtrack"
+        },
+        "4": {
+          "name": "punctuation.separator.key-value.guidedtrack"
+        },
+        "5": {
+          "patterns": [
+            {
+              "include": "#prose"
             }
-          }
+          ]
         }
-      ]
+      }
+    },
+    "keywords": {
+      "match": "^(\\t*)(\\*)(audio|button|chart|clear|component|database|email|events|experiment|for|goto|group|header|html|if|image|label|list|login|maintain|navigation|page|points|program|progress|purchase|question|quit|randomize|repeat|return|service|set|settings|share|summary|switch|trigger|video|wait|while)(:)?[ \\t]*(.*)$",
+      "captures": {
+        "1": {
+          "name": "punctuation.whitespace.guidedtrack"
+        },
+        "2": {
+          "name": "punctuation.definition.keyword.guidedtrack"
+        },
+        "3": {
+          "name": "keyword.control.guidedtrack"
+        },
+        "4": {
+          "name": "punctuation.separator.key-value.guidedtrack"
+        },
+        "5": {
+          "patterns": [
+            {
+              "include": "#text-interpolation"
+            }
+          ]
+        }
+      }
+    },
+    "prose-sub-keywords": {
+      "match": "^(\\t+)(\\*)(caption)(:)?[ \\t]*(.*)$",
+      "captures": {
+        "1": {
+          "name": "punctuation.whitespace.guidedtrack"
+        },
+        "2": {
+          "name": "punctuation.definition.keyword.guidedtrack"
+        },
+        "3": {
+          "name": "keyword.other.sub-keyword.guidedtrack"
+        },
+        "4": {
+          "name": "punctuation.separator.key-value.guidedtrack"
+        },
+        "5": {
+          "patterns": [
+            {
+              "include": "#prose"
+            }
+          ]
+        }
+      }
     },
     "sub-keywords": {
-      "match": "^(\\t+)(\\*)(after|answers|before|blank|body|cancel|caption|classes|click|confirm|countdown|data|date|default|description|error|every|everytime|frequency|hide|icon|identifier|management|max|method|min|multiple|name|other|path|placeholder|required|reset|save|searchable|send|shuffle|start|startup|status|subject|success|tags|throwaway|time|tip|to|trendline|type|until|what|when|with|xaxis|yaxis)\\b",
+      "match": "^(\\t+)(\\*)(after|answers|before|blank|body|cancel|caption|classes|click|confirm|countdown|data|date|default|description|error|every|everytime|frequency|hide|icon|identifier|management|max|method|min|multiple|name|other|path|placeholder|required|reset|save|searchable|send|shuffle|start|startup|status|subject|success|tags|throwaway|time|tip|to|trendline|type|until|what|when|with|xaxis|yaxis)(:)?[ \\t]*(.*)$",
       "captures": {
-        "1": { "name": "punctuation.whitespace.guidedtrack" },
-        "2": { "name": "punctuation.definition.keyword.guidedtrack" },
-        "3": { "name": "keyword.other.sub-keyword.guidedtrack" }
+        "1": {
+          "name": "punctuation.whitespace.guidedtrack"
+        },
+        "2": {
+          "name": "punctuation.definition.keyword.guidedtrack"
+        },
+        "3": {
+          "name": "keyword.other.sub-keyword.guidedtrack"
+        },
+        "4": {
+          "name": "punctuation.separator.key-value.guidedtrack"
+        },
+        "5": {
+          "patterns": [
+            {
+              "include": "#text-interpolation"
+            }
+          ]
+        }
       }
     },
     "expression-line": {
       "begin": "^(\\t*)(>>)",
       "end": "$",
       "beginCaptures": {
-        "1": { "name": "punctuation.whitespace.guidedtrack" },
-        "2": { "name": "keyword.operator.expression-start.guidedtrack" }
+        "1": {
+          "name": "punctuation.whitespace.guidedtrack"
+        },
+        "2": {
+          "name": "keyword.operator.expression-start.guidedtrack"
+        }
       },
       "patterns": [
-        { "include": "#comments" },
-        { "include": "#strings" },
-        { "include": "#numbers" },
-        { "include": "#operators" },
-        { "include": "#built-in-functions" },
-        { "include": "#identifiers" }
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#strings"
+        },
+        {
+          "include": "#numbers"
+        },
+        {
+          "include": "#operators"
+        },
+        {
+          "include": "#built-in-functions"
+        },
+        {
+          "include": "#identifiers"
+        }
       ]
-    },
-    "label-definition": {
-      "match": "^(\\t*)(\\*label):\\s*(.+)$",
-      "captures": {
-        "1": { "name": "punctuation.whitespace.guidedtrack" },
-        "2": { "name": "keyword.control.label.guidedtrack" },
-        "3": { "name": "entity.name.label.guidedtrack" }
-      }
     },
     "answer-options": {
       "match": "^(\\t+)(\\*)(?![a-zA-Z])(.*)$",
       "captures": {
-        "1": { "name": "punctuation.whitespace.guidedtrack" },
-        "2": { "name": "punctuation.definition.answer.guidedtrack" },
-        "3": { "name": "string.unquoted.answer-option.guidedtrack" }
+        "1": {
+          "name": "punctuation.whitespace.guidedtrack"
+        },
+        "2": {
+          "name": "punctuation.definition.answer.guidedtrack"
+        },
+        "3": {
+          "name": "string.unquoted.answer-option.guidedtrack",
+          "patterns": [
+            {
+              "include": "#prose"
+            }
+          ]
+        }
       }
+    },
+    "prose": {
+      "patterns": [
+        {
+          "include": "#explicit-link"
+        },
+        {
+          "include": "#implicit-link"
+        },
+        {
+          "include": "#bold-text"
+        },
+        {
+          "include": "#italic-text"
+        },
+        {
+          "include": "#underline-text"
+        },
+        {
+          "include": "#text-interpolation"
+        }
+      ]
+    },
+    "explicit-link": {
+      "match": "(\\[)([^|\\]]+)(\\|)(https?://[\\w\\-.]+\\.[a-zA-Z]{2,}[^\\]]*)(\\])",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.link.begin.guidedtrack"
+        },
+        "2": {
+          "name": "string.other.link.title.guidedtrack",
+          "patterns": [
+            {
+              "include": "#bold-text"
+            },
+            {
+              "include": "#italic-text"
+            },
+            {
+              "include": "#underline-text"
+            },
+            {
+              "include": "#text-interpolation"
+            }
+          ]
+        },
+        "3": {
+          "name": "punctuation.separator.link.guidedtrack"
+        },
+        "4": {
+          "name": "markup.underline.link.guidedtrack"
+        },
+        "5": {
+          "name": "punctuation.definition.link.end.guidedtrack"
+        }
+      }
+    },
+    "implicit-link": {
+      "name": "markup.underline.link.guidedtrack",
+      "match": "(?<![^\\s])https?://[\\w\\-.]+\\.[a-zA-Z]{2,}(?:[^\\s\\]]*)"
+    },
+    "bold-text": {
+      "name": "markup.bold.guidedtrack",
+      "match": "(?<![^\\s\"])\\*(?!\\s)(?:[^\\*\\n]*[^\\s\\*])?\\*"
+    },
+    "italic-text": {
+      "name": "markup.italic.guidedtrack",
+      "match": "(?<![^\\s\"])/(?!\\s)(?:[^/\\n]*[^\\s/])?/"
+    },
+    "underline-text": {
+      "name": "markup.underline.guidedtrack",
+      "match": "(?<![^\\s\"])_(?!\\s)(?:[^_\\n]*[^\\s_])?_"
     },
     "strings": {
       "patterns": [
@@ -146,39 +340,37 @@
           "begin": "\"",
           "end": "\"",
           "patterns": [
-            { "include": "#string-interpolation" }
+            {
+              "include": "#string-interpolation"
+            }
           ]
         }
       ]
-    },
-    "bold-text": {
-      "name": "markup.bold.guidedtrack",
-      "match": "\\*[^*:]+\\*",
-      "captures": {
-        "0": { "name": "markup.bold.guidedtrack" }
-      }
-    },
-    "italic-text": {
-      "name": "markup.italic.guidedtrack",
-      "match": "/[^/]+/",
-      "captures": {
-        "0": { "name": "markup.italic.guidedtrack" }
-      }
     },
     "string-interpolation": {
       "name": "meta.embedded.expression.guidedtrack",
       "begin": "\\{",
       "end": "\\}",
       "beginCaptures": {
-        "0": { "name": "punctuation.definition.interpolation.begin.guidedtrack" }
+        "0": {
+          "name": "punctuation.definition.interpolation.begin.guidedtrack"
+        }
       },
       "endCaptures": {
-        "0": { "name": "punctuation.definition.interpolation.end.guidedtrack" }
+        "0": {
+          "name": "punctuation.definition.interpolation.end.guidedtrack"
+        }
       },
       "patterns": [
-        { "include": "#identifiers" },
-        { "include": "#numbers" },
-        { "include": "#operators" }
+        {
+          "include": "#identifiers"
+        },
+        {
+          "include": "#numbers"
+        },
+        {
+          "include": "#operators"
+        }
       ]
     },
     "text-interpolation": {
@@ -186,15 +378,25 @@
       "begin": "\\{",
       "end": "\\}",
       "beginCaptures": {
-        "0": { "name": "punctuation.definition.interpolation.begin.guidedtrack" }
+        "0": {
+          "name": "punctuation.definition.interpolation.begin.guidedtrack"
+        }
       },
       "endCaptures": {
-        "0": { "name": "punctuation.definition.interpolation.end.guidedtrack" }
+        "0": {
+          "name": "punctuation.definition.interpolation.end.guidedtrack"
+        }
       },
       "patterns": [
-        { "include": "#identifiers" },
-        { "include": "#numbers" },
-        { "include": "#operators" }
+        {
+          "include": "#identifiers"
+        },
+        {
+          "include": "#numbers"
+        },
+        {
+          "include": "#operators"
+        }
       ]
     },
     "numbers": {

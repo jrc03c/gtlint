@@ -6,3 +6,4 @@
  */
 
 export * from './keyword-spec.js';
+export * from './markup.js';
